@@ -6,14 +6,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, ChangeEvent } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { TagIcon, CheckCircleIcon, PhotoIcon } from '@heroicons/react/24/outline';
-import { getCategory, partialUpdateCategory, CategoryDTO } from '@/services/categories';
+import Image from 'next/image';
+import { getCategory, partialUpdateCategory } from '@/services/categories';
+
+type FormData = {
+  name: string;
+  status: 'Active' | 'Inactive';
+};
 
 export default function EditCategoryPage() {
   const params = useParams();
   const router = useRouter();
   const categoryId = Number(params.id);
 
-  const [formData, setFormData] = useState<{ name: string; status: string }>({ name: '', status: 'Active' });
+  const [formData, setFormData] = useState<FormData>({ name: '', status: 'Active' });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [existingImage, setExistingImage] = useState<string>('');
   const [errors, setErrors] = useState<{ name?: string; server?: string }>({});
@@ -25,11 +31,12 @@ export default function EditCategoryPage() {
     const fetchCategory = async () => {
       try {
         const data = await getCategory(categoryId);
-        setFormData({ name: data.name, status: data.status });
+        setFormData({ name: data.name, status: data.status as 'Active' | 'Inactive' });
         setExistingImage(data.image);
-      } catch (error: any) {
-        console.error('Error fetching category:', error);
-        setErrors({ server: error.message || 'Failed to load category.' });
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error('Error fetching category:', message);
+        setErrors({ server: message || 'Failed to load category.' });
         setTimeout(() => router.push('/categories'), 2000);
       }
     };
@@ -61,9 +68,10 @@ export default function EditCategoryPage() {
         setShowSuccess(false);
         router.push('/categories');
       }, 2000);
-    } catch (error: any) {
-      console.error('Error updating category:', error);
-      setErrors({ server: error.message || 'Failed to update category.' });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Error updating category:', message);
+      setErrors({ server: message || 'Failed to update category.' });
     } finally {
       setIsSubmitting(false);
     }
@@ -76,9 +84,7 @@ export default function EditCategoryPage() {
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-    }
+    if (file) setImageFile(file);
   };
 
   const fieldVariants = {
@@ -110,6 +116,7 @@ export default function EditCategoryPage() {
               transition={{ duration: 0.3 }}
             >
               <form onSubmit={handleSubmit}>
+                {/* Name */}
                 <motion.div custom={0} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
                   <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                     <TagIcon className="w-5 h-5 mr-2 text-blue-600" />
@@ -127,6 +134,7 @@ export default function EditCategoryPage() {
                   {errors.name && <p className="mt-2 text-sm text-red-600">{errors.name}</p>}
                 </motion.div>
 
+                {/* Status */}
                 <motion.div custom={1} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
                   <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                     <CheckCircleIcon className="w-5 h-5 mr-2 text-blue-600" />
@@ -144,17 +152,27 @@ export default function EditCategoryPage() {
                   </select>
                 </motion.div>
 
+                {/* Image */}
                 <motion.div custom={2} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
                   <label className="flex items-center text-black text-sm font-medium mb-2">
                     <PhotoIcon className="w-5 h-5 mr-2 text-blue-600" />
                     Category Image (optional)
                   </label>
                   {existingImage && (
-                    <img src={existingImage} alt="Current category" className="text-black w-24 h-24 rounded mb-4 object-cover" />
+                    <div className="relative w-24 h-24 mb-4">
+                      <Image
+                        src={existingImage}
+                        alt="Current category"
+                        fill
+                        className="rounded object-cover"
+                        sizes="96px"
+                      />
+                    </div>
                   )}
                   <input type="file" accept="image/*" onChange={handleImageChange} disabled={isSubmitting} />
                 </motion.div>
 
+                {/* Buttons */}
                 <div className="flex justify-end gap-4">
                   <motion.button
                     whileHover={{ scale: 1.05 }}

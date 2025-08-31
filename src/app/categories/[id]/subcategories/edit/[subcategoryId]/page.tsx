@@ -6,7 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { TagIcon, PhotoIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
-import { getSubCategory, partialUpdateSubCategory, SubCategoryDTO } from '@/services/subCategories';
+import Image from 'next/image';
+import { getSubCategory, partialUpdateSubCategory } from '@/services/subCategories';
 
 interface FormData {
   name: string;
@@ -190,14 +191,11 @@ export default function EditSubcategoryPage() {
                     Image
                   </label>
                   
+                  {/* Current image */}
                   {currentImage && !previewUrl && (
-                    <div className="mb-4">
+                    <div className="mb-4 relative w-32 h-32 rounded-lg overflow-hidden shadow-sm">
                       <p className="text-sm text-gray-600 mb-2">Current image:</p>
-                      <img
-                        src={currentImage}
-                        alt="Current"
-                        className="w-32 h-32 object-cover rounded-lg shadow-sm"
-                      />
+                      <Image src={currentImage} alt="Current" fill className="object-cover" />
                     </div>
                   )}
                   
@@ -211,14 +209,11 @@ export default function EditSubcategoryPage() {
                     disabled={isSubmitting}
                   />
                   
+                  {/* Preview image */}
                   {previewUrl && (
-                    <div className="mt-4">
+                    <div className="mt-4 relative w-32 h-32 rounded-lg overflow-hidden shadow-sm">
                       <p className="text-sm text-gray-600 mb-2">New image preview:</p>
-                      <img
-                        src={previewUrl}
-                        alt="Preview"
-                        className="w-32 h-32 object-cover rounded-lg shadow-sm"
-                      />
+                      <Image src={previewUrl} alt="Preview" fill className="object-cover" />
                     </div>
                   )}
                   

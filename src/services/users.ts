@@ -8,7 +8,8 @@ export interface UserDTO {
 }
 
 export async function listUsers(): Promise<UserDTO[]> {
-  return fetchWithAuth<UserDTO[]>('/api/users/');
+  const data = await fetchWithAuth<UserDTO[]>('/api/users/');
+  return data ?? [];
 }
 
 export async function createUser(body: {
@@ -17,32 +18,40 @@ export async function createUser(body: {
   password: string;
   status: 'active' | 'blocked';
 }): Promise<UserDTO> {
-  return fetchWithAuth<UserDTO>('/api/users/', {
+  const data = await fetchWithAuth<UserDTO>('/api/users/', {
     method: 'POST',
     body: JSON.stringify(body),
   });
+  if (!data) throw new Error('Failed to create user');
+  return data;
 }
 
 export async function getUser(id: number): Promise<UserDTO> {
-  return fetchWithAuth<UserDTO>(`/api/users/${id}`);
+  const data = await fetchWithAuth<UserDTO>(`/api/users/${id}`);
+  if (!data) throw new Error(`User with id ${id} not found`);
+  return data;
 }
 
 export async function updateUser(
   id: number,
   body: Partial<Omit<UserDTO, 'id'>>,
 ): Promise<UserDTO> {
-  return fetchWithAuth<UserDTO>(`/api/users/${id}`, {
+  const data = await fetchWithAuth<UserDTO>(`/api/users/${id}`, {
     method: 'PUT',
     body: JSON.stringify(body),
   });
+  if (!data) throw new Error(`Failed to update user with id ${id}`);
+  return data;
 }
 
 export async function deleteUser(id: number): Promise<void> {
-  return fetchWithAuth<void>(`/api/users/${id}`, { method: 'DELETE' });
+  await fetchWithAuth<void>(`/api/users/${id}`, { method: 'DELETE' });
 }
 
 export async function toggleUserStatus(id: number): Promise<UserDTO> {
-  return fetchWithAuth<UserDTO>(`/api/users/${id}/toggle-status`, {
+  const data = await fetchWithAuth<UserDTO>(`/api/users/${id}/toggle-status`, {
     method: 'POST',
   });
+  if (!data) throw new Error(`Failed to toggle status for user with id ${id}`);
+  return data;
 }

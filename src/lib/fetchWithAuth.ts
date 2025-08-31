@@ -6,7 +6,7 @@ import { getToken } from './auth';
 export async function fetchWithAuth<T>(
   path: string,
   options: RequestInit = {}
-): Promise<T> {
+): Promise<T | null> {
   const token = getToken();
   console.log('Token:', token);
   console.log('Request URL:', `${API_BASE_URL}${path}`);
@@ -16,9 +16,8 @@ export async function fetchWithAuth<T>(
     ...(options.headers as Record<string, string>),
   };
 
-  // ✅ Type-safe check for FormData
+  // Type-safe check for FormData
   const body = options.body;
-
   if (body !== undefined && !(body instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
   }
@@ -33,7 +32,7 @@ export async function fetchWithAuth<T>(
       if (response.status === 401) {
         localStorage.removeItem('token');
         window.location.href = '/login';
-        return null as any;
+        return null;
       }
 
       const reason = await response.text();
@@ -44,12 +43,17 @@ export async function fetchWithAuth<T>(
     console.log('Fetch successful:', response.status);
 
     if (response.status === 204) {
-      return null as any;
+      return null;
     }
 
-    return response.json();
-  } catch (error) {
-    console.error('Fetch failed:', error);
-    throw error;
+    return (await response.json()) as T;
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error('Fetch failed:', err.message);
+      throw err;
+    } else {
+      console.error('Fetch failed:', err);
+      throw new Error('Unknown error occurred');
+    }
   }
 }

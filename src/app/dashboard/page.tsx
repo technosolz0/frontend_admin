@@ -456,12 +456,14 @@ export default function DashboardPage() {
   const recentBookings = mockBookings.slice(0, 5);
   const router = useRouter();
 
+ 
   useEffect(() => {
-    const token = getToken();
-    if (!token) {
-      router.replace('/login'); // redirect to login if not authenticated
-    }
-  }, []);
+  const token = getToken();
+  if (!token) {
+    router.replace('/login');
+  }
+}, [router]); // add router to dependency array
+
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">

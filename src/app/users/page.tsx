@@ -1,10 +1,9 @@
-// src\app\users\page.tsx (UsersPage.tsx, unchanged except for error handling)
 'use client';
+
 import {
   listUsers,
   deleteUser,
   toggleUserStatus,
-  UserDTO,
 } from '@/services/users';
 
 import Sidebar from '@/components/Sidebar';
@@ -32,10 +31,14 @@ export default function UsersPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const users = await listUsers();
-        setUsers(users);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch users.');
+        const usersList = await listUsers();
+        setUsers(usersList);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message || 'Failed to fetch users.');
+        } else {
+          setError('Failed to fetch users.');
+        }
         console.error('Fetch users error:', err);
       }
     };
@@ -43,39 +46,47 @@ export default function UsersPage() {
   }, []);
 
   const handleDelete = async (id: number) => {
-    if (confirm(`Are you sure you want to delete user with ID ${id}?`)) {
-      setIsDeleting(id);
-      try {
-        await deleteUser(id);
-        setUsers(users.filter((user) => user.id !== id));
-        setShowSuccess({ message: 'User deleted successfully!', id });
-        setTimeout(() => setShowSuccess(null), 2000);
-      } catch (error: any) {
-        console.error('Error deleting user:', error);
-        setError(error.message || 'Failed to delete user.');
-      } finally {
-        setIsDeleting(null);
+    if (!confirm(`Are you sure you want to delete user with ID ${id}?`)) return;
+
+    setIsDeleting(id);
+    try {
+      await deleteUser(id);
+      setUsers(users.filter((user) => user.id !== id));
+      setShowSuccess({ message: 'User deleted successfully!', id });
+      setTimeout(() => setShowSuccess(null), 2000);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to delete user.');
+      } else {
+        setError('Failed to delete user.');
       }
+      console.error('Error deleting user:', err);
+    } finally {
+      setIsDeleting(null);
     }
   };
 
   const handleToggleStatus = async (id: number) => {
-    if (confirm(`Are you sure you want to toggle status for user with ID ${id}?`)) {
-      setIsToggling(id);
-      try {
-        const updatedUser = await toggleUserStatus(id);
-        setUsers(users.map((user) => (user.id === id ? updatedUser : user)));
-        setShowSuccess({
-          message: `User ${updatedUser.status === 'active' ? 'activated' : 'blocked'} successfully!`,
-          id,
-        });
-        setTimeout(() => setShowSuccess(null), 2000);
-      } catch (error: any) {
-        console.error('Error toggling user status:', error);
-        setError(error.message || 'Failed to toggle user status.');
-      } finally {
-        setIsToggling(null);
+    if (!confirm(`Are you sure you want to toggle status for user with ID ${id}?`)) return;
+
+    setIsToggling(id);
+    try {
+      const updatedUser = await toggleUserStatus(id);
+      setUsers(users.map((user) => (user.id === id ? updatedUser : user)));
+      setShowSuccess({
+        message: `User ${updatedUser.status === 'active' ? 'activated' : 'blocked'} successfully!`,
+        id,
+      });
+      setTimeout(() => setShowSuccess(null), 2000);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to toggle user status.');
+      } else {
+        setError('Failed to toggle user status.');
       }
+      console.error('Error toggling user status:', err);
+    } finally {
+      setIsToggling(null);
     }
   };
 
@@ -102,9 +113,7 @@ export default function UsersPage() {
           <div className="max-w-7xl mx-auto">
             <h1 className="text-3xl font-bold text-gray-800 mb-6 sm:text-4xl">User Management</h1>
             {error && (
-              <div className="bg-red-100 text-red-800 p-4 rounded-lg mb-4">
-                {error}
-              </div>
+              <div className="bg-red-100 text-red-800 p-4 rounded-lg mb-4">{error}</div>
             )}
             <motion.div
               className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl overflow-hidden border border-blue-100"
@@ -171,7 +180,12 @@ export default function UsersPage() {
                           disabled={isDeleting === user.id || isToggling === user.id}
                         >
                           {isDeleting === user.id ? (
-                            <svg className="animate-spin h-5 w-5 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <svg
+                              className="animate-spin h-5 w-5 text-red-600"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
@@ -189,7 +203,12 @@ export default function UsersPage() {
                           disabled={isDeleting === user.id || isToggling === user.id}
                         >
                           {isToggling === user.id ? (
-                            <svg className="animate-spin h-5 w-5 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <svg
+                              className="animate-spin h-5 w-5 text-yellow-600"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>

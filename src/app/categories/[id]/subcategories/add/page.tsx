@@ -5,7 +5,8 @@ import Navbar from '@/components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { TagIcon, DocumentTextIcon, CheckCircleIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import { TagIcon, CheckCircleIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import Image from 'next/image';
 import { createSubCategory } from '@/services/subCategories';
 
 interface FormData {
@@ -46,17 +47,17 @@ export default function AddSubcategoryPage() {
       formDataToSend.append('name', formData.name.trim());
       formDataToSend.append('status', formData.status);
       formDataToSend.append('category_id', categoryId);
-      
+
       if (formData.image) {
         formDataToSend.append('image', formData.image);
       }
 
       await createSubCategory(formDataToSend);
-      
+
       setShowSuccess(true);
       setFormData({ name: '', status: 'Active', image: null });
       setPreviewUrl(null);
-      
+
       setTimeout(() => {
         setShowSuccess(false);
         router.push(`/categories/${categoryId}/subcategories`);
@@ -79,14 +80,14 @@ export default function AddSubcategoryPage() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setFormData(prev => ({ ...prev, image: file }));
-    
+
     if (file) {
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
     } else {
       setPreviewUrl(null);
     }
-    
+
     setErrors(prev => ({ ...prev, image: undefined }));
   };
 
@@ -119,6 +120,7 @@ export default function AddSubcategoryPage() {
               transition={{ duration: 0.3 }}
             >
               <form onSubmit={handleSubmit}>
+                {/* Name */}
                 <motion.div custom={0} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
                   <label htmlFor="name" className="flex items-center text-sm font-medium text-gray-700 mb-2">
                     <TagIcon className="w-5 h-5 mr-2 text-blue-600" />
@@ -137,6 +139,7 @@ export default function AddSubcategoryPage() {
                   {errors.name && <p className="mt-2 text-sm text-red-600">{errors.name}</p>}
                 </motion.div>
 
+                {/* Image */}
                 <motion.div custom={1} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
                   <label htmlFor="image" className="flex items-center text-sm font-medium text-gray-700 mb-2">
                     <PhotoIcon className="w-5 h-5 mr-2 text-blue-600" />
@@ -152,17 +155,14 @@ export default function AddSubcategoryPage() {
                     disabled={isSubmitting}
                   />
                   {previewUrl && (
-                    <div className="mt-4">
-                      <img
-                        src={previewUrl}
-                        alt="Preview"
-                        className="w-32 h-32 object-cover rounded-lg shadow-sm"
-                      />
+                    <div className="mt-4 relative w-32 h-32 rounded-lg overflow-hidden shadow-sm">
+                      <Image src={previewUrl} alt="Preview" fill className="object-cover" />
                     </div>
                   )}
                   {errors.image && <p className="mt-2 text-sm text-red-600">{errors.image}</p>}
                 </motion.div>
 
+                {/* Status */}
                 <motion.div custom={2} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
                   <label htmlFor="status" className="flex items-center text-sm font-medium text-gray-700 mb-2">
                     <CheckCircleIcon className="w-5 h-5 mr-2 text-blue-600" />
@@ -181,6 +181,7 @@ export default function AddSubcategoryPage() {
                   </select>
                 </motion.div>
 
+                {/* Buttons */}
                 <div className="flex justify-end gap-4">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
@@ -201,12 +202,21 @@ export default function AddSubcategoryPage() {
                     }`}
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? (
-                      <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    {isSubmitting && (
+                      <svg
+                        className="animate-spin h-5 w-5 mr-2 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
                       </svg>
-                    ) : null}
+                    )}
                     {isSubmitting ? 'Adding...' : 'Add Subcategory'}
                   </motion.button>
                 </div>

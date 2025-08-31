@@ -2,7 +2,11 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { login } from '@/lib/api' // or wherever you placed the login function
+import { login } from '@/lib/api' // adjust path if needed
+
+interface LoginResponse {
+  access_token: string
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -18,11 +22,15 @@ export default function LoginPage() {
 
     try {
       setLoading(true)
-      const data = await login(email, password)
+      const data: LoginResponse = await login(email, password)
       localStorage.setItem('token', data.access_token)
       router.push('/dashboard')
-    } catch (err: any) {
-      alert(err.message || 'Login failed')
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(err.message)
+      } else {
+        alert('Login failed')
+      }
     } finally {
       setLoading(false)
     }
@@ -32,13 +40,15 @@ export default function LoginPage() {
     <div className="flex items-center justify-center h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-lg w-96">
         <h2 className="text-2xl font-bold mb-6 text-black">Admin Login</h2>
-        <input className="border p-2 w-full mb-4 text-black"
+        <input
+          className="border p-2 w-full mb-4 text-black"
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <input className="border p-2 w-full mb-4 text-black"
+        <input
+          className="border p-2 w-full mb-4 text-black"
           type="password"
           placeholder="Password"
           value={password}

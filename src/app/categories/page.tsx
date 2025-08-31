@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { PencilIcon, TrashIcon, CheckCircleIcon, NoSymbolIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import {
   CategoryDTO,
   listCategories,
@@ -26,9 +27,10 @@ export default function CategoriesPage() {
       try {
         const data = await listCategories();
         setCategories(data);
-      } catch (error: any) {
-        console.error('Error fetching categories:', error);
-        setError(error.message || 'Failed to fetch categories.');
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error('Error fetching categories:', message);
+        setError(message || 'Failed to fetch categories.');
       }
     };
     fetchCategories();
@@ -42,9 +44,10 @@ export default function CategoriesPage() {
         setCategories(categories.filter((category) => category.id !== id));
         setShowSuccess({ message: 'Category deleted successfully!', id });
         setTimeout(() => setShowSuccess(null), 2000);
-      } catch (error: any) {
-        console.error('Error deleting category:', error);
-        setError(error.message || 'Failed to delete category.');
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error('Error deleting category:', message);
+        setError(message || 'Failed to delete category.');
       } finally {
         setIsDeleting(null);
       }
@@ -62,9 +65,10 @@ export default function CategoriesPage() {
           id,
         });
         setTimeout(() => setShowSuccess(null), 2000);
-      } catch (error: any) {
-        console.error('Error toggling category status:', error);
-        setError(error.message || 'Failed to toggle category status.');
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error('Error toggling category status:', message);
+        setError(message || 'Failed to toggle category status.');
       } finally {
         setIsToggling(null);
       }
@@ -142,11 +146,17 @@ export default function CategoriesPage() {
                         </button>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <img
-                          src={category.image}
-                          alt={category.name}
-                          className="w-16 h-16 rounded object-cover"
-                        />
+                        {category.image && (
+                          <div className="relative w-16 h-16 rounded overflow-hidden">
+                            <Image
+                              src={category.image}
+                              alt={category.name}
+                              fill
+                              className="object-cover"
+                              sizes="64px"
+                            />
+                          </div>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
