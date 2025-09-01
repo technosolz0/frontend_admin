@@ -40,21 +40,27 @@ export default function LoginPage() {
     <div className="flex items-center justify-center h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-lg w-96">
         <h2 className="text-2xl font-bold mb-6 text-black">Admin Login</h2>
+        
         <input
+          suppressHydrationWarning
           className="border p-2 w-full mb-4 text-black"
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
+
         <input
+          suppressHydrationWarning
           className="border p-2 w-full mb-4 text-black"
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+
         <button
+          suppressHydrationWarning
           onClick={handleLogin}
           disabled={loading}
           className="bg-blue-600 text-white py-2 px-4 rounded w-full"
