@@ -42,6 +42,7 @@ export default function LoginPage() {
         <h2 className="text-2xl font-bold mb-6 text-black">Admin Loginsssssss</h2>
         <h2 className="text-2xl font-bold mb-6 text-black">change mac wdwd</h2>
         <h1>Welcome to My App 🚀 (Auto Deploy Test)</h1>
+        <h1>Welcome to My App 🚀 (Auto Deploy Test)566666666</h1>
 
         
         <input
