@@ -3,17 +3,18 @@
 import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { TagIcon, CheckCircleIcon, CubeIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 
+// Define interfaces for type safety
 interface FormData {
   name: string;
   categoryId: string;
   subcategoryId: string;
-  serviceId: string;
-  contactInfo: string;
-  status: string;
+  serviceId: string; // Maps to subcategoryId
+  contactInfo: string; // Maps to email or phone
+  status: 'Active' | 'Inactive';
 }
 
 interface Category {
@@ -27,73 +28,131 @@ interface Subcategory {
   categoryId: string;
 }
 
-interface Service {
+interface ServiceProvider {
   id: string;
   name: string;
+  categoryId: string;
+  categoryName: string;
   subcategoryId: string;
+  subcategoryName: string;
+  serviceId: string;
+  serviceName: string;
+  contactInfo: string;
+  status: 'Active' | 'Inactive';
 }
 
-const mockCategories: Category[] = [
-  { id: '1', name: 'Electronics' },
-  { id: '2', name: 'Clothing' },
-  { id: '3', name: 'Books' },
-];
-
-const mockSubcategories: Subcategory[] = [
-  { id: '1', name: 'Smartphones', categoryId: '1' },
-  { id: '2', name: 'Laptops', categoryId: '1' },
-  { id: '3', name: 'T-Shirts', categoryId: '2' },
-  { id: '4', name: 'Jeans', categoryId: '2' },
-  { id: '5', name: 'Fiction', categoryId: '3' },
-];
-
-const mockServices: Service[] = [
-  { id: '1', name: 'Phone Repair', subcategoryId: '1' },
-  { id: '2', name: 'Laptop Upgrade', subcategoryId: '2' },
-  { id: '3', name: 'T-Shirt Customization', subcategoryId: '3' },
-];
-
-const mockServiceProviders: FormData[] = [
-  {
-    name: 'TechFix Ltd',
-    categoryId: '1',
-    subcategoryId: '1',
-    serviceId: '1',
-    contactInfo: 'techfix@example.com',
-    status: 'Active',
-  },
-  {
-    name: 'LapCare Solutions',
-    categoryId: '1',
-    subcategoryId: '2',
-    serviceId: '2',
-    contactInfo: 'lapcare@example.com',
-    status: 'Active',
-  },
-  {
-    name: 'CustomTees Inc',
-    categoryId: '2',
-    subcategoryId: '3',
-    serviceId: '3',
-    contactInfo: 'customtees@example.com',
-    status: 'Inactive',
-  },
-];
+// Animation variants for form fields
+const fieldVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.1, duration: 0.4 },
+  }),
+};
 
 export default function EditServiceProviderPage() {
   const params = useParams();
   const router = useRouter();
   const providerId = params.id as string;
 
-  // Mock fetching service provider by ID
-  const providerIndex = parseInt(providerId) % mockServiceProviders.length;
-  const initialProvider = mockServiceProviders[providerIndex] || mockServiceProviders[0];
-
-  const [formData, setFormData] = useState<FormData>(initialProvider);
+  // State for form data, categories, subcategories, and UI
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    categoryId: '',
+    subcategoryId: '',
+    serviceId: '',
+    contactInfo: '',
+    status: 'Active',
+  });
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [errors, setErrors] = useState<Partial<FormData>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Helper function to get auth headers
+  const getAuthHeaders = () => ({
+    Authorization: `Bearer ${localStorage.getItem('token')}`,
+    'Content-Type': 'application/json',
+  });
+
+  // Fetch categories on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/vendor/categories', {
+          headers: getAuthHeaders(),
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: Failed to fetch categories`);
+        }
+        const data: Category[] = await response.json();
+        setCategories(data.map((cat) => ({ id: String(cat.id), name: cat.name })));
+      } catch (err) {
+        setError('Failed to load categories. Please try again.');
+        console.error('Error fetching categories:', err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // Fetch subcategories when categoryId changes
+  useEffect(() => {
+    const fetchSubcategories = async () => {
+      if (!formData.categoryId) {
+        setSubcategories([]);
+        return;
+      }
+      try {
+        const response = await fetch(`/vendor/subcategories?category_id=${formData.categoryId}`, {
+          headers: getAuthHeaders(),
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: Failed to fetch subcategories`);
+        }
+        const data: Subcategory[] = await response.json();
+        setSubcategories(data.map((sub) => ({ id: String(sub.id), name: sub.name, categoryId: String(sub.categoryId) })));
+      } catch (err) {
+        setError('Failed to load subcategories. Please try again.');
+        console.error('Error fetching subcategories:', err);
+      }
+    };
+    fetchSubcategories();
+  }, [formData.categoryId]);
+
+  // Fetch vendor data by ID on mount
+  useEffect(() => {
+    const fetchVendor = async () => {
+      try {
+        const response = await fetch(`/vendor/${providerId}`, {
+          headers: getAuthHeaders(),
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: Failed to fetch vendor`);
+        }
+        const data: ServiceProvider = await response.json();
+        setFormData({
+          name: data.name,
+          categoryId: data.categoryId,
+          subcategoryId: data.subcategoryId,
+          serviceId: data.serviceId, // Maps to subcategoryId
+          contactInfo: data.contactInfo,
+          status: data.status as 'Active' | 'Inactive',
+        });
+        setIsLoading(false);
+      } catch (err) {
+        setError('Failed to load vendor data. Please try again.');
+        setIsLoading(false);
+        console.error('Error fetching vendor:', err);
+      }
+    };
+    fetchVendor();
+  }, [providerId]);
+
+  // Validate form inputs
   const validateForm = (): boolean => {
     const newErrors: Partial<FormData> = {};
     if (!formData.name.trim()) newErrors.name = 'Name is required';
@@ -105,33 +164,70 @@ export default function EditServiceProviderPage() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     setIsSubmitting(true);
+    setError(null);
+
     try {
-      console.log('Form submitted:', formData);
+      // Update work-related details (name, category, subcategory, status)
+      const workPayload = {
+        vendor_id: Number(providerId),
+        category_id: Number(formData.categoryId),
+        subcategory_charges: [
+          {
+            subcategory_id: Number(formData.serviceId), // Maps serviceId to subcategory_id
+            service_charge: 0, // Default; adjust if backend requires a specific value
+          },
+        ],
+        admin_status: formData.status.toLowerCase(),
+      };
+
+      const workResponse = await fetch('/vendor/profile/work', {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(workPayload),
+      });
+
+      if (!workResponse.ok) {
+        throw new Error(`HTTP ${workResponse.status}: Failed to update work details`);
+      }
+
+      // Update contact info (email or phone)
+      const addressPayload = {
+        vendor_id: Number(providerId),
+        [formData.contactInfo.includes('@') ? 'email' : 'phone']: formData.contactInfo,
+        full_name: formData.name, // Include name as it may be updated
+      };
+
+      const addressResponse = await fetch('/vendor/profile/address', {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(addressPayload),
+      });
+
+      if (!addressResponse.ok) {
+        throw new Error(`HTTP ${addressResponse.status}: Failed to update contact info`);
+      }
+
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
         router.push('/providers');
       }, 2000);
-      // TODO: Call API to update service provider
-      // await fetch(`/api/providers/${providerId}`, {
-      //   method: 'PATCH',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData),
-      // });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting form:', error);
-      alert('Failed to update service provider.');
+      setError(error.message || 'Failed to update service provider. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  // Handle input changes and reset dependent fields
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -139,20 +235,38 @@ export default function EditServiceProviderPage() {
       ...(name === 'categoryId' ? { subcategoryId: '', serviceId: '' } : {}),
       ...(name === 'subcategoryId' ? { serviceId: '' } : {}),
     }));
-    setErrors({ ...errors, [name]: undefined });
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
+    setError(null);
   };
 
-  const filteredSubcategories = mockSubcategories.filter((sub) => sub.categoryId === formData.categoryId);
-  const filteredServices = mockServices.filter((service) => service.subcategoryId === formData.subcategoryId);
+  // Use subcategories as services (since no Service model)
+  const filteredServices = subcategories;
 
-  const fieldVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: { delay: i * 0.1, duration: 0.4 },
-    }),
-  };
+  // Render loading state
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
+        <Sidebar />
+        <div className="flex-1 ml-64 p-6 sm:p-8">
+          <Navbar />
+          <div className="text-center text-gray-600">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Render error state
+  if (error) {
+    return (
+      <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
+        <Sidebar />
+        <div className="flex-1 ml-64 p-6 sm:p-8">
+          <Navbar />
+          <div className="text-center text-red-600">{error}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
@@ -205,7 +319,7 @@ export default function EditServiceProviderPage() {
                     disabled={isSubmitting}
                   >
                     <option value="">Select a category</option>
-                    {mockCategories.map((category) => (
+                    {categories.map((category) => (
                       <option key={category.id} value={category.id}>
                         {category.name}
                       </option>
@@ -227,7 +341,7 @@ export default function EditServiceProviderPage() {
                     disabled={isSubmitting || !formData.categoryId}
                   >
                     <option value="">Select a subcategory</option>
-                    {filteredSubcategories.map((subcategory) => (
+                    {subcategories.map((subcategory) => (
                       <option key={subcategory.id} value={subcategory.id}>
                         {subcategory.name}
                       </option>
@@ -249,9 +363,9 @@ export default function EditServiceProviderPage() {
                     disabled={isSubmitting || !formData.subcategoryId}
                   >
                     <option value="">Select a service</option>
-                    {filteredServices.map((service) => (
-                      <option key={service.id} value={service.id}>
-                        {service.name}
+                    {filteredServices.map((subcategory) => (
+                      <option key={subcategory.id} value={subcategory.id}>
+                        {subcategory.name}
                       </option>
                     ))}
                   </select>
@@ -270,7 +384,7 @@ export default function EditServiceProviderPage() {
                     onChange={handleChange}
                     className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
                     disabled={isSubmitting}
-                    placeholder="Enter contact info (e.g., email)"
+                    placeholder="Enter contact info (e.g., email or phone)"
                   />
                   {errors.contactInfo && <p className="mt-2 text-sm text-red-600">{errors.contactInfo}</p>}
                 </motion.div>
@@ -291,6 +405,7 @@ export default function EditServiceProviderPage() {
                     <option value="Inactive">Inactive</option>
                   </select>
                 </motion.div>
+                {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
                 <div className="flex justify-end gap-4">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
@@ -312,9 +427,18 @@ export default function EditServiceProviderPage() {
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
-                      <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <svg
+                        className="animate-spin h-5 w-5 mr-2 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
                       </svg>
                     ) : null}
                     {isSubmitting ? 'Saving...' : 'Save Changes'}
