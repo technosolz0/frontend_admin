@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { PencilIcon, TrashIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import { useParams, useRouter } from 'next/navigation';
 import { listSubCategories, deleteSubCategory, toggleSubCategoryStatus, SubCategoryDTO } from '@/services/subCategories';
+import { API_BASE_URL } from '@/lib/config';
 
 export default function SubcategoriesPage() {
   const params = useParams();
@@ -174,7 +175,17 @@ export default function SubcategoriesPage() {
                           {subcategory.name}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {subcategory.image}
+                        {subcategory.image && (
+                          <div className="relative w-16 h-16 rounded overflow-hidden">
+                            <img
+                              src={`${API_BASE_URL}${subcategory.image}`}
+                              alt={subcategory.name}
+                          
+                              className="object-cover"
+                              sizes="64px"
+                            />
+                          </div>
+                        )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <motion.button
@@ -183,7 +194,7 @@ export default function SubcategoriesPage() {
                             onClick={() => handleToggleStatus(subcategory.id)}
                             disabled={isToggling === subcategory.id}
                             className={`px-3 py-1 inline-flex items-center gap-1 text-xs leading-5 font-semibold rounded-full cursor-pointer transition-all duration-200 ${
-                              subcategory.status === 'Active' 
+                              subcategory.status === 'active' 
                                 ? 'bg-green-100 text-green-800 hover:bg-green-200' 
                                 : 'bg-red-100 text-red-800 hover:bg-red-200'
                             } ${isToggling === subcategory.id ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -194,13 +205,14 @@ export default function SubcategoriesPage() {
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                               </svg>
                             ) : (
-                              subcategory.status === 'Active' ? (
+                              subcategory.status === 'active' ? (
                                 <CheckCircleIcon className="w-3 h-3" />
                               ) : (
                                 <XCircleIcon className="w-3 h-3" />
                               )
                             )}
-                            {subcategory.status}
+                          {subcategory.status.charAt(0).toUpperCase() + subcategory.status.slice(1)}
+
                           </motion.button>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2">

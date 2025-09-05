@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { TrashIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
+import { API_BASE_URL } from '@/lib/config';
 
 interface Booking {
   id: string;
@@ -35,7 +36,7 @@ export default function BookingPage() {
   const fetchBookings = async (page: number) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/bookings?page=${page}&limit=${bookingsPerPage}`, {
+      const response = await fetch(`${API_BASE_URL}/api/bookings?page=${page}&limit=${bookingsPerPage}`, {
         headers: {
           'Content-Type': 'application/json',
           // Assuming authentication token is handled by get_current_user dependency

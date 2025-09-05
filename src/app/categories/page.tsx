@@ -13,6 +13,7 @@ import {
   deleteCategory,
   toggleCategoryStatus,
 } from '@/services/categories';
+import { API_BASE_URL } from '@/lib/config';
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<CategoryDTO[]>([]);
@@ -148,10 +149,10 @@ export default function CategoriesPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {category.image && (
                           <div className="relative w-16 h-16 rounded overflow-hidden">
-                            <Image
-                              src={category.image}
-                              alt={category.name}
-                              fill
+                            <img
+                              src={`${API_BASE_URL}${category.image}`}
+                              alt={category.name} 
+                          
                               className="object-cover"
                               sizes="64px"
                             />

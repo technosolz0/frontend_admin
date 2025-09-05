@@ -4,7 +4,7 @@ export interface SubCategoryDTO {
   id: number;
   name: string;
   image: string | null;
-  status: 'Active' | 'Inactive';
+  status: 'active' | 'inactive';
   category_id: number;
 }
 

@@ -36,14 +36,14 @@ const menuItems: MenuItem[] = [
       { name: 'Manage Providers', href: '/categories' },
     ],
   },
-  {
-    name: 'Services',
-    href: '/services',
-    subItems: [
-      { name: 'Add Service', href: '/services/add' },
-      { name: 'Manage Services', href: '/services' },
-    ],
-  },
+  // {
+  //   name: 'Services',
+  //   href: '/services',
+  //   subItems: [
+  //     { name: 'Add Service', href: '/services/add' },
+  //     { name: 'Manage Services', href: '/services' },
+  //   ],
+  // },
   {
     name: 'Bookings',
     href: '/bookings',

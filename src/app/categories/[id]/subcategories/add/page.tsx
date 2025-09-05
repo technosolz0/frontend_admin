@@ -11,7 +11,7 @@ import { createSubCategory } from '@/services/subCategories';
 
 interface FormData {
   name: string;
-  status: 'Active' | 'Inactive';
+  status: 'active' | 'inactive';
   image: File | null;
 }
 
@@ -22,7 +22,7 @@ export default function AddSubcategoryPage() {
 
   const [formData, setFormData] = useState<FormData>({
     name: '',
-    status: 'Active',
+    status: 'active',
     image: null,
   });
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
@@ -55,7 +55,7 @@ export default function AddSubcategoryPage() {
       await createSubCategory(formDataToSend);
 
       setShowSuccess(true);
-      setFormData({ name: '', status: 'Active', image: null });
+      setFormData({ name: '', status: 'active', image: null });
       setPreviewUrl(null);
 
       setTimeout(() => {
