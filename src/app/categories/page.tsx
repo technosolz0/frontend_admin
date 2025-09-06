@@ -149,13 +149,13 @@ export default function CategoriesPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {category.image && (
                           <div className="relative w-16 h-16 rounded overflow-hidden">
-                            <img
-                              src={`${API_BASE_URL}${category.image}`}
-                              alt={category.name} 
-                          
-                              className="object-cover"
-                              sizes="64px"
-                            />
+                            <Image
+  src={`${API_BASE_URL}${category.image}`}
+  alt={category.name}
+  fill
+  className="object-cover"
+/>
+
                           </div>
                         )}
                       </td>

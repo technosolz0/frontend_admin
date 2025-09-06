@@ -43,6 +43,15 @@ interface ServiceProvider {
   work_status: string;
   subcategory_charges: { subcategory_id: string; service_charge: number }[];
 }
+interface Category {
+  id: string | number;
+  name: string;
+}
+
+interface Subcategory {
+  id: string | number;
+  name: string;
+}
 
 // Animation variants for fields
 const fieldVariants = {
@@ -90,7 +99,11 @@ export default function ProviderDetailsPage() {
           });
           if (catResponse.ok) {
             const categories = await catResponse.json();
-            const category = categories.find((cat: any) => String(cat.id) === String(data.category_id));
+            // const category = categories.find((cat: any) => String(cat.id) === String(data.category_id));
+            const category = (categories as Category[]).find(
+  (cat) => String(cat.id) === String(data.category_id)
+);
+
             categoryName = category?.name || 'Unknown';
           }
         } catch (err) {
@@ -108,7 +121,11 @@ export default function ProviderDetailsPage() {
             });
             if (subResponse.ok) {
               const subcategories = await subResponse.json();
-              const subcategory = subcategories.find((sub: any) => String(sub.id) === subcategoryId);
+              // const subcategory = subcategories.find((sub: any) => String(sub.id) === subcategoryId);
+              const subcategory = (subcategories as Subcategory[]).find(
+  (sub) => String(sub.id) === subcategoryId
+);
+
               subcategoryName = subcategory?.name || 'Unknown';
             }
           } catch (err) {
@@ -155,11 +172,15 @@ export default function ProviderDetailsPage() {
 
         setProvider(vendor);
         setIsLoading(false);
-      } catch (err: any) {
-        setError(err.message || 'Failed to load vendor data. Please try again.');
-        setIsLoading(false);
-        console.error('Error fetching vendor:', err);
-      }
+      } catch (err: unknown) {
+  if (err instanceof Error) {
+    setError(err.message);
+    console.error('Error fetching vendor:', err);
+  } else {
+    setError('Failed to load vendor data. Please try again.');
+  }
+  setIsLoading(false);
+}
     };
 
     fetchVendor();

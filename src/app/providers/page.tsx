@@ -26,8 +26,12 @@ export default function ServiceProvidersPage() {
       const { vendors, total } = await listServiceProviders(page, providersPerPage);
       setServiceProviders(vendors);
       setTotalPages(Math.ceil(total / providersPerPage));
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch service providers.');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to fetch service providers.');
+      } else {
+        setError('Failed to fetch service providers.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -42,11 +46,15 @@ export default function ServiceProvidersPage() {
     setIsDeleting(id);
     try {
       await deleteServiceProvider(id);
-      setServiceProviders(serviceProviders.filter((p) => p.id !== id));
+      setServiceProviders((prev) => prev.filter((p) => p.id !== id));
       setShowSuccess({ message: 'Service provider deleted successfully!', id });
       setTimeout(() => setShowSuccess(null), 2000);
-    } catch (err: any) {
-      alert(`Failed to delete: ${err.message}`);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(`Failed to delete: ${err.message}`);
+      } else {
+        alert('Failed to delete provider.');
+      }
     } finally {
       setIsDeleting(null);
     }
@@ -111,7 +119,6 @@ export default function ServiceProvidersPage() {
               </div>
             )}
 
-
             <motion.div
               className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl overflow-hidden border border-blue-100"
               initial={{ scale: 0.95 }}
@@ -156,9 +163,7 @@ export default function ServiceProvidersPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {provider.address
-                          ? `${provider.address}, ${provider.city || ''}, ${provider.state || ''} ${
-                              provider.pincode || ''
-                            }`.trim()
+                          ? `${provider.address}, ${provider.city || ''}, ${provider.state || ''} ${provider.pincode || ''}`.trim()
                           : 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
