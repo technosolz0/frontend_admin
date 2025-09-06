@@ -11,7 +11,7 @@ import { getSubCategory, partialUpdateSubCategory } from '@/services/subCategori
 
 interface FormData {
   name: string;
-  status: 'Active' | 'Inactive';
+  status: 'active' | 'inactive';
   image: File | null;
 }
 
@@ -23,7 +23,7 @@ export default function EditSubcategoryPage() {
 
   const [formData, setFormData] = useState<FormData>({
     name: '',
-    status: 'Active',
+    status: 'active',
     image: null,
   });
   const [currentImage, setCurrentImage] = useState<string | null>(null);
