@@ -166,6 +166,7 @@ export default function EditCategoryPage() {
                         fill
                         className="rounded object-cover"
                         sizes="96px"
+                        unoptimized   
                       />
                     </div>
                   )}

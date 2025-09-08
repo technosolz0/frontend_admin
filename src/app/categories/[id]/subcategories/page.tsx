@@ -184,6 +184,7 @@ export default function SubcategoriesPage() {
   alt={subcategory.name}
   fill
   className="object-cover"
+  unoptimized   
 />
                           </div>
                         )}

@@ -156,7 +156,7 @@ export default function AddSubcategoryPage() {
                   />
                   {previewUrl && (
                     <div className="mt-4 relative w-32 h-32 rounded-lg overflow-hidden shadow-sm">
-                      <Image src={previewUrl} alt="Preview" fill className="object-cover" />
+                      <Image src={previewUrl} alt="Preview" fill className="object-cover" unoptimized   />
                     </div>
                   )}
                   {errors.image && <p className="mt-2 text-sm text-red-600">{errors.image}</p>}

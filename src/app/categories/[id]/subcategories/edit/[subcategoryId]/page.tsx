@@ -195,7 +195,7 @@ export default function EditSubcategoryPage() {
                   {currentImage && !previewUrl && (
                     <div className="mb-4 relative w-32 h-32 rounded-lg overflow-hidden shadow-sm">
                       <p className="text-sm text-gray-600 mb-2">Current image:</p>
-                      <Image src={currentImage} alt="Current" fill className="object-cover" />
+                      <Image src={currentImage} alt="Current" fill className="object-cover" unoptimized    />
                     </div>
                   )}
                   
@@ -213,7 +213,7 @@ export default function EditSubcategoryPage() {
                   {previewUrl && (
                     <div className="mt-4 relative w-32 h-32 rounded-lg overflow-hidden shadow-sm">
                       <p className="text-sm text-gray-600 mb-2">New image preview:</p>
-                      <Image src={previewUrl} alt="Preview" fill className="object-cover" />
+                      <Image src={previewUrl} alt="Preview" fill className="object-cover" unoptimized    />
                     </div>
                   )}
                   
