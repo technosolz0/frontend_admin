@@ -23,18 +23,18 @@ const menuItems: MenuItem[] = [
   {
     name: 'Providers',
     href: '/providers',
-    subItems: [
-      { name: 'Add Provider', href: '/providers/add' },
-      { name: 'Manage Providers', href: '/providers/manage' },
-    ],
+    // subItems: [
+    //   { name: 'Add Provider', href: '/providers/add' },
+    //   { name: 'Manage Providers', href: '/providers/manage' },
+    // ],
   },
   {
     name: 'Categories',
     href: '/categories',
-    subItems: [
-      { name: 'Add Category', href: '/categories/add' },
-      { name: 'Manage Providers', href: '/categories' },
-    ],
+    // subItems: [
+    //   { name: 'Add Category', href: '/categories/add' },
+    //   { name: 'Manage Providers', href: '/categories' },
+    // ],
   },
   // {
   //   name: 'Services',
@@ -47,18 +47,18 @@ const menuItems: MenuItem[] = [
   {
     name: 'Bookings',
     href: '/bookings',
-    subItems: [
-      { name: 'View Bookings', href: '/bookings/view' },
-      { name: 'Manage Bookings', href: '/bookings/manage' },
-    ],
+    // subItems: [
+    //   { name: 'View Bookings', href: '/bookings/view' },
+    //   { name: 'Manage Bookings', href: '/bookings/manage' },
+    // ],
   },
   {
     name: 'Payments',
     href: '/payments',
-    subItems: [
-      { name: 'View Payments', href: '/payments/view' },
-      { name: 'Manage Payments', href: '/payments/manage' },
-    ],
+    // subItems: [
+    //   { name: 'View Payments', href: '/payments/view' },
+    //   { name: 'Manage Payments', href: '/payments/manage' },
+    // ],
   },
   {
     name: 'Marketing',
@@ -75,6 +75,19 @@ const menuItems: MenuItem[] = [
       { name: 'View Tickets', href: '/support/tickets' },
       { name: 'Manage Support', href: '/support/manage' },
     ],
+  },
+   {
+    name: 'Feedback',
+    href: '/feedback',
+    // subItems: [
+    //   { name: 'View Tickets', href: '/support/tickets' },
+    //   { name: 'Manage Support', href: '/support/manage' },
+    // ],
+  },
+   {
+    name: 'Account Delete Request',
+    href: '/accountdeleterequest',
+  
   },
 ];
 
