@@ -40,11 +40,16 @@ const getAuthHeaders = () => ({
 });
 
 export async function listServiceProviders(page = 1, limit = 10): Promise<PaginatedResponse> {
-  const res = await fetch(`${API_BASE_URL}/api/vendor/?page=${page}&limit=${limit}`, {
-    headers: getAuthHeaders(),
-  });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/vendor/?page=${page}&limit=${limit}`, {
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) throw new Error(await res.text() || res.statusText);
+    return res.json();
+  } catch (error) {
+    console.error('Error fetching service providers:', error);
+    return { vendors: [], total: 0 };
+  }
 }
 
 export async function getServiceProvider(id: string): Promise<ServiceProviderDTO> {
