@@ -1,18 +1,28 @@
-import { API_BASE_URL } from './config';
 
-export async function login(email: string, password: string) {
-  const res = await fetch(`${API_BASE_URL}/api/admin/login`, {
+import { saveToken } from './auth';
+
+export interface LoginResponse {
+  access_token: string;
+  token_type: string;
+  admin?: any;
+}
+
+export async function login(email: string, password: string): Promise<LoginResponse> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.serwex.in'}/api/admin/login`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email, password }),  // ✅ fixed line
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
   });
 
   if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.detail || 'Invalid credentials');
+    console.error('Login failed:', res.status, res.statusText);
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Login failed');
   }
-
-  return res.json(); // returns { access_token, token_type, admin: {...} }
+console.log('Login response:', res);
+  const data: LoginResponse = await res.json();
+  saveToken(data.access_token);
+  return data;
 }
+export { saveToken };
+
