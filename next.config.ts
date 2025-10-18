@@ -2,10 +2,11 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: [
-    'localhost:3000',
-    '127.0.0.1:3000',
-    '194.164.148.133:3000',
-    '10.108.231.167:3000', // 👈 remove http://
+    'localhost:3002',
+    '127.0.0.1:3002',
+    '194.164.148.133:3002',
+    'https://api.serwex.in',
+    '10.108.231.167:3002', // 👈 remove http://
   ],
   images: {
     remotePatterns: [
