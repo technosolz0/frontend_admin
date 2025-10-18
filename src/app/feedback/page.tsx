@@ -5,7 +5,7 @@ import Navbar from '@/components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useMemo } from 'react';
 import { TrashIcon, CheckCircleIcon, StarIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { useRouter } from 'next/navigation';
+
 
 interface FeedbackDTO {
   id: number;
@@ -25,7 +25,7 @@ export default function FeedbackPage() {
   const [showSuccess, setShowSuccess] = useState<{ message: string; id: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
+
 
   // Mock data for demonstration; replace with actual service calls
   const mockFeedbacks: FeedbackDTO[] = [
@@ -44,22 +44,22 @@ export default function FeedbackPage() {
     // Add more mock data as needed
   ];
 
-  const fetchFeedbacks = async () => {
-    setIsLoading(true);
-    try {
-      // Simulate API call; replace with actual listFeedbacks()
-      setAllFeedbacks(mockFeedbacks);
-      setTotal(mockFeedbacks.length);
-      setError(null);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      setError(message || 'Failed to fetch feedbacks.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchFeedbacks = async () => {
+      setIsLoading(true);
+      try {
+        // Simulate API call; replace with actual listFeedbacks()
+        setAllFeedbacks(mockFeedbacks);
+        setTotal(mockFeedbacks.length);
+        setError(null);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        setError(message || 'Failed to fetch feedbacks.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchFeedbacks();
   }, []);
 

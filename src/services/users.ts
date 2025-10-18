@@ -133,7 +133,7 @@ export interface RegisterResponseDTO {
 export interface GenericResponseDTO {
   success: boolean;
   message: string;
-  data?: any;
+  data?: Record<string, unknown>;
 }
 
 export async function registerUserWithOTP(body: UserCreateDTO): Promise<RegisterResponseDTO> {
@@ -268,8 +268,8 @@ export async function clearProfilePic(): Promise<GenericResponseDTO> {
   return data;
 }
 
-export async function getVendorsAndCharges(category_id: number, subcategory_id: number): Promise<any> {
-  const data = await fetchWithAuth<any>(`/api/users/vendors-charges/${category_id}/${subcategory_id}`);
+export async function getVendorsAndCharges(category_id: number, subcategory_id: number): Promise<{ vendors: Array<{ id: number; name: string; charges: number }>; total: number }> {
+  const data = await fetchWithAuth<{ vendors: Array<{ id: number; name: string; charges: number }>; total: number }>(`/api/users/vendors-charges/${category_id}/${subcategory_id}`);
   if (!data) throw new Error('Failed to fetch vendors and charges');
   return data;
 }

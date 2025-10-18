@@ -5,7 +5,7 @@ import Navbar from '@/components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { TrashIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
-import { useRouter } from 'next/navigation';
+
 import {
   listAccountDeleteRequests,
   deleteAccountRequest,
@@ -19,11 +19,6 @@ interface AccountDeleteRequestDTO {
   requestDate: string;
   role: string;
   image?: string;
-}
-
-interface PagedAccountDeleteRequests {
-  data: AccountDeleteRequestDTO[];
-  total: number;
 }
 
 export default function AccountDeleteRequestsPage() {
@@ -40,8 +35,6 @@ export default function AccountDeleteRequestsPage() {
   const [searchName, setSearchName] = useState('');
   const [searchRole, setSearchRole] = useState('');
   const [searchPhone, setSearchPhone] = useState('');
-
-  const router = useRouter();
 
   const fetchRequests = async (page: number = currentPage) => {
     setIsLoading(true);
@@ -64,7 +57,7 @@ export default function AccountDeleteRequestsPage() {
 
   useEffect(() => {
     fetchRequests(1);
-  }, []);
+  }, [fetchRequests]);
 
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this request?')) return;

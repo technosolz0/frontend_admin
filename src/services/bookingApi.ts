@@ -1,14 +1,14 @@
 import { API_BASE_URL } from '@/lib/config';
-import { getToken, clearToken } from '@/lib/auth';
-import { ReactNode } from 'react';
+
+
 
 // ---------- Interfaces ----------
 export interface BookingDTO {
   date: string | number | Date;
-  categoryName: any;
-  subcategoryName: any;
-  serviceName: any;
-  customerName: ReactNode;
+  categoryName: string;
+  subcategoryName: string;
+  serviceName: string;
+  customerName: string;
   id: number;
   user_id: number;
   category_id: number;
@@ -38,9 +38,9 @@ export interface BookingStatusUpdateDTO {
 }
 
 export interface VendorStatsDTO {
-  pending: ReactNode;
-  cancelled: ReactNode;
-  completed: ReactNode;
+  pending: number;
+  cancelled: number;
+  completed: number;
   total_bookings: number;
   status_counts: Record<string, number>;
   recent_bookings: BookingDTO[];

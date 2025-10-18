@@ -4,7 +4,7 @@ import { saveToken } from './auth';
 export interface LoginResponse {
   access_token: string;
   token_type: string;
-  admin?: any;
+  admin?: Record<string, unknown>;
 }
 
 export async function login(email: string, password: string): Promise<LoginResponse> {
@@ -25,4 +25,3 @@ console.log('Login response:', res);
   return data;
 }
 export { saveToken };
-
