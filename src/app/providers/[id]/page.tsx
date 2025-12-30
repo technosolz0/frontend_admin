@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useParams, useRouter } from 'next/navigation';
 import { TagIcon, CubeIcon, EnvelopeIcon, CheckCircleIcon, WrenchScrewdriverIcon, HomeIcon, BanknotesIcon, IdentificationIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
+import { API_BASE_URL } from '@/lib/config';
 
 // Define interface for ServiceProvider matching VendorResponse
 interface ServiceProvider {
@@ -83,7 +84,7 @@ export default function ProviderDetailsPage() {
   useEffect(() => {
     const fetchVendor = async () => {
       try {
-        const response = await fetch(`/vendor/${providerId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/vendor/${providerId}`, {
           headers: getAuthHeaders(),
         });
         if (!response.ok) {
@@ -94,7 +95,7 @@ export default function ProviderDetailsPage() {
         // Fetch category name
         let categoryName = 'Unknown';
         try {
-          const catResponse = await fetch(`/vendor/categories`, {
+          const catResponse = await fetch(`${API_BASE_URL}/api/vendor/categories`, {
             headers: getAuthHeaders(),
           });
           if (catResponse.ok) {
@@ -116,7 +117,7 @@ export default function ProviderDetailsPage() {
         if (data.subcategory_charges && data.subcategory_charges.length > 0) {
           subcategoryId = String(data.subcategory_charges[0].subcategory_id);
           try {
-            const subResponse = await fetch(`/vendor/subcategories?category_id=${data.category_id}`, {
+            const subResponse = await fetch(`${API_BASE_URL}/api/vendor/subcategories?category_id=${data.category_id}`, {
               headers: getAuthHeaders(),
             });
             if (subResponse.ok) {

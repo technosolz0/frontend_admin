@@ -36,6 +36,10 @@ const menuItems: MenuItem[] = [
     //   { name: 'Manage Providers', href: '/categories' },
     // ],
   },
+  {
+    name: 'Sub Categories',
+    href: '/sub-categories',
+  },
   // {
   //   name: 'Services',
   //   href: '/services',
@@ -112,7 +116,7 @@ const Sidebar = () => {
         {menuItems.map((item) => (
           <div key={item.name}>
             <div
-              className="flex items-center justify-between p-3 rounded-lg hover:bg-blue-600 transition-colors duration-200 cursor-pointer literal cursor-pointer"
+              className="flex items-center justify-between p-3 rounded-lg hover:bg-blue-600 transition-colors duration-200 cursor-pointer literal"
               onClick={() => toggleMenu(item.name)}
             >
               <Link href={item.href} className="flex-1 text-sm font-medium">

@@ -3,7 +3,7 @@
 import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { TrashIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 import {
@@ -36,7 +36,7 @@ export default function AccountDeleteRequestsPage() {
   const [searchRole, setSearchRole] = useState('');
   const [searchPhone, setSearchPhone] = useState('');
 
-  const fetchRequests = async (page: number = currentPage) => {
+  const fetchRequests = useCallback(async (page: number = currentPage) => {
     setIsLoading(true);
     try {
       const data = await listAccountDeleteRequests(page, limit, {
@@ -53,7 +53,7 @@ export default function AccountDeleteRequestsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentPage, limit, searchName, searchRole, searchPhone]);
 
   useEffect(() => {
     fetchRequests(1);

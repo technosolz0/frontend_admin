@@ -28,7 +28,7 @@ export default function FeedbackPage() {
 
 
   // Mock data for demonstration; replace with actual service calls
-  const mockFeedbacks: FeedbackDTO[] = [
+  const mockFeedbacks = useMemo(() => [
     { id: 1, name: 'John Doe', rating: 5, comment: 'Great service!', feedbackDate: '2025-09-15' },
     { id: 2, name: 'Jane Smith', rating: 4, comment: 'Good experience overall.', feedbackDate: '2025-09-14' },
     { id: 3, name: 'Bob Johnson', rating: 3, comment: 'Could be better.', feedbackDate: '2025-09-13' },
@@ -42,7 +42,7 @@ export default function FeedbackPage() {
     { id: 11, name: 'Ivy Martinez', rating: 5, comment: 'Outstanding!', feedbackDate: '2025-09-05' },
     { id: 12, name: 'Jack Rodriguez', rating: 4, comment: 'Good job.', feedbackDate: '2025-09-04' },
     // Add more mock data as needed
-  ];
+  ], []);
 
   useEffect(() => {
     const fetchFeedbacks = async () => {
@@ -61,7 +61,7 @@ export default function FeedbackPage() {
     };
 
     fetchFeedbacks();
-  }, []);
+  }, [mockFeedbacks]);
 
   const filteredFeedbacks = useMemo(() => {
     if (!searchTerm) return allFeedbacks;

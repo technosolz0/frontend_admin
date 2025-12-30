@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '@/lib/config';
+import { apiCall, getToken, API_BASE_URL } from '@/lib/api';
 
 export interface ServiceDTO {
   id: number;
@@ -37,9 +37,7 @@ export interface CreateServiceDTO {
 
 // Services API
 export async function listServices(): Promise<ServiceDTO[]> {
-  const res = await fetch(`${API_BASE_URL}/api/services/`);
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
+  return await apiCall<ServiceDTO[]>('/api/services/');
 }
 
 export async function createService(data: CreateServiceDTO): Promise<ServiceDTO> {
@@ -49,27 +47,32 @@ export async function createService(data: CreateServiceDTO): Promise<ServiceDTO>
   formData.append('status', data.status);
   formData.append('category_id', String(data.category_id));
   formData.append('sub_category_id', String(data.sub_category_id));
-  
+
   if (data.price !== undefined) {
     formData.append('price', String(data.price));
   }
-  
+
   if (data.image) {
     formData.append('image', data.image);
   }
 
-  const res = await fetch(`${API_BASE_URL}/api/services/`, {
+  const token = getToken();
+  const response = await fetch(`${API_BASE_URL}/api/services/`, {
     method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
     body: formData
   });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error || response.statusText);
+  }
+
+  return response.json();
 }
 
 export async function getService(id: number): Promise<ServiceDTO> {
-  const res = await fetch(`${API_BASE_URL}/api/services/${id}`);
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
+  return await apiCall<ServiceDTO>(`/api/services/${id}`);
 }
 
 // Alias for consistency with component usage
@@ -87,106 +90,90 @@ export async function updateService(id: number, data: Partial<ServiceDTO> & { im
     formData.append('sub_category_id', String(data.sub_category.id));
   if (data.image) formData.append('image', data.image);
 
-  const res = await fetch(`${API_BASE_URL}/api/services/${id}`, {
+  const token = getToken();
+  const response = await fetch(`${API_BASE_URL}/api/services/${id}`, {
     method: 'PATCH',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
     body: formData,
   });
 
-  console.log('Update service response:', res); // ✅ this was missing
+  console.log('Update service response:', response);
 
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error || response.statusText);
+  }
+
+  return response.json();
 }
 
-
 export async function partialUpdateService(id: number, body: FormData): Promise<ServiceDTO> {
-  const res = await fetch(`${API_BASE_URL}/api/services/${id}`, {
+  const token = getToken();
+  const response = await fetch(`${API_BASE_URL}/api/services/${id}`, {
     method: 'PATCH',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
     body,
   });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error || response.statusText);
+  }
+
+  return response.json();
 }
 
 export async function deleteService(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/api/services/${id}`, {
-    method: 'DELETE',
-  });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
+  await apiCall(`/api/services/${id}`, { method: 'DELETE' });
 }
 
 export async function toggleServiceStatus(id: number): Promise<ServiceDTO> {
-  const res = await fetch(`${API_BASE_URL}/api/services/${id}/toggle-status`, {
-    method: 'POST',
-  });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
+  return await apiCall<ServiceDTO>(`/api/services/${id}/toggle-status`, { method: 'POST' });
 }
 
 // Categories API
 export async function listCategories(): Promise<CategoryDTO[]> {
-  const res = await fetch(`${API_BASE_URL}/api/categories/`);
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
+  return await apiCall<CategoryDTO[]>('/api/categories/');
 }
 
 export async function createCategory(data: Omit<CategoryDTO, 'id'>): Promise<CategoryDTO> {
-  const res = await fetch(`${API_BASE_URL}/api/categories/`, {
+  return await apiCall<CategoryDTO>('/api/categories/', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
 }
 
 export async function updateCategory(id: number, data: Partial<CategoryDTO>): Promise<CategoryDTO> {
-  const res = await fetch(`${API_BASE_URL}/api/categories/${id}`, {
+  return await apiCall<CategoryDTO>(`/api/categories/${id}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
 }
 
 export async function deleteCategory(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/api/categories/${id}`, {
-    method: 'DELETE',
-  });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
+  await apiCall(`/api/categories/${id}`, { method: 'DELETE' });
 }
 
 // Subcategories API
 export async function listSubcategories(): Promise<SubcategoryDTO[]> {
-  const res = await fetch(`${API_BASE_URL}/api/subcategories/`);
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
+  return await apiCall<SubcategoryDTO[]>('/api/subcategories/');
 }
 
 export async function createSubcategory(data: Omit<SubcategoryDTO, 'id'>): Promise<SubcategoryDTO> {
-  const res = await fetch(`${API_BASE_URL}/api/subcategories/`, {
+  return await apiCall<SubcategoryDTO>('/api/subcategories/', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
 }
 
 export async function updateSubcategory(id: number, data: Partial<SubcategoryDTO>): Promise<SubcategoryDTO> {
-  const res = await fetch(`${API_BASE_URL}/api/subcategories/${id}`, {
-    method: 'POST',
+  return await apiCall<SubcategoryDTO>(`/api/subcategories/${id}`, {
+    method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
 }
 
 export async function deleteSubcategory(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/api/subcategories/${id}`, {
-    method: 'DELETE',
-  });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
+  await apiCall(`/api/subcategories/${id}`, { method: 'DELETE' });
 }

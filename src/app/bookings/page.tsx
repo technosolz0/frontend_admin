@@ -3,24 +3,29 @@
 import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { TrashIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import { API_BASE_URL } from '@/lib/config';
+import { apiCall } from '@/lib/api';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import SearchFilter from '@/components/SearchFilter';
 
 interface Booking {
-  id: string;
-  customerName: string;
-  categoryId: string;
-  categoryName: string;
-  subcategoryId: string;
-  subcategoryName: string;
-  serviceId: string;
-  serviceName: string;
-  serviceProviderId: string;
-  serviceProviderName: string;
-  date: string;
+  id: number;
+  user_id: number;
+  serviceprovider_id: number;
+  category_id: number;
+  subcategory_id: number;
   status: string;
+  scheduled_time: string | null;
+  address: string;
+  otp: string | null;
+  created_at: string | null;
+  user_name: string;
+  category_name: string | null;
+  subcategory_name: string | null;
+  service_name: string | null;
 }
 
 export default function BookingPage() {
@@ -33,47 +38,71 @@ export default function BookingPage() {
   const bookingsPerPage = 10;
   const router = useRouter();
 
-  const fetchBookings = async (page: number) => {
+  // Filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [userFilter, setUserFilter] = useState('');
+  const [vendorFilter, setVendorFilter] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+
+  const fetchBookings = useCallback(async (page: number = 1) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/bookings?page=${page}&limit=${bookingsPerPage}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          // Assuming authentication token is handled by get_current_user dependency
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch bookings');
-      }
-      const data = await response.json();
-      setBookings(data.bookings);
-      setTotalPages(Math.ceil(data.total / bookingsPerPage));
+      const skip = (page - 1) * bookingsPerPage;
+      let url = `${API_BASE_URL}/api/bookings/admin/all?skip=${skip}&limit=${bookingsPerPage}`;
+
+      // Add filters to URL
+      if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
+      if (statusFilter) url += `&status=${statusFilter}`;
+      if (userFilter) url += `&user_id=${userFilter}`;
+      if (vendorFilter) url += `&vendor_id=${vendorFilter}`;
+
+      const data = await apiCall<{
+        bookings: Booking[];
+        total: number;
+        page: number;
+        limit: number;
+        total_pages: number;
+        filters_applied?: Record<string, unknown>;
+      }>(url);
+
+      console.log('Bookings data:', data);
+      setBookings(data.bookings || []);
+      setTotalPages(data.total_pages || 1);
     } catch (error) {
       console.error('Error fetching bookings:', error);
-      alert('Failed to fetch bookings.');
+      // Error handling is now done in apiCall - redirects to login on 401
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [bookingsPerPage, searchQuery, statusFilter, userFilter, vendorFilter]);
 
   useEffect(() => {
     fetchBookings(currentPage);
-  }, [currentPage]);
+  }, [currentPage, fetchBookings]);
+
+  // Trigger search when filters change
+  useEffect(() => {
+    setCurrentPage(1); // Reset to first page when filters change
+    fetchBookings(1);
+  }, [searchQuery, statusFilter, userFilter, vendorFilter, fetchBookings]);
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('');
+    setUserFilter('');
+    setVendorFilter('');
+    setCurrentPage(1);
+  };
 
   const handleDelete = async (id: string) => {
     if (confirm(`Are you sure you want to delete booking with ID ${id}?`)) {
       setIsDeleting(id);
       try {
-        const response = await fetch(`/api/bookings/${id}`, {
+        await apiCall(`${API_BASE_URL}/api/bookings/${id}`, {
           method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
         });
-        if (!response.ok) {
-          throw new Error('Failed to delete booking');
-        }
-        setBookings(bookings.filter((booking) => booking.id !== id));
+        setBookings(bookings.filter((booking) => booking.id.toString() !== id));
         setShowSuccess({ message: 'Booking deleted successfully!', id });
         setTimeout(() => setShowSuccess(null), 2000);
       } catch (error) {
@@ -113,13 +142,53 @@ export default function BookingPage() {
         >
           <div className="max-w-full mx-auto">
             <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl mb-6">Booking Management</h1>
+
+            <SearchFilter
+              searchPlaceholder="Search by customer name, email, address, or booking ID..."
+              searchValue={searchQuery}
+              onSearchChange={setSearchQuery}
+              filters={[
+                {
+                  key: 'status',
+                  label: 'Status',
+                  value: statusFilter,
+                  options: [
+                    { value: 'pending', label: 'Pending' },
+                    { value: 'accepted', label: 'Accepted' },
+                    { value: 'completed', label: 'Completed' },
+                    { value: 'cancelled', label: 'Cancelled' }
+                  ],
+                  onChange: setStatusFilter
+                },
+                {
+                  key: 'user',
+                  label: 'Customer ID',
+                  value: userFilter,
+                  options: [], // Empty for input field
+                  onChange: setUserFilter
+                },
+                {
+                  key: 'vendor',
+                  label: 'Provider ID',
+                  value: vendorFilter,
+                  options: [], // Empty for input field
+                  onChange: setVendorFilter
+                }
+              ]}
+              showFilters={showFilters}
+              onToggleFilters={() => setShowFilters(!showFilters)}
+              hasActiveFilters={!!(searchQuery || statusFilter || userFilter || vendorFilter)}
+              onClearFilters={clearFilters}
+              pagination={{
+                currentPage,
+                totalPages,
+                onPageChange: handlePageChange,
+                isLoading
+              }}
+            />
+
             {isLoading && (
-              <div className="flex justify-center mb-4">
-                <svg className="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              </div>
+              <LoadingSpinner message="Loading bookings..." />
             )}
             <motion.div
               className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl overflow-hidden border border-blue-100"
@@ -160,36 +229,40 @@ export default function BookingPage() {
                             {booking.id}
                           </button>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.customerName}</td>
-                        <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{booking.categoryName}</td>
-                        <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{booking.subcategoryName}</td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{booking.serviceName}</td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{booking.serviceProviderName}</td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{booking.date}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.user_name}</td>
+                        <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{booking.category_name || 'N/A'}</td>
+                        <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{booking.subcategory_name || 'N/A'}</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{booking.service_name || 'N/A'}</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">Provider #{booking.serviceprovider_id}</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {booking.scheduled_time ? new Date(booking.scheduled_time).toLocaleDateString() : 'N/A'}
+                        </td>
                         <td className="px-3 py-4 whitespace-nowrap">
                           <span
                             className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              booking.status === 'Confirmed'
+                              booking.status === 'completed'
                                 ? 'bg-green-100 text-green-800'
-                                : booking.status === 'Pending'
+                                : booking.status === 'pending'
                                 ? 'bg-yellow-100 text-yellow-800'
+                                : booking.status === 'accepted'
+                                ? 'bg-blue-100 text-blue-800'
                                 : 'bg-red-100 text-red-800'
                             }`}
                           >
-                            {booking.status}
+                            {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                           </span>
                         </td>
                         <td className="px-3 py-4 whitespace-nowrap text-sm font-medium flex gap-2">
                           <motion.button
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
-                            onClick={() => handleDelete(booking.id)}
+                            onClick={() => handleDelete(booking.id.toString())}
                             className={`text-red-600 hover:text-red-800 ${
-                              isDeleting === booking.id ? 'opacity-50 cursor-not-allowed' : ''
+                              isDeleting === booking.id.toString() ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
-                            disabled={isDeleting === booking.id}
+                            disabled={isDeleting === booking.id.toString()}
                           >
-                            {isDeleting === booking.id ? (
+                            {isDeleting === booking.id.toString() ? (
                               <svg className="animate-spin h-5 w-5 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -205,25 +278,6 @@ export default function BookingPage() {
                 </table>
               </div>
             </motion.div>
-            <div className="mt-4 flex justify-between items-center">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1 || isLoading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Previous
-              </button>
-              <span className="text-gray-700">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages || isLoading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
-            </div>
           </div>
         </motion.div>
         <AnimatePresence>

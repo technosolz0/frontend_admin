@@ -2,16 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PencilIcon, TrashIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, CheckCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
-import { listServiceProviders, deleteServiceProvider, ServiceProviderDTO } from '@/services/providerService';
+import { listServiceProviders, deleteServiceProvider, toggleProviderStatus, ServiceProviderDTO } from '@/services/providerService';
 
 export default function ServiceProvidersPage() {
   const [serviceProviders, setServiceProviders] = useState<ServiceProviderDTO[]>([]);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isToggling, setIsToggling] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState<{ message: string; id: string } | null>(null);
+  const [showStatusDialog, setShowStatusDialog] = useState<{ provider: ServiceProviderDTO; newStatus: string } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -57,6 +59,41 @@ export default function ServiceProvidersPage() {
       }
     } finally {
       setIsDeleting(null);
+    }
+  };
+
+  const handleToggleStatusClick = (provider: ServiceProviderDTO) => {
+    setShowStatusDialog({
+      provider,
+      newStatus: provider.admin_status === 'approved' ? 'pending' : 'approved'
+    });
+  };
+
+  const handleToggleStatusConfirm = async () => {
+    if (!showStatusDialog) return;
+
+    const { provider, newStatus } = showStatusDialog;
+    setIsToggling(provider.id);
+    setShowStatusDialog(null);
+
+    try {
+      const updatedProvider = await toggleProviderStatus(provider.id);
+      setServiceProviders((prev) =>
+        prev.map((p) => (p.id === provider.id ? updatedProvider : p))
+      );
+      setShowSuccess({
+        message: `Provider status changed to ${updatedProvider.admin_status}!`,
+        id: provider.id
+      });
+      setTimeout(() => setShowSuccess(null), 2000);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(`Failed to update status: ${err.message}`);
+      } else {
+        alert('Failed to update provider status.');
+      }
+    } finally {
+      setIsToggling(null);
     }
   };
 
@@ -167,15 +204,31 @@ export default function ServiceProvidersPage() {
                           : 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleToggleStatusClick(provider)}
+                          disabled={isToggling === provider.id}
+                          className={`px-3 py-1 inline-flex items-center gap-1 text-xs leading-5 font-semibold rounded-full cursor-pointer transition-all duration-200 ${
                             provider.admin_status === 'approved'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}
+                              ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                              : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                          } ${isToggling === provider.id ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
-                          {provider.admin_status}
-                        </span>
+                          {isToggling === provider.id ? (
+                            <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          ) : (
+                            provider.admin_status === 'approved' ? (
+                              <CheckCircleIcon className="w-3 h-3" />
+                            ) : (
+                              <XMarkIcon className="w-3 h-3" />
+                            )
+                          )}
+                          {provider.admin_status.charAt(0).toUpperCase() + provider.admin_status.slice(1)}
+                        </motion.button>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
@@ -276,6 +329,69 @@ export default function ServiceProvidersPage() {
             >
               <CheckCircleIcon className="w-5 h-5" />
               {showSuccess.message}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Status Change Confirmation Dialog */}
+        <AnimatePresence>
+          {showStatusDialog && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+              onClick={() => setShowStatusDialog(null)}
+            >
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                className="bg-white rounded-lg p-6 max-w-md w-full mx-4"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center mb-4">
+                  <div className="flex-shrink-0">
+                    <CheckCircleIcon className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-lg font-medium text-gray-900">
+                      Change Provider Status
+                    </h3>
+                  </div>
+                </div>
+                <div className="mb-6">
+                  <p className="text-sm text-gray-600">
+                    Are you sure you want to change the status of{' '}
+                    <span className="font-medium text-gray-900">
+                      {showStatusDialog.provider.full_name}
+                    </span>{' '}
+                    from{' '}
+                    <span className="font-medium text-gray-900">
+                      {showStatusDialog.provider.admin_status}
+                    </span>{' '}
+                    to{' '}
+                    <span className="font-medium text-gray-900">
+                      {showStatusDialog.newStatus}
+                    </span>
+                    ?
+                  </p>
+                </div>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setShowStatusDialog(null)}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleToggleStatusConfirm}
+                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    Confirm
+                  </button>
+                </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>

@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '@/lib/config';
+import { apiCall, getToken, API_BASE_URL } from '@/lib/api';
 
 export interface SubCategoryDTO {
   id: number;
@@ -9,46 +9,49 @@ export interface SubCategoryDTO {
 }
 
 export async function listSubCategories(): Promise<SubCategoryDTO[]> {
-  const res = await fetch(`${API_BASE_URL}/api/subcategories/`);
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
+  return await apiCall<SubCategoryDTO[]>('/api/subcategories/', {}, []);
 }
 
 export async function createSubCategory(body: FormData): Promise<SubCategoryDTO> {
-  const res = await fetch(`${API_BASE_URL}/api/subcategories/`, {
+  const token = getToken();
+  const response = await fetch(`${API_BASE_URL}/api/subcategories/`, {
     method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
     body,
   });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error || response.statusText);
+  }
+
+  return response.json();
 }
 
 export async function getSubCategory(id: number): Promise<SubCategoryDTO> {
-  const res = await fetch(`${API_BASE_URL}/api/subcategories/${id}`);
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
+  return await apiCall<SubCategoryDTO>(`/api/subcategories/${id}`);
 }
 
 export async function partialUpdateSubCategory(id: number, body: FormData): Promise<SubCategoryDTO> {
-  const res = await fetch(`${API_BASE_URL}/api/subcategories/${id}`, {
+  const token = getToken();
+  const response = await fetch(`${API_BASE_URL}/api/subcategories/${id}`, {
     method: 'PATCH',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
     body,
   });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error || response.statusText);
+  }
+
+  return response.json();
 }
 
 export async function deleteSubCategory(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/api/subcategories/${id}`, {
-    method: 'DELETE',
-  });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
+  await apiCall(`/api/subcategories/${id}`, { method: 'DELETE' });
 }
 
 export async function toggleSubCategoryStatus(id: number): Promise<SubCategoryDTO> {
-  const res = await fetch(`${API_BASE_URL}/api/subcategories/${id}/toggle-status`, {
-    method: 'POST',
-  });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
+  return await apiCall<SubCategoryDTO>(`/api/subcategories/${id}/toggle-status`, { method: 'POST' });
 }

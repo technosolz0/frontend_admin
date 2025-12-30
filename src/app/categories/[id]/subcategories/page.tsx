@@ -173,8 +173,13 @@ export default function SubcategoriesPage() {
                         animate="visible"
                         className="hover:bg-blue-50 transition-colors duration-200"
                       >
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {subcategory.name}
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button
+                            onClick={() => router.push(`/subcategories/${subcategory.id}`)}
+                            className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                          >
+                            {subcategory.name}
+                          </button>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {subcategory.image && (

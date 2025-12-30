@@ -3,10 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "cross-env NEXT_IGNORE_ESLINT=true next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "next dev -p 3002",
+    "build": "next build",
+    "start": "next start -p 3002",
+    "lint": "next lint",
+    "security-audit": "npm audit --audit-level=moderate",
+    "clean": "rm -rf .next node_modules/.cache"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

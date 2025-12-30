@@ -8,41 +8,42 @@ import { PencilIcon, TrashIcon, CheckCircleIcon, NoSymbolIcon } from '@heroicons
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import {
-  CategoryDTO,
-  listCategories,
-  deleteCategory,
-  toggleCategoryStatus,
-} from '@/services/categories';
+  SubCategoryDTO,
+  listSubCategories,
+  deleteSubCategory,
+  toggleSubCategoryStatus,
+} from '@/services/subCategories';
 import { API_BASE_URL } from '@/lib/config';
 
-export default function CategoriesPage() {
-  const [categories, setCategories] = useState<CategoryDTO[]>([]);
+export default function SubCategoriesPage() {
+  const [subCategories, setSubCategories] = useState<SubCategoryDTO[]>([]);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const [isToggling, setIsToggling] = useState<number | null>(null);
   const [showSuccess, setShowSuccess] = useState<{ message: string; id: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const categoriesPerPage = 10;
+  const itemsPerPage = 10;
   const router = useRouter();
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchSubCategories = async () => {
       try {
-        const data = await listCategories();
-        setCategories(data);
+        const data = await listSubCategories();
+        setSubCategories(data);
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
-        console.error('Error fetching categories:', message);
-        setError(message || 'Failed to fetch categories.');
+        console.error('Error fetching subcategories:', message);
+        setError(message || 'Failed to fetch subcategories.');
       }
     };
-    fetchCategories();
+    fetchSubCategories();
   }, []);
 
-  const totalPages = Math.ceil(categories.length / categoriesPerPage);
-  const indexOfLastCategory = currentPage * categoriesPerPage;
-  const indexOfFirstCategory = indexOfLastCategory - categoriesPerPage;
-  const currentCategories = categories.slice(indexOfFirstCategory, indexOfLastCategory);
+  // Pagination Logic
+  const totalPages = Math.ceil(subCategories.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentSubCategories = subCategories.slice(indexOfFirstItem, indexOfLastItem);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -51,17 +52,17 @@ export default function CategoriesPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm(`Are you sure you want to delete category with ID ${id}?`)) {
+    if (confirm(`Are you sure you want to delete sub-category with ID ${id}?`)) {
       setIsDeleting(id);
       try {
-        await deleteCategory(id);
-        setCategories(categories.filter((category) => category.id !== id));
-        setShowSuccess({ message: 'Category deleted successfully!', id });
+        await deleteSubCategory(id);
+        setSubCategories(subCategories.filter((sc) => sc.id !== id));
+        setShowSuccess({ message: 'Sub-category deleted successfully!', id });
         setTimeout(() => setShowSuccess(null), 2000);
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
-        console.error('Error deleting category:', message);
-        setError(message || 'Failed to delete category.');
+        console.error('Error deleting sub-category:', message);
+        setError(message || 'Failed to delete sub-category.');
       } finally {
         setIsDeleting(null);
       }
@@ -69,20 +70,20 @@ export default function CategoriesPage() {
   };
 
   const handleToggleStatus = async (id: number) => {
-    if (confirm(`Are you sure you want to toggle status for category with ID ${id}?`)) {
+    if (confirm(`Are you sure you want to toggle status for sub-category with ID ${id}?`)) {
       setIsToggling(id);
       try {
-        const updatedCategory = await toggleCategoryStatus(id);
-        setCategories(categories.map((category) => (category.id === id ? updatedCategory : category)));
+        const updatedSubCategory = await toggleSubCategoryStatus(id);
+        setSubCategories(subCategories.map((sc) => (sc.id === id ? updatedSubCategory : sc)));
         setShowSuccess({
-          message: `Category ${updatedCategory.status === 'Active' ? 'activated' : 'deactivated'} successfully!`,
+          message: `Sub-category ${updatedSubCategory.status === 'active' ? 'activated' : 'deactivated'} successfully!`,
           id,
         });
         setTimeout(() => setShowSuccess(null), 2000);
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
-        console.error('Error toggling category status:', message);
-        setError(message || 'Failed to toggle category status.');
+        console.error('Error toggling sub-category status:', message);
+        setError(message || 'Failed to toggle sub-category status.');
       } finally {
         setIsToggling(null);
       }
@@ -111,15 +112,12 @@ export default function CategoriesPage() {
         >
           <div className="max-w-7xl mx-auto">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl">Category Management</h1>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => router.push('/categories/add')}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-medium"
-              >
-                Add New Category
-              </motion.button>
+              <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl">Sub-Category Management</h1>
+              {/* Note: In a real app, you might want a 'Create' button here too, but it often requires selecting a parent category first. 
+                  For now, we'll assume creation happens via the Categories page or similar flow, or we can add a simple button if needed. 
+                  Given the request is about 'fetching and showing', I'll prioritize the list. 
+              */}
+              <div/> 
             </div>
             {error && (
               <div className="bg-red-100 text-red-800 p-4 rounded-lg mb-4">
@@ -142,10 +140,10 @@ export default function CategoriesPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {currentCategories.length > 0 ? (
-                    currentCategories.map((category, index) => (
+                  {currentSubCategories.length > 0 ? (
+                    currentSubCategories.map((subCategory, index) => (
                     <motion.tr
-                      key={category.id}
+                      key={subCategory.id}
                       custom={index}
                       variants={rowVariants}
                       initial="hidden"
@@ -153,59 +151,60 @@ export default function CategoriesPage() {
                       className="hover:bg-blue-50 transition-colors duration-200"
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <button
-                          onClick={() => router.push(`/categories/${category.id}/subcategories`)}
-                          className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
-                        >
-                          {category.name}
-                        </button>
+                         <span className="text-sm font-medium text-gray-900">{subCategory.name}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {category.image && (
+                        {subCategory.image && (
                           <div className="relative w-16 h-16 rounded overflow-hidden">
                             <Image
-  src={`${API_BASE_URL}${category.image}`}
-  alt={category.name}
-  fill
-  className="object-cover"
-  unoptimized   
-/>
-
+                              src={`${API_BASE_URL}${subCategory.image}`}
+                              alt={subCategory.name}
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
                           </div>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
                           className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            category.status === 'Active'
+                            subCategory.status === 'active'
                               ? 'bg-green-100 text-green-800'
                               : 'bg-red-100 text-red-800'
                           }`}
                         >
-                          {category.status}
+                          {subCategory.status}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2">
+                        {/* 
+                           Edit/Link behavior might depend on routes I haven't fully swept. 
+                           Assuming standard edit route /categories/[id]/subcategories/edit/[subId] or similar?
+                           For now, I'll link to a generic structure or keep it simple. 
+                           The previous tool output showed: categories\[id]\subcategories\edit\[subcategoryId]\page.tsx
+                           So editing requires knowing the category ID.
+                           My SubCategoryDTO has category_id. Perfect.
+                        */}
                         <motion.button
-                          type="button"
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
-                          onClick={() => router.push(`/categories/edit/${category.id}`)}
+                          onClick={() => router.push(`/categories/${subCategory.category_id}/subcategories/edit/${subCategory.id}`)}
                           className="text-blue-600 hover:text-blue-800"
-                          disabled={isDeleting === category.id || isToggling === category.id}
+                          disabled={isDeleting === subCategory.id || isToggling === subCategory.id}
                         >
                           <PencilIcon className="w-5 h-5" />
                         </motion.button>
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
-                          onClick={() => handleDelete(category.id)}
+                          onClick={() => handleDelete(subCategory.id)}
                           className={`text-red-600 hover:text-red-800 ${
-                            isDeleting === category.id ? 'opacity-50 cursor-not-allowed' : ''
+                            isDeleting === subCategory.id ? 'opacity-50 cursor-not-allowed' : ''
                           }`}
-                          disabled={isDeleting === category.id || isToggling === category.id}
+                          disabled={isDeleting === subCategory.id || isToggling === subCategory.id}
                         >
-                          {isDeleting === category.id ? (
+                          {isDeleting === subCategory.id ? (
                             <svg
                               className="animate-spin h-5 w-5 text-red-600"
                               xmlns="http://www.w3.org/2000/svg"
@@ -233,13 +232,13 @@ export default function CategoriesPage() {
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
-                          onClick={() => handleToggleStatus(category.id)}
+                          onClick={() => handleToggleStatus(subCategory.id)}
                           className={`text-yellow-600 hover:text-yellow-800 ${
-                            isToggling === category.id ? 'opacity-50 cursor-not-allowed' : ''
+                            isToggling === subCategory.id ? 'opacity-50 cursor-not-allowed' : ''
                           }`}
-                          disabled={isDeleting === category.id || isToggling === category.id}
+                          disabled={isDeleting === subCategory.id || isToggling === subCategory.id}
                         >
-                          {isToggling === category.id ? (
+                          {isToggling === subCategory.id ? (
                             <svg
                               className="animate-spin h-5 w-5 text-yellow-600"
                               xmlns="http://www.w3.org/2000/svg"
@@ -269,7 +268,7 @@ export default function CategoriesPage() {
                   ))) : (
                     <tr>
                       <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
-                        No categories found.
+                        No sub-categories found.
                       </td>
                     </tr>
                   )}
@@ -289,7 +288,7 @@ export default function CategoriesPage() {
                 </button>
                 <span className="text-sm text-gray-700">
                   Page <span className="font-semibold">{currentPage}</span> of <span className="font-semibold">{totalPages}</span>
-                  <span className="ml-2 text-gray-500">({categories.length} total)</span>
+                  <span className="ml-2 text-gray-500">({subCategories.length} total)</span>
                 </span>
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
@@ -300,6 +299,7 @@ export default function CategoriesPage() {
                 </button>
               </div>
             )}
+            
           </div>
         </motion.div>
         <AnimatePresence>

@@ -1,8 +1,8 @@
 import { API_BASE_URL } from '@/lib/config';
+import { apiCall } from '@/lib/api';
 
 
 
-// ---------- Interfaces ----------
 export interface BookingDTO {
   date: string | number | Date;
   categoryName: string;
@@ -47,69 +47,49 @@ export interface VendorStatsDTO {
 }
 
 // ---------- Helper ----------
-async function fetchWithAuth<T>(
-  path: string,
-  options: RequestInit = {},
-  token?: string
-): Promise<T> {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
-
-  const res = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`API Error: ${res.status} - ${text}`);
-  }
-
-  return res.json() as Promise<T>;
-}
+// Removed custom fetchWithAuth - now using centralized apiCall
 
 // ---------- API Functions ----------
 
 // User
-export async function createBooking(body: BookingCreateDTO, token: string) {
-  return fetchWithAuth<BookingDTO>('/api/bookings/', { method: 'POST', body: JSON.stringify(body) }, token);
+export async function createBooking(body: BookingCreateDTO) {
+  return await apiCall<BookingDTO>(`/api/bookings/`, { method: 'POST', body: JSON.stringify(body) });
 }
 
-export async function getUserBookings(token: string, status?: string, skip = 0, limit = 10) {
+export async function getUserBookings(status?: string, skip = 0, limit = 10) {
   try {
-    const url = new URL(`${API_BASE_URL}/api/bookings/`);
-    if (status) url.searchParams.append('status', status);
-    url.searchParams.append('skip', skip.toString());
-    url.searchParams.append('limit', limit.toString());
-    return await fetchWithAuth<BookingDTO[]>(url.pathname + url.search, undefined, token);
+    let url = `/api/bookings/?skip=${skip}&limit=${limit}`;
+    if (status) url += `&status=${status}`;
+    return await apiCall<BookingDTO[]>(url);
   } catch (error) {
     console.error('Error fetching bookings:', error);
     return [];
   }
 }
 
-export async function getBooking(id: number, token: string) {
-  return fetchWithAuth<BookingDTO>(`/api/bookings/${id}`, undefined, token);
+export async function getBooking(id: number) {
+  return await apiCall<BookingDTO>(`/api/bookings/${id}`);
 }
 
-export async function updateBookingStatus(id: number, body: BookingStatusUpdateDTO, token: string) {
-  return fetchWithAuth<BookingDTO>(`/api/bookings/${id}/status`, { method: 'PATCH', body: JSON.stringify(body) }, token);
+export async function updateBookingStatus(id: number, body: BookingStatusUpdateDTO) {
+  return await apiCall<BookingDTO>(`/api/bookings/${id}/status`, { method: 'PATCH', body: JSON.stringify(body) });
 }
 
-export async function cancelBooking(id: number, token: string) {
-  return fetchWithAuth<void>(`/api/bookings/${id}`, { method: 'DELETE' }, token);
+export async function cancelBooking(id: number) {
+  return await apiCall<void>(`/api/bookings/${id}`, { method: 'DELETE' });
 }
 
-export async function sendCompletionOTP(id: number, token: string) {
-  return fetchWithAuth<void>(`/api/bookings/${id}/send-completion-otp`, { method: 'POST' }, token);
+export async function sendCompletionOTP(id: number) {
+  return await apiCall<void>(`/api/bookings/${id}/send-completion-otp`, { method: 'POST' });
 }
 
 // Vendor
-export async function getVendorBookings(token: string, status?: string, skip = 0, limit = 10) {
-  const url = new URL(`${API_BASE_URL}/api/bookings/vendor/my-bookings`);
-  if (status) url.searchParams.append('status', status);
-  url.searchParams.append('skip', skip.toString());
-  url.searchParams.append('limit', limit.toString());
-  return fetchWithAuth<BookingDTO[]>(url.pathname + url.search, undefined, token);
+export async function getVendorBookings(status?: string, skip = 0, limit = 10) {
+  let url = `/api/bookings/vendor/my-bookings?skip=${skip}&limit=${limit}`;
+  if (status) url += `&status=${status}`;
+  return await apiCall<BookingDTO[]>(url);
 }
 
-export async function getVendorStats(token: string) {
-  return fetchWithAuth<VendorStatsDTO>('/api/bookings/vendor/stats', undefined, token);
+export async function getVendorStats() {
+  return await apiCall<VendorStatsDTO>(`/api/bookings/vendor/stats`);
 }

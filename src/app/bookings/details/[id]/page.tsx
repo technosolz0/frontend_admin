@@ -4,85 +4,95 @@ import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { motion } from 'framer-motion';
 import { useParams, useRouter } from 'next/navigation';
-import { TagIcon, CubeIcon, UserIcon, WrenchScrewdriverIcon, UserGroupIcon, CalendarIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { TagIcon, CubeIcon, UserIcon, UserGroupIcon, CalendarIcon, CheckCircleIcon, MapPinIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { useState, useEffect } from 'react';
+import { API_BASE_URL } from '@/lib/config';
+import { apiCall } from '@/lib/api';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 interface Booking {
-  id: string;
-  customerName: string;
-  categoryId: string;
-  categoryName: string;
-  subcategoryId: string;
-  subcategoryName: string;
-  serviceId: string;
-  serviceName: string;
-  serviceProviderId: string;
-  serviceProviderName: string;
-  date: string;
-  status: string;
+  id: number;
+  user_id: number;
+  serviceprovider_id: number;
+  category_id: number;
+  subcategory_id: number;
+  scheduled_time?: string;
+  address: string;
+  status: 'pending' | 'accepted' | 'cancelled' | 'completed';
+  created_at: string;
+  otp?: string;
+  otp_created_at?: string;
+  // Related data
+  user_name?: string;
+  user_email?: string;
+  user_mobile?: string;
+  service_provider_name?: string;
+  category_name?: string;
+  subcategory_name?: string;
 }
-
-const mockBookings: Booking[] = [
-  {
-    id: '1',
-    customerName: 'John Doe',
-    categoryId: '1',
-    categoryName: 'Electronics',
-    subcategoryId: '1',
-    subcategoryName: 'Smartphones',
-    serviceId: '1',
-    serviceName: 'Phone Repair',
-    serviceProviderId: '1',
-    serviceProviderName: 'TechFix Ltd',
-    date: '2025-05-23 15:30 IST',
-    status: 'Confirmed',
-  },
-  {
-    id: '2',
-    customerName: 'Jane Smith',
-    categoryId: '1',
-    categoryName: 'Electronics',
-    subcategoryId: '2',
-    subcategoryName: 'Laptops',
-    serviceId: '2',
-    serviceName: 'Laptop Upgrade',
-    serviceProviderId: '2',
-    serviceProviderName: 'LapCare Solutions',
-    date: '2025-05-24 10:00 IST',
-    status: 'Pending',
-  },
-  {
-    id: '3',
-    customerName: 'Alice Brown',
-    categoryId: '2',
-    categoryName: 'Clothing',
-    subcategoryId: '3',
-    subcategoryName: 'T-Shirts',
-    serviceId: '3',
-    serviceName: 'T-Shirt Customization',
-    serviceProviderId: '3',
-    serviceProviderName: 'CustomTees Inc',
-    date: '2025-05-25 14:00 IST',
-    status: 'Cancelled',
-  },
-];
 
 export default function BookingDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const bookingId = params.id as string;
 
-  // Mock fetching booking by ID
-  const bookingIndex = parseInt(bookingId) % mockBookings.length;
-  const booking = mockBookings[bookingIndex] || mockBookings[0];
+  const [booking, setBooking] = useState<Booking | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!booking) {
+  useEffect(() => {
+    const fetchBooking = async () => {
+      try {
+        const data = await apiCall<Booking>(`${API_BASE_URL}/api/bookings/${bookingId}`);
+        setBooking(data);
+      } catch (err) {
+        console.error('Error fetching booking:', err);
+        setError('Failed to load booking details');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (bookingId) {
+      fetchBooking();
+    }
+  }, [bookingId]);
+
+  if (isLoading) {
     return (
       <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
         <Sidebar />
         <div className="flex-1 ml-64">
           <Navbar />
           <div className="p-6 sm:p-8">
-            <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl">Booking Not Found</h1>
+            <LoadingSpinner message="Loading booking details..." />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !booking) {
+    return (
+      <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
+        <Sidebar />
+        <div className="flex-1 ml-64">
+          <Navbar />
+          <div className="p-6 sm:p-8">
+            <div className="max-w-2xl mx-auto">
+              <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl mb-6">Booking Not Found</h1>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p className="text-red-800">{error || 'Booking not found or access denied.'}</p>
+              </div>
+              <div className="mt-4">
+                <button
+                  onClick={() => router.push('/bookings')}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 font-medium"
+                >
+                  Back to Bookings
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -129,58 +139,99 @@ export default function BookingDetailsPage() {
                   <UserIcon className="w-5 h-5 mr-2 text-blue-600" />
                   Customer Name
                 </h2>
-                <p className="text-lg text-gray-900">{booking.customerName}</p>
+                <p className="text-lg text-gray-900">{booking.user_name || 'N/A'}</p>
               </motion.div>
               <motion.div custom={2} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
+                <h2 className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                  <UserIcon className="w-5 h-5 mr-2 text-blue-600" />
+                  Customer Email
+                </h2>
+                <p className="text-lg text-gray-900">{booking.user_email || 'N/A'}</p>
+              </motion.div>
+              <motion.div custom={3} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
+                <h2 className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                  <UserIcon className="w-5 h-5 mr-2 text-blue-600" />
+                  Customer Mobile
+                </h2>
+                <p className="text-lg text-gray-900">{booking.user_mobile || 'N/A'}</p>
+              </motion.div>
+              <motion.div custom={4} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
                 <h2 className="flex items-center text-sm font-medium text-gray-700 mb-2">
                   <CubeIcon className="w-5 h-5 mr-2 text-blue-600" />
                   Category
                 </h2>
-                <p className="text-lg text-gray-900">{booking.categoryName}</p>
+                <p className="text-lg text-gray-900">{booking.category_name || 'N/A'}</p>
               </motion.div>
-              <motion.div custom={3} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
+              <motion.div custom={5} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
                 <h2 className="flex items-center text-sm font-medium text-gray-700 mb-2">
                   <CubeIcon className="w-5 h-5 mr-2 text-blue-600" />
                   Subcategory
                 </h2>
-                <p className="text-lg text-gray-900">{booking.subcategoryName}</p>
+                <p className="text-lg text-gray-900">{booking.subcategory_name || 'N/A'}</p>
               </motion.div>
-              <motion.div custom={4} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                <h2 className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                  <WrenchScrewdriverIcon className="w-5 h-5 mr-2 text-blue-600" />
-                  Service
-                </h2>
-                <p className="text-lg text-gray-900">{booking.serviceName}</p>
-              </motion.div>
-              <motion.div custom={5} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
+              <motion.div custom={6} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
                 <h2 className="flex items-center text-sm font-medium text-gray-700 mb-2">
                   <UserGroupIcon className="w-5 h-5 mr-2 text-blue-600" />
                   Service Provider
                 </h2>
-                <p className="text-lg text-gray-900">{booking.serviceProviderName}</p>
-              </motion.div>
-              <motion.div custom={6} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                <h2 className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                  <CalendarIcon className="w-5 h-5 mr-2 text-blue-600" />
-                  Date
-                </h2>
-                <p className="text-lg text-gray-900">{booking.date}</p>
+                <p className="text-lg text-gray-900">{booking.service_provider_name || 'N/A'}</p>
               </motion.div>
               <motion.div custom={7} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
+                <h2 className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                  <MapPinIcon className="w-5 h-5 mr-2 text-blue-600" />
+                  Address
+                </h2>
+                <p className="text-lg text-gray-900">{booking.address}</p>
+              </motion.div>
+              <motion.div custom={8} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
+                <h2 className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                  <CalendarIcon className="w-5 h-5 mr-2 text-blue-600" />
+                  Scheduled Time
+                </h2>
+                <p className="text-lg text-gray-900">{booking.scheduled_time ? new Date(booking.scheduled_time).toLocaleString() : 'Not scheduled'}</p>
+              </motion.div>
+              <motion.div custom={9} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
+                <h2 className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                  <ClockIcon className="w-5 h-5 mr-2 text-blue-600" />
+                  Created At
+                </h2>
+                <p className="text-lg text-gray-900">{new Date(booking.created_at).toLocaleString()}</p>
+              </motion.div>
+              {booking.otp && (
+                <motion.div custom={10} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
+                  <h2 className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                    <CheckCircleIcon className="w-5 h-5 mr-2 text-blue-600" />
+                    OTP
+                  </h2>
+                  <p className="text-lg text-gray-900">{booking.otp}</p>
+                </motion.div>
+              )}
+              {booking.otp_created_at && (
+                <motion.div custom={11} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
+                  <h2 className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                    <ClockIcon className="w-5 h-5 mr-2 text-blue-600" />
+                    OTP Created At
+                  </h2>
+                  <p className="text-lg text-gray-900">{new Date(booking.otp_created_at).toLocaleString()}</p>
+                </motion.div>
+              )}
+              <motion.div custom={12} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
                 <h2 className="flex items-center text-sm font-medium text-gray-700 mb-2">
                   <CheckCircleIcon className="w-5 h-5 mr-2 text-blue-600" />
                   Status
                 </h2>
                 <span
                   className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${
-                    booking.status === 'Confirmed'
+                    booking.status === 'completed'
                       ? 'bg-green-100 text-green-800'
-                      : booking.status === 'Pending'
+                      : booking.status === 'pending'
                       ? 'bg-yellow-100 text-yellow-800'
+                      : booking.status === 'accepted'
+                      ? 'bg-blue-100 text-blue-800'
                       : 'bg-red-100 text-red-800'
                   }`}
                 >
-                  {booking.status}
+                  {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                 </span>
               </motion.div>
               <div className="flex justify-end">

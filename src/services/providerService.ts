@@ -1,4 +1,5 @@
 import { API_BASE_URL } from '@/lib/config';
+import { apiCall } from '@/lib/api';
 
 export interface ServiceProviderDTO {
   status: string;
@@ -34,56 +35,39 @@ interface PaginatedResponse {
   total: number;
 }
 
-const getAuthHeaders = () => ({
-  Authorization: `Bearer ${localStorage.getItem('token')}`,
-  'Content-Type': 'application/json',
-});
+
 
 export async function listServiceProviders(page = 1, limit = 10): Promise<PaginatedResponse> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/vendor/?page=${page}&limit=${limit}`, {
-      headers: getAuthHeaders(),
-    });
-    if (!res.ok) throw new Error(await res.text() || res.statusText);
-    return res.json();
-  } catch (error) {
-    console.error('Error fetching service providers:', error);
-    return { vendors: [], total: 0 };
-  }
+  const response = await apiCall<PaginatedResponse>(`/api/vendor/?page=${page}&limit=${limit}`, {}, { vendors: [], total: 0 });
+  return response || { vendors: [], total: 0 };
 }
 
 export async function getServiceProvider(id: string): Promise<ServiceProviderDTO> {
-  const res = await fetch(`${API_BASE_URL}/api/vendor/${id}`, {
-    headers: getAuthHeaders(),
-  });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
+  return await apiCall<ServiceProviderDTO>(`/api/vendor/${id}`);
 }
 
 export async function createServiceProvider(body: FormData): Promise<ServiceProviderDTO> {
-  const res = await fetch(`${API_BASE_URL}/api/vendor/`, {
+  return await apiCall<ServiceProviderDTO>(`/api/vendor/`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
     body,
   });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
 }
 
 export async function updateServiceProvider(id: string, body: FormData): Promise<ServiceProviderDTO> {
-  const res = await fetch(`${API_BASE_URL}/api/vendor/${id}`, {
+  return await apiCall<ServiceProviderDTO>(`/api/vendor/${id}`, {
     method: 'PATCH',
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
     body,
   });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
-  return res.json();
 }
 
 export async function deleteServiceProvider(id: string): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/api/vendor/${id}`, {
+  await apiCall(`/api/vendor/${id}`, {
     method: 'DELETE',
-    headers: getAuthHeaders(),
   });
-  if (!res.ok) throw new Error(await res.text() || res.statusText);
+}
+
+export async function toggleProviderStatus(id: string): Promise<ServiceProviderDTO> {
+  return await apiCall<ServiceProviderDTO>(`/api/vendor/${id}/toggle-status`, {
+    method: 'PATCH',
+  });
 }
