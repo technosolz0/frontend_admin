@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '@/lib/config';
 import { apiCall } from '@/lib/api';
 
 

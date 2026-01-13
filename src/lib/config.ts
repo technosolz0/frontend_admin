@@ -10,7 +10,12 @@ export enum AppMode {
 // Get current app mode from environment or default to live
 export const CURRENT_APP_MODE: AppMode = (process.env.NEXT_PUBLIC_APP_MODE as AppMode) || AppMode.LIVE;
 
-
+// API URLs for different environments
+const API_URLS = {
+  [AppMode.DEV]: 'https://api.serwex.in',
+  [AppMode.TEST]: 'https://api.serwex.in',
+  [AppMode.LIVE]: 'https://api.serwex.in'
+};
 
 // Dynamic API base URL based on current app mode
 export const API_BASE_URL =

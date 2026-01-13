@@ -72,7 +72,7 @@ export default function ServiceProvidersPage() {
   const handleToggleStatusConfirm = async () => {
     if (!showStatusDialog) return;
 
-    const { provider } = showStatusDialog;
+    const { provider, newStatus } = showStatusDialog;
     setIsToggling(provider.id);
     setShowStatusDialog(null);
 

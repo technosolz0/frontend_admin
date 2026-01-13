@@ -3,8 +3,8 @@
 import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect, useCallback } from 'react';
-import { CheckCircleIcon, TrashIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
+import { useState, useEffect } from 'react';
+import { CheckCircleIcon, TrashIcon, EyeIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 import {
   FeedbackDTO,
   getFeedbackList,
@@ -30,7 +30,7 @@ export default function FeedbackPage() {
   const [isResponding, setIsResponding] = useState(false);
   const [showResponseModal, setShowResponseModal] = useState(false);
 
-  const fetchFeedback = useCallback(async () => {
+  const fetchFeedback = async () => {
     setLoading(true);
     setError(null);
     try {
@@ -42,23 +42,24 @@ export default function FeedbackPage() {
       const data = await getFeedbackList(skip, itemsPerPage, resolvedFilter);
       setFeedbackList(data.feedback);
       setTotalPages(Math.ceil(data.total / itemsPerPage));
-    } catch {
-      setError('Failed to fetch feedback');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message || 'Failed to fetch feedback');
     } finally {
       setLoading(false);
     }
-  }, [currentPage, filter, itemsPerPage]);
+  };
 
   useEffect(() => {
     fetchFeedback();
-  }, [currentPage, filter, fetchFeedback]);
+  }, [currentPage, filter]);
 
   const handleResolve = async (id: number, currentStatus: boolean) => {
     if (confirm(`Mark this feedback as ${currentStatus ? 'unresolved' : 'resolved'}?`)) {
       try {
         await updateFeedbackStatus(id, !currentStatus);
         fetchFeedback(); // Refresh list
-      } catch {
+      } catch (err: unknown) {
         alert('Failed to update status');
       }
     }
@@ -69,7 +70,7 @@ export default function FeedbackPage() {
       try {
         await deleteFeedback(id);
         fetchFeedback();
-      } catch {
+      } catch (err: unknown) {
         alert('Failed to delete feedback');
       }
     }
@@ -88,7 +89,7 @@ export default function FeedbackPage() {
       await respondToFeedback(selectedFeedback.id, responseMessage);
       setShowResponseModal(false);
       fetchFeedback();
-    } catch {
+    } catch (err: unknown) {
       alert('Failed to send response');
     } finally {
       setIsResponding(false);
