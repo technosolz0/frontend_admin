@@ -4,10 +4,10 @@
 //   allowedDevOrigins: [
 //     'localhost:3002',
 //     '127.0.0.1:3002',
-//     '194.164.148.133:3002',
-//     '10.108.231.167:3002', // 👈 remove http://
-//     'https://admin.serwex.in',
-//     'https://api.serwex.in',
+    // '194.164.148.133:3002',
+    // '10.108.231.167:3002', // 👈 remove http://
+    // 'https://admin.serwex.in',
+    // 'https://api.serwex.in',
 //   ],
 //   images: {
 //     remotePatterns: [
@@ -114,6 +114,10 @@ const nextConfig: NextConfig = {
     '172.19.48.1:3002',
     '0.0.0.0:3002',
     '[::]:3002',
+     '194.164.148.133:3002',
+    '10.108.231.167:3002', // 👈 remove http://
+    'https://admin.serwex.in',
+    'https://api.serwex.in',
   ],
 }
 
