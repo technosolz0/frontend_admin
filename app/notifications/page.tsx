@@ -2,8 +2,8 @@
 
 import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { useState, useEffect, useCallback } from 'react';
 import {
     BellIcon,
     TrashIcon,
@@ -32,7 +32,7 @@ export default function NotificationsPage() {
 
     const router = useRouter();
 
-    const fetchNotifications = async () => {
+    const fetchNotifications = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
@@ -45,24 +45,23 @@ export default function NotificationsPage() {
             setNotifications(listResponse.notifications);
             setTotalPages(Math.ceil(listResponse.total / itemsPerPage));
             setStats(statsResponse);
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : String(err);
-            setError(message || 'Failed to fetch messages');
+        } catch {
+            setError('Failed to fetch messages');
         } finally {
             setLoading(false);
         }
-    };
+    }, [currentPage]);
 
     useEffect(() => {
         fetchNotifications();
-    }, [currentPage]);
+    }, [fetchNotifications]);
 
     const handleDelete = async (id: number) => {
         if (confirm('Are you sure you want to delete this notification?')) {
             try {
                 await deleteNotification(id);
                 fetchNotifications();
-            } catch (err: unknown) {
+            } catch {
                 alert('Failed to delete notification');
             }
         }

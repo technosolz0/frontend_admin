@@ -13,7 +13,7 @@ export default function ServiceProvidersPage() {
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const [isToggling, setIsToggling] = useState<number | null>(null);
   const [showSuccess, setShowSuccess] = useState<{ message: string; id: number } | null>(null);
-  const [showStatusDialog, setShowStatusDialog] = useState<{ provider: ServiceProviderDTO; newStatus: string } | null>(null);
+  const [showStatusDialog, setShowStatusDialog] = useState<{ provider: ServiceProviderDTO } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -64,15 +64,14 @@ export default function ServiceProvidersPage() {
 
   const handleToggleStatusClick = (provider: ServiceProviderDTO) => {
     setShowStatusDialog({
-      provider,
-      newStatus: provider.admin_status === 'approved' ? 'pending' : 'approved'
+      provider
     });
   };
 
   const handleToggleStatusConfirm = async () => {
     if (!showStatusDialog) return;
 
-    const { provider, newStatus } = showStatusDialog;
+    const { provider } = showStatusDialog;
     setIsToggling(provider.id);
     setShowStatusDialog(null);
 
@@ -366,10 +365,6 @@ export default function ServiceProvidersPage() {
                     from{' '}
                     <span className="font-medium text-gray-900">
                       {showStatusDialog.provider.admin_status}
-                    </span>{' '}
-                    to{' '}
-                    <span className="font-medium text-gray-900">
-                      {showStatusDialog.newStatus}
                     </span>
                     ?
                   </p>

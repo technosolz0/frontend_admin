@@ -9,7 +9,7 @@ import {
 import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { PencilIcon, TrashIcon, NoSymbolIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 
@@ -49,21 +49,21 @@ export default function UsersPage() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const skip = (currentPage - 1) * usersPerPage;
       const response = await listUsers(skip, usersPerPage, searchTerm);
-      
+
       console.log('API Response:', response); // Debug log
-      
+
       // Handle the response structure from backend
       if (response && response.success) {
         setUsers(response.users || []);
         setTotalUsers(response.total || 0);
-        
+
         const calculatedTotalPages = Math.ceil((response.total || 0) / usersPerPage);
         setTotalPages(calculatedTotalPages || 1);
       } else {
@@ -73,16 +73,10 @@ export default function UsersPage() {
         setTotalPages(1);
         setError(response?.message || 'Failed to fetch users');
       }
-      
-    } catch (err: unknown) {
-      console.error('Fetch users error:', err);
-      
-      if (err instanceof Error) {
-        setError(err.message || 'Failed to fetch users.');
-      } else {
-        setError('Failed to fetch users. Please try again.');
-      }
-      
+
+    } catch {
+      setError('Failed to fetch users. Please try again.');
+
       // Reset state on error
       setUsers([]);
       setTotalUsers(0);
@@ -90,11 +84,11 @@ export default function UsersPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentPage, searchTerm]);
 
   useEffect(() => {
     fetchUsers();
-  }, [currentPage, searchTerm]);
+  }, [fetchUsers]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
