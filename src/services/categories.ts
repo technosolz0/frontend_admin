@@ -1,5 +1,6 @@
 import { apiCall, getToken, API_BASE_URL } from '@/lib/api';
 
+// Types matching backend CategoryOut
 export interface CategoryDTO {
   id: number;
   name: string;
@@ -8,7 +9,8 @@ export interface CategoryDTO {
 }
 
 export async function listCategories(): Promise<CategoryDTO[]> {
-  return await apiCall<CategoryDTO[]>('/api/categories/', {}, []);
+  const data = await apiCall<CategoryDTO[]>('/api/categories/', {}, []);
+  return data || [];
 }
 
 export async function createCategory(body: FormData): Promise<CategoryDTO> {

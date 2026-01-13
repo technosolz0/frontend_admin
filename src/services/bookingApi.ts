@@ -4,24 +4,24 @@ import { apiCall } from '@/lib/api';
 
 
 export interface BookingDTO {
-  date: string | number | Date;
-  categoryName: string;
-  subcategoryName: string;
-  serviceName: string;
-  customerName: string;
   id: number;
   user_id: number;
+  serviceprovider_id: number;
   category_id: number;
   subcategory_id: number;
-  serviceprovider_id: number;
   scheduled_time: string;
   status: 'pending' | 'accepted' | 'completed' | 'cancelled';
+  address: string;
+  otp?: string;
   created_at?: string;
   updated_at?: string;
   completed_at?: string;
-  otp?: string;
+
+  // Enriched fields from backend
+  user_name: string;
   category_name?: string;
   subcategory_name?: string;
+  service_name?: string;
 }
 
 export interface BookingCreateDTO {

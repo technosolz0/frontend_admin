@@ -117,7 +117,7 @@ export default function SubCategoriesPage() {
                   For now, we'll assume creation happens via the Categories page or similar flow, or we can add a simple button if needed. 
                   Given the request is about 'fetching and showing', I'll prioritize the list. 
               */}
-              <div/> 
+              <div />
             </div>
             {error && (
               <div className="bg-red-100 text-red-800 p-4 rounded-lg mb-4">
@@ -142,43 +142,44 @@ export default function SubCategoriesPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {currentSubCategories.length > 0 ? (
                     currentSubCategories.map((subCategory, index) => (
-                    <motion.tr
-                      key={subCategory.id}
-                      custom={index}
-                      variants={rowVariants}
-                      initial="hidden"
-                      animate="visible"
-                      className="hover:bg-blue-50 transition-colors duration-200"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                         <span className="text-sm font-medium text-gray-900">{subCategory.name}</span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {subCategory.image && (
-                          <div className="relative w-16 h-16 rounded overflow-hidden">
-                            <Image
-                              src={`${API_BASE_URL}${subCategory.image}`}
-                              alt={subCategory.name}
-                              fill
-                              className="object-cover"
-                              unoptimized
-                            />
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            subCategory.status === 'active'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {subCategory.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2">
-                        {/* 
+                      <motion.tr
+                        key={subCategory.id}
+                        custom={index}
+                        variants={rowVariants}
+                        initial="hidden"
+                        animate="visible"
+                        className="hover:bg-blue-50 transition-colors duration-200"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="text-sm font-medium text-gray-900">{subCategory.name}</span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {subCategory.image ? (
+                            <div className="relative w-16 h-16 rounded overflow-hidden">
+                              <Image
+                                src={subCategory.image.startsWith('http') ? subCategory.image : `${API_BASE_URL}${subCategory.image}`}
+                                alt={subCategory.name}
+                                fill
+                                className="object-cover"
+                                unoptimized
+                              />
+                            </div>
+                          ) : (
+                            <span className="text-gray-400">No Image</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${subCategory.status === 'active'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                              }`}
+                          >
+                            {subCategory.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2">
+                          {/* 
                            Edit/Link behavior might depend on routes I haven't fully swept. 
                            Assuming standard edit route /categories/[id]/subcategories/edit/[subId] or similar?
                            For now, I'll link to a generic structure or keep it simple. 
@@ -186,86 +187,84 @@ export default function SubCategoriesPage() {
                            So editing requires knowing the category ID.
                            My SubCategoryDTO has category_id. Perfect.
                         */}
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => router.push(`/categories/${subCategory.category_id}/subcategories/edit/${subCategory.id}`)}
-                          className="text-blue-600 hover:text-blue-800"
-                          disabled={isDeleting === subCategory.id || isToggling === subCategory.id}
-                        >
-                          <PencilIcon className="w-5 h-5" />
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleDelete(subCategory.id)}
-                          className={`text-red-600 hover:text-red-800 ${
-                            isDeleting === subCategory.id ? 'opacity-50 cursor-not-allowed' : ''
-                          }`}
-                          disabled={isDeleting === subCategory.id || isToggling === subCategory.id}
-                        >
-                          {isDeleting === subCategory.id ? (
-                            <svg
-                              className="animate-spin h-5 w-5 text-red-600"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                              ></circle>
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                              ></path>
-                            </svg>
-                          ) : (
-                            <TrashIcon className="w-5 h-5" />
-                          )}
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleToggleStatus(subCategory.id)}
-                          className={`text-yellow-600 hover:text-yellow-800 ${
-                            isToggling === subCategory.id ? 'opacity-50 cursor-not-allowed' : ''
-                          }`}
-                          disabled={isDeleting === subCategory.id || isToggling === subCategory.id}
-                        >
-                          {isToggling === subCategory.id ? (
-                            <svg
-                              className="animate-spin h-5 w-5 text-yellow-600"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                              ></circle>
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                              ></path>
-                            </svg>
-                          ) : (
-                            <NoSymbolIcon className="w-5 h-5" />
-                          )}
-                        </motion.button>
-                      </td>
-                    </motion.tr>
-                  ))) : (
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => router.push(`/categories/${subCategory.category_id}/subcategories/edit/${subCategory.id}`)}
+                            className="text-blue-600 hover:text-blue-800"
+                            disabled={isDeleting === subCategory.id || isToggling === subCategory.id}
+                          >
+                            <PencilIcon className="w-5 h-5" />
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleDelete(subCategory.id)}
+                            className={`text-red-600 hover:text-red-800 ${isDeleting === subCategory.id ? 'opacity-50 cursor-not-allowed' : ''
+                              }`}
+                            disabled={isDeleting === subCategory.id || isToggling === subCategory.id}
+                          >
+                            {isDeleting === subCategory.id ? (
+                              <svg
+                                className="animate-spin h-5 w-5 text-red-600"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                ></circle>
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
+                              </svg>
+                            ) : (
+                              <TrashIcon className="w-5 h-5" />
+                            )}
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleToggleStatus(subCategory.id)}
+                            className={`text-yellow-600 hover:text-yellow-800 ${isToggling === subCategory.id ? 'opacity-50 cursor-not-allowed' : ''
+                              }`}
+                            disabled={isDeleting === subCategory.id || isToggling === subCategory.id}
+                          >
+                            {isToggling === subCategory.id ? (
+                              <svg
+                                className="animate-spin h-5 w-5 text-yellow-600"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                ></circle>
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
+                              </svg>
+                            ) : (
+                              <NoSymbolIcon className="w-5 h-5" />
+                            )}
+                          </motion.button>
+                        </td>
+                      </motion.tr>
+                    ))) : (
                     <tr>
                       <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
                         No sub-categories found.
@@ -299,7 +298,7 @@ export default function SubCategoriesPage() {
                 </button>
               </div>
             )}
-            
+
           </div>
         </motion.div>
         <AnimatePresence>

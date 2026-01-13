@@ -144,129 +144,127 @@ export default function CategoriesPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {currentCategories.length > 0 ? (
                     currentCategories.map((category, index) => (
-                    <motion.tr
-                      key={category.id}
-                      custom={index}
-                      variants={rowVariants}
-                      initial="hidden"
-                      animate="visible"
-                      className="hover:bg-blue-50 transition-colors duration-200"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <button
-                          onClick={() => router.push(`/categories/${category.id}/subcategories`)}
-                          className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
-                        >
-                          {category.name}
-                        </button>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {category.image && (
-                          <div className="relative w-16 h-16 rounded overflow-hidden">
-                            <Image
-  src={`${API_BASE_URL}${category.image}`}
-  alt={category.name}
-  fill
-  className="object-cover"
-  unoptimized   
-/>
-
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            category.status === 'Active'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {category.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2">
-                        <motion.button
-                          type="button"
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => router.push(`/categories/edit/${category.id}`)}
-                          className="text-blue-600 hover:text-blue-800"
-                          disabled={isDeleting === category.id || isToggling === category.id}
-                        >
-                          <PencilIcon className="w-5 h-5" />
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleDelete(category.id)}
-                          className={`text-red-600 hover:text-red-800 ${
-                            isDeleting === category.id ? 'opacity-50 cursor-not-allowed' : ''
-                          }`}
-                          disabled={isDeleting === category.id || isToggling === category.id}
-                        >
-                          {isDeleting === category.id ? (
-                            <svg
-                              className="animate-spin h-5 w-5 text-red-600"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                              ></circle>
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                              ></path>
-                            </svg>
+                      <motion.tr
+                        key={category.id}
+                        custom={index}
+                        variants={rowVariants}
+                        initial="hidden"
+                        animate="visible"
+                        className="hover:bg-blue-50 transition-colors duration-200"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button
+                            onClick={() => router.push(`/categories/${category.id}/subcategories`)}
+                            className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                          >
+                            {category.name}
+                          </button>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {category.image ? (
+                            <div className="relative w-16 h-16 rounded overflow-hidden">
+                              <Image
+                                src={category.image.startsWith('http') ? category.image : `${API_BASE_URL}${category.image}`}
+                                alt={category.name}
+                                fill
+                                className="object-cover"
+                                unoptimized
+                              />
+                            </div>
                           ) : (
-                            <TrashIcon className="w-5 h-5" />
+                            <span className="text-gray-400">No Image</span>
                           )}
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleToggleStatus(category.id)}
-                          className={`text-yellow-600 hover:text-yellow-800 ${
-                            isToggling === category.id ? 'opacity-50 cursor-not-allowed' : ''
-                          }`}
-                          disabled={isDeleting === category.id || isToggling === category.id}
-                        >
-                          {isToggling === category.id ? (
-                            <svg
-                              className="animate-spin h-5 w-5 text-yellow-600"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                              ></circle>
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                              ></path>
-                            </svg>
-                          ) : (
-                            <NoSymbolIcon className="w-5 h-5" />
-                          )}
-                        </motion.button>
-                      </td>
-                    </motion.tr>
-                  ))) : (
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${category.status === 'Active'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                              }`}
+                          >
+                            {category.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2">
+                          <motion.button
+                            type="button"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => router.push(`/categories/edit/${category.id}`)}
+                            className="text-blue-600 hover:text-blue-800"
+                            disabled={isDeleting === category.id || isToggling === category.id}
+                          >
+                            <PencilIcon className="w-5 h-5" />
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleDelete(category.id)}
+                            className={`text-red-600 hover:text-red-800 ${isDeleting === category.id ? 'opacity-50 cursor-not-allowed' : ''
+                              }`}
+                            disabled={isDeleting === category.id || isToggling === category.id}
+                          >
+                            {isDeleting === category.id ? (
+                              <svg
+                                className="animate-spin h-5 w-5 text-red-600"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                ></circle>
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
+                              </svg>
+                            ) : (
+                              <TrashIcon className="w-5 h-5" />
+                            )}
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleToggleStatus(category.id)}
+                            className={`text-yellow-600 hover:text-yellow-800 ${isToggling === category.id ? 'opacity-50 cursor-not-allowed' : ''
+                              }`}
+                            disabled={isDeleting === category.id || isToggling === category.id}
+                          >
+                            {isToggling === category.id ? (
+                              <svg
+                                className="animate-spin h-5 w-5 text-yellow-600"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                ></circle>
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
+                              </svg>
+                            ) : (
+                              <NoSymbolIcon className="w-5 h-5" />
+                            )}
+                          </motion.button>
+                        </td>
+                      </motion.tr>
+                    ))) : (
                     <tr>
                       <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
                         No categories found.

@@ -2,8 +2,7 @@ import { API_BASE_URL } from '@/lib/config';
 import { apiCall } from '@/lib/api';
 
 export interface ServiceProviderDTO {
-  status: string;
-  id: string;
+  id: number;
   full_name: string;
   email: string | null;
   phone: string | null;
@@ -24,8 +23,9 @@ export interface ServiceProviderDTO {
   address_doc_type: string | null;
   address_doc_number: string | null;
   address_doc_url: string | null;
-  category_id: string;
-  subcategory_charges: { subcategory_id: string; service_charge: number }[];
+  category_id: number;
+  subcategory_charges: { subcategory_id: number; service_charge: number }[];
+  status: string;
   admin_status: string;
   work_status: string;
 }
@@ -42,7 +42,7 @@ export async function listServiceProviders(page = 1, limit = 10): Promise<Pagina
   return response || { vendors: [], total: 0 };
 }
 
-export async function getServiceProvider(id: string): Promise<ServiceProviderDTO> {
+export async function getServiceProvider(id: number): Promise<ServiceProviderDTO> {
   return await apiCall<ServiceProviderDTO>(`/api/vendor/${id}`);
 }
 
@@ -53,20 +53,20 @@ export async function createServiceProvider(body: FormData): Promise<ServiceProv
   });
 }
 
-export async function updateServiceProvider(id: string, body: FormData): Promise<ServiceProviderDTO> {
+export async function updateServiceProvider(id: number, body: FormData): Promise<ServiceProviderDTO> {
   return await apiCall<ServiceProviderDTO>(`/api/vendor/${id}`, {
     method: 'PATCH',
     body,
   });
 }
 
-export async function deleteServiceProvider(id: string): Promise<void> {
+export async function deleteServiceProvider(id: number): Promise<void> {
   await apiCall(`/api/vendor/${id}`, {
     method: 'DELETE',
   });
 }
 
-export async function toggleProviderStatus(id: string): Promise<ServiceProviderDTO> {
+export async function toggleProviderStatus(id: number): Promise<ServiceProviderDTO> {
   return await apiCall<ServiceProviderDTO>(`/api/vendor/${id}/toggle-status`, {
     method: 'PATCH',
   });

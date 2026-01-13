@@ -3,137 +3,107 @@
 import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect, useMemo } from 'react';
-import { TrashIcon, CheckCircleIcon, StarIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-
-
-interface FeedbackDTO {
-  id: number;
-  name: string;
-  rating: number;
-  comment: string;
-  feedbackDate: string;
-}
+import { useState, useEffect } from 'react';
+import { CheckCircleIcon, TrashIcon, EyeIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
+import {
+  FeedbackDTO,
+  getFeedbackList,
+  updateFeedbackStatus,
+  deleteFeedback,
+  respondToFeedback,
+} from '@/services/feedbackService';
 
 export default function FeedbackPage() {
-  const [allFeedbacks, setAllFeedbacks] = useState<FeedbackDTO[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [limit] = useState(10);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isDeleting, setIsDeleting] = useState<number | null>(null);
-  const [showSuccess, setShowSuccess] = useState<{ message: string; id: number } | null>(null);
+  const [feedbackList, setFeedbackList] = useState<FeedbackDTO[]>([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
+  // Pagination & Filtering
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [filter, setFilter] = useState<'all' | 'resolved' | 'unresolved'>('all');
+  const itemsPerPage = 10;
 
-  // Mock data for demonstration; replace with actual service calls
-  const mockFeedbacks = useMemo(() => [
-    { id: 1, name: 'John Doe', rating: 5, comment: 'Great service!', feedbackDate: '2025-09-15' },
-    { id: 2, name: 'Jane Smith', rating: 4, comment: 'Good experience overall.', feedbackDate: '2025-09-14' },
-    { id: 3, name: 'Bob Johnson', rating: 3, comment: 'Could be better.', feedbackDate: '2025-09-13' },
-    { id: 4, name: 'Alice Brown', rating: 5, comment: 'Excellent support!', feedbackDate: '2025-09-12' },
-    { id: 5, name: 'Charlie Wilson', rating: 2, comment: 'Needs improvement.', feedbackDate: '2025-09-11' },
-    { id: 6, name: 'Diana Evans', rating: 4, comment: 'Satisfactory.', feedbackDate: '2025-09-10' },
-    { id: 7, name: 'Eve Taylor', rating: 5, comment: 'Amazing product!', feedbackDate: '2025-09-09' },
-    { id: 8, name: 'Frank Miller', rating: 1, comment: 'Disappointing.', feedbackDate: '2025-09-08' },
-    { id: 9, name: 'Grace Lee', rating: 4, comment: 'Well done.', feedbackDate: '2025-09-07' },
-    { id: 10, name: 'Henry Garcia', rating: 3, comment: 'Average.', feedbackDate: '2025-09-06' },
-    { id: 11, name: 'Ivy Martinez', rating: 5, comment: 'Outstanding!', feedbackDate: '2025-09-05' },
-    { id: 12, name: 'Jack Rodriguez', rating: 4, comment: 'Good job.', feedbackDate: '2025-09-04' },
-    // Add more mock data as needed
-  ], []);
+  // Modals
+  const [selectedFeedback, setSelectedFeedback] = useState<FeedbackDTO | null>(null);
+  const [responseMessage, setResponseMessage] = useState('');
+  const [isResponding, setIsResponding] = useState(false);
+  const [showResponseModal, setShowResponseModal] = useState(false);
 
-  useEffect(() => {
-    const fetchFeedbacks = async () => {
-      setIsLoading(true);
-      try {
-        // Simulate API call; replace with actual listFeedbacks()
-        setAllFeedbacks(mockFeedbacks);
-        setTotal(mockFeedbacks.length);
-        setError(null);
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        setError(message || 'Failed to fetch feedbacks.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchFeedbacks();
-  }, [mockFeedbacks]);
-
-  const filteredFeedbacks = useMemo(() => {
-    if (!searchTerm) return allFeedbacks;
-    return allFeedbacks.filter(feedback =>
-      feedback.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      feedback.comment.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [allFeedbacks, searchTerm]);
-
-  const feedbacks = useMemo(() => {
-    const skip = (currentPage - 1) * limit;
-    return filteredFeedbacks.slice(skip, skip + limit);
-  }, [filteredFeedbacks, currentPage, limit]);
-
-  useEffect(() => {
-    setTotal(filteredFeedbacks.length);
-    setCurrentPage(1); // Reset to first page on search
-  }, [filteredFeedbacks.length]);
-
-  const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this feedback?')) return;
-    setIsDeleting(id);
+  const fetchFeedback = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      // Simulate delete; replace with actual deleteFeedback(id)
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
-      setAllFeedbacks(allFeedbacks.filter((f) => f.id !== id));
-      setShowSuccess({ message: 'Feedback deleted successfully!', id });
-      setTimeout(() => setShowSuccess(null), 2000);
+      const skip = (currentPage - 1) * itemsPerPage;
+      let resolvedFilter: boolean | undefined = undefined;
+      if (filter === 'resolved') resolvedFilter = true;
+      if (filter === 'unresolved') resolvedFilter = false;
+
+      const data = await getFeedbackList(skip, itemsPerPage, resolvedFilter);
+      setFeedbackList(data.feedback);
+      setTotalPages(Math.ceil(data.total / itemsPerPage));
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      setError(message || 'Failed to delete feedback.');
+      setError(message || 'Failed to fetch feedback');
     } finally {
-      setIsDeleting(null);
+      setLoading(false);
     }
   };
 
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= Math.ceil(total / limit)) {
-      setCurrentPage(page);
+  useEffect(() => {
+    fetchFeedback();
+  }, [currentPage, filter]);
+
+  const handleResolve = async (id: number, currentStatus: boolean) => {
+    if (confirm(`Mark this feedback as ${currentStatus ? 'unresolved' : 'resolved'}?`)) {
+      try {
+        await updateFeedbackStatus(id, !currentStatus);
+        fetchFeedback(); // Refresh list
+      } catch (err: unknown) {
+        alert('Failed to update status');
+      }
     }
   };
 
-  const totalPages = Math.ceil(total / limit);
+  const handleDelete = async (id: number) => {
+    if (confirm('Are you sure you want to delete this feedback?')) {
+      try {
+        await deleteFeedback(id);
+        fetchFeedback();
+      } catch (err: unknown) {
+        alert('Failed to delete feedback');
+      }
+    }
+  };
+
+  const openResponseModal = (feedback: FeedbackDTO) => {
+    setSelectedFeedback(feedback);
+    setResponseMessage(feedback.admin_response || '');
+    setShowResponseModal(true);
+  };
+
+  const handleSendResponse = async () => {
+    if (!selectedFeedback || !responseMessage) return;
+    setIsResponding(true);
+    try {
+      await respondToFeedback(selectedFeedback.id, responseMessage);
+      setShowResponseModal(false);
+      fetchFeedback();
+    } catch (err: unknown) {
+      alert('Failed to send response');
+    } finally {
+      setIsResponding(false);
+    }
+  };
 
   const rowVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.3 } }),
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { delay: i * 0.1, duration: 0.3 },
+    }),
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
-        <Sidebar />
-        <div className="flex-1 ml-64">
-          <Navbar />
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="p-6 sm:p-8"
-          >
-            <div className="max-w-7xl mx-auto">
-              <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl mb-6">Feedback</h1>
-              <div className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-8 flex justify-center items-center">
-                <div className="text-lg">Loading...</div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
@@ -143,197 +113,169 @@ export default function FeedbackPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
           className="p-6 sm:p-8"
         >
           <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl mb-6">Feedback</h1>
-            {error && (
-              <div className="bg-red-100 text-red-800 p-4 rounded-lg mb-4">
-                {error}
-              </div>
-            )}
-            {/* Search Input */}
-            <div className="mb-6">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search by name or comment..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-6 sm:text-4xl">User Feedback</h1>
+
+            {/* Filter Tabs */}
+            <div className="flex space-x-4 mb-6">
+              {(['all', 'resolved', 'unresolved'] as const).map((f) => (
+                <button
+                  key={f}
+                  onClick={() => { setFilter(f); setCurrentPage(1); }}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${filter === f ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
+                >
+                  {f.charAt(0).toUpperCase() + f.slice(1)}
+                </button>
+              ))}
             </div>
+
+            {error && <div className="bg-red-100 text-red-800 p-4 rounded-lg mb-4">{error}</div>}
+
             <motion.div
-              className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl overflow-hidden border border-blue-400"
-              initial={{ scale: 0.95 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.3 }}
+              className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl overflow-hidden border border-blue-100"
             >
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-blue-600 text-white">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">#</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Name</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Rating</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Comment</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Feedback Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {feedbacks.map((feedback, index) => (
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">User</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Subject</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Date</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {loading ? (
+                    <tr><td colSpan={5} className="p-8 text-center text-gray-500">Loading...</td></tr>
+                  ) : feedbackList.length === 0 ? (
+                    <tr><td colSpan={5} className="p-8 text-center text-gray-500">No feedback found.</td></tr>
+                  ) : (
+                    feedbackList.map((item, index) => (
                       <motion.tr
-                        key={feedback.id}
+                        key={item.id}
                         custom={index}
                         variants={rowVariants}
                         initial="hidden"
                         animate="visible"
-                        className="hover:bg-blue-50 transition-colors duration-200"
+                        className="hover:bg-blue-50 transition-colors"
                       >
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {(currentPage - 1) * limit + index + 1}
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          <div className="font-medium">{item.user_name}</div>
+                          <div className="text-gray-500 text-xs">{item.user_email}</div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{feedback.name}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <div className="flex items-center">
-                            {Array.from({ length: feedback.rating }).map((_, i) => (
-                              <StarIcon key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                            ))}
-                          </div>
+                        <td className="px-6 py-4 text-sm text-gray-700">
+                          <div className="font-semibold text-gray-900">{item.subject}</div>
+                          <div className="truncate max-w-xs text-gray-500">{item.message}</div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm max-w-xs truncate">{feedback.comment}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">{feedback.feedbackDate}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => handleDelete(feedback.id)}
-                            className={`text-red-600 hover:text-red-800 ${
-                              isDeleting === feedback.id ? 'opacity-50 cursor-not-allowed' : ''
-                            }`}
-                            disabled={isDeleting === feedback.id}
+                        <td className="px-6 py-4">
+                          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${item.is_resolved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                            {item.is_resolved ? 'Resolved' : 'Pending'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500">
+                          {new Date(item.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 flex space-x-2">
+                          {/* Respond / View Details */}
+                          <button
+                            onClick={() => openResponseModal(item)}
+                            className="text-blue-600 hover:text-blue-800"
+                            title="View & Respond"
+                          >
+                            <ChatBubbleLeftRightIcon className="w-5 h-5" />
+                          </button>
+
+                          {/* Filter/Resolve */}
+                          <button
+                            onClick={() => handleResolve(item.id, item.is_resolved)}
+                            className={`hover:text-green-800 ${item.is_resolved ? 'text-gray-400' : 'text-green-600'}`}
+                            title={item.is_resolved ? "Mark Unresolved" : "Mark Resolved"}
+                          >
+                            <CheckCircleIcon className="w-5 h-5" />
+                          </button>
+
+                          {/* Delete */}
+                          <button
+                            onClick={() => handleDelete(item.id)}
+                            className="text-red-600 hover:text-red-800"
+                            title="Delete"
                           >
                             <TrashIcon className="w-5 h-5" />
-                          </motion.button>
+                          </button>
                         </td>
                       </motion.tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200">
-                  <div className="flex flex-1 justify-between sm:hidden">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1}
-                      className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalPages}
-                      className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </motion.button>
-                  </div>
-                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm text-gray-700">
-                        Showing <span className="font-medium">{(currentPage - 1) * limit + 1}</span> to{' '}
-                        <span className="font-medium">{Math.min(currentPage * limit, total)}</span> of{' '}
-                        <span className="font-medium">{total}</span> results
-                      </p>
-                    </div>
-                    <div>
-                      <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => handlePageChange(currentPage - 1)}
-                          disabled={currentPage === 1}
-                          className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <span className="sr-only">Previous</span>
-                          <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        </motion.button>
-                        {/* Current page indicator */}
-                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                          let pageNum;
-                          if (totalPages <= 5) {
-                            pageNum = i + 1;
-                          } else if (currentPage <= 3) {
-                            pageNum = i + 1;
-                          } else if (currentPage >= totalPages - 2) {
-                            pageNum = totalPages - 4 + i;
-                          } else {
-                            pageNum = currentPage - 2 + i;
-                          }
-                          return (
-                            <motion.button
-                              key={pageNum}
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={() => handlePageChange(pageNum)}
-                              className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                currentPage === pageNum
-                                  ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                                  : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                              }`}
-                            >
-                              {pageNum}
-                            </motion.button>
-                          );
-                        })}
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => handlePageChange(currentPage + 1)}
-                          disabled={currentPage === totalPages}
-                          className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <span className="sr-only">Next</span>
-                          <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                          </svg>
-                        </motion.button>
-                      </nav>
-                    </div>
-                  </div>
-                </div>
-              )}
+                    ))
+                  )}
+                </tbody>
+              </table>
             </motion.div>
+
+            {/* Simple Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-6 flex justify-between">
+                <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-4 py-2 bg-white rounded border disabled:opacity-50">Prev</button>
+                <span className="self-center">Page {currentPage} of {totalPages}</span>
+                <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-4 py-2 bg-white rounded border disabled:opacity-50">Next</button>
+              </div>
+            )}
           </div>
         </motion.div>
 
+        {/* View/Response Modal */}
         <AnimatePresence>
-          {showSuccess && (
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 50 }}
-              className="fixed bottom-6 right-6 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2"
-            >
-              <CheckCircleIcon className="w-5 h-5" />
-              {showSuccess.message}
-            </motion.div>
+          {showResponseModal && selectedFeedback && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6"
+              >
+                <h2 className="text-xl font-bold mb-4">Feedback Details</h2>
+                <div className="mb-4">
+                  <p className="text-sm text-gray-500">From: {selectedFeedback.user_name} ({selectedFeedback.user_email})</p>
+                  <p className="text-sm text-gray-500">Subject: {selectedFeedback.subject}</p>
+                  {selectedFeedback.category && <p className="text-sm text-gray-500">Category: {selectedFeedback.category}</p>}
+                  <div className="mt-2 text-gray-800 bg-gray-50 p-3 rounded">
+                    {selectedFeedback.message}
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Response</label>
+                  <textarea
+                    className="w-full border rounded p-2 text-sm"
+                    rows={4}
+                    value={responseMessage}
+                    onChange={(e) => setResponseMessage(e.target.value)}
+                    placeholder="Type your response here..."
+                  />
+                </div>
+
+                <div className="flex justify-end space-x-3">
+                  <button
+                    onClick={() => setShowResponseModal(false)}
+                    className="px-4 py-2 text-gray-600 bg-gray-100 rounded hover:bg-gray-200"
+                  >
+                    Close
+                  </button>
+                  <button
+                    onClick={handleSendResponse}
+                    disabled={isResponding || !responseMessage}
+                    className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {isResponding ? 'Sending...' : 'Send Response'}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
           )}
         </AnimatePresence>
+
       </div>
     </div>
   );
