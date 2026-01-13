@@ -4,24 +4,20 @@ import { apiCall } from '@/lib/api';
 
 
 export interface BookingDTO {
-  date: string | number | Date;
-  categoryName: string;
-  subcategoryName: string;
-  serviceName: string;
-  customerName: string;
   id: number;
   user_id: number;
+  serviceprovider_id: number;
   category_id: number;
   subcategory_id: number;
-  serviceprovider_id: number;
-  scheduled_time: string;
   status: 'pending' | 'accepted' | 'completed' | 'cancelled';
-  created_at?: string;
-  updated_at?: string;
-  completed_at?: string;
+  scheduled_time: string;
+  address: string;
+  created_at: string;
   otp?: string;
+  user_name?: string;
   category_name?: string;
   subcategory_name?: string;
+  service_name?: string;
 }
 
 export interface BookingCreateDTO {
@@ -44,6 +40,20 @@ export interface VendorStatsDTO {
   total_bookings: number;
   status_counts: Record<string, number>;
   recent_bookings: BookingDTO[];
+}
+
+export interface BookingListResponse {
+  bookings: BookingDTO[];
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+  filters_applied: {
+    status?: string;
+    user_id?: number;
+    vendor_id?: number;
+    search?: string;
+  };
 }
 
 // ---------- Helper ----------
@@ -92,4 +102,29 @@ export async function getVendorBookings(status?: string, skip = 0, limit = 10) {
 
 export async function getVendorStats() {
   return await apiCall<VendorStatsDTO>(`/api/bookings/vendor/stats`);
+}
+
+// Admin
+export async function getAllBookings(
+  status?: string,
+  user_id?: number,
+  vendor_id?: number,
+  search?: string,
+  page: number = 1,
+  limit: number = 10
+): Promise<BookingListResponse> {
+  let url = `/api/bookings/admin/all?page=${page}&limit=${limit}`;
+  if (status) url += `&status=${status}`;
+  if (user_id) url += `&user_id=${user_id}`;
+  if (vendor_id) url += `&vendor_id=${vendor_id}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+
+  return await apiCall<BookingListResponse>(url, {}, {
+    bookings: [],
+    total: 0,
+    page: 1,
+    limit,
+    total_pages: 0,
+    filters_applied: {}
+  });
 }
