@@ -73,6 +73,10 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
+    name: 'Notifications',
+    href: '/notifications',
+  },
+  {
     name: 'Support',
     href: '/support',
     subItems: [
@@ -80,18 +84,13 @@ const menuItems: MenuItem[] = [
       { name: 'Manage Support', href: '/support/manage' },
     ],
   },
-   {
+  {
     name: 'Feedback',
     href: '/feedback',
-    // subItems: [
-    //   { name: 'View Tickets', href: '/support/tickets' },
-    //   { name: 'Manage Support', href: '/support/manage' },
-    // ],
   },
-   {
+  {
     name: 'Account Delete Request',
     href: '/accountdeleterequest',
-  
   },
 ];
 
@@ -124,9 +123,8 @@ const Sidebar = () => {
               </Link>
               {item.subItems && (
                 <ChevronDownIcon
-                  className={`w-5 h-5 transform transition-transform duration-200 ${
-                    openMenu === item.name ? 'rotate-180' : ''
-                  }`}
+                  className={`w-5 h-5 transform transition-transform duration-200 ${openMenu === item.name ? 'rotate-180' : ''
+                    }`}
                 />
               )}
             </div>

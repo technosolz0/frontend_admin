@@ -9,12 +9,12 @@ export interface BookingDTO {
   serviceprovider_id: number;
   category_id: number;
   subcategory_id: number;
-  status: 'pending' | 'accepted' | 'completed' | 'cancelled';
   scheduled_time: string;
-  address: string;
-  created_at: string;
+  status: 'pending' | 'accepted' | 'completed' | 'cancelled';
+  created_at?: string;
+  updated_at?: string;
+  completed_at?: string;
   otp?: string;
-  user_name?: string;
   category_name?: string;
   subcategory_name?: string;
   service_name?: string;

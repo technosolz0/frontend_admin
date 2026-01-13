@@ -4,30 +4,27 @@ import { apiCall } from '@/lib/api';
 export interface ServiceProviderDTO {
   id: number;
   full_name: string;
-  email: string;
-  phone: string;
-  address?: string;
-  state?: string;
-  city?: string;
-  pincode?: string;
-  account_holder_name?: string;
-  account_number?: string;
-  ifsc_code?: string;
-  upi_id?: string;
-  identity_doc_type?: string;
-  identity_doc_number?: string;
-  identity_doc_url?: string;
-  bank_doc_type?: string;
-  bank_doc_number?: string;
-  bank_doc_url?: string;
-  address_doc_type?: string;
-  address_doc_number?: string;
-  address_doc_url?: string;
-  category_id?: number;
-  category_name?: string;
-  profile_pic?: string;
-  step?: number;
-  status: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  state: string | null;
+  city: string | null;
+  pincode: string | null;
+  account_holder_name: string | null;
+  account_number: string | null;
+  ifsc_code: string | null;
+  upi_id: string | null;
+  identity_doc_type: string | null;
+  identity_doc_number: string | null;
+  identity_doc_url: string | null;
+  bank_doc_type: string | null;
+  bank_doc_number: string | null;
+  bank_doc_url: string | null;
+  address_doc_type: string | null;
+  address_doc_number: string | null;
+  address_doc_url: string | null;
+  category_id: string;
+  subcategory_charges: { subcategory_id: string; service_charge: number }[];
   admin_status: string;
   work_status: string;
   subcategory_charges: { subcategory_id: number; subcategory_name?: string; service_charge: number }[];
@@ -46,7 +43,7 @@ export async function listServiceProviders(page = 1, limit = 10): Promise<Pagina
   return response || { vendors: [], total: 0 };
 }
 
-export async function getServiceProvider(id: string): Promise<ServiceProviderDTO> {
+export async function getServiceProvider(id: number): Promise<ServiceProviderDTO> {
   return await apiCall<ServiceProviderDTO>(`/api/vendor/${id}`);
 }
 
@@ -57,20 +54,20 @@ export async function createServiceProvider(body: FormData): Promise<ServiceProv
   });
 }
 
-export async function updateServiceProvider(id: string, body: FormData): Promise<ServiceProviderDTO> {
+export async function updateServiceProvider(id: number, body: FormData): Promise<ServiceProviderDTO> {
   return await apiCall<ServiceProviderDTO>(`/api/vendor/${id}`, {
     method: 'PATCH',
     body,
   });
 }
 
-export async function deleteServiceProvider(id: string): Promise<void> {
+export async function deleteServiceProvider(id: number): Promise<void> {
   await apiCall(`/api/vendor/${id}`, {
     method: 'DELETE',
   });
 }
 
-export async function toggleProviderStatus(id: string): Promise<ServiceProviderDTO> {
+export async function toggleProviderStatus(id: number): Promise<ServiceProviderDTO> {
   return await apiCall<ServiceProviderDTO>(`/api/vendor/${id}/toggle-status`, {
     method: 'PATCH',
   });

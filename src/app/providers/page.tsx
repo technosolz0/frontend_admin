@@ -10,9 +10,9 @@ import { listServiceProviders, deleteServiceProvider, toggleProviderStatus, Serv
 
 export default function ServiceProvidersPage() {
   const [serviceProviders, setServiceProviders] = useState<ServiceProviderDTO[]>([]);
-  const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  const [isToggling, setIsToggling] = useState<string | null>(null);
-  const [showSuccess, setShowSuccess] = useState<{ message: string; id: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState<number | null>(null);
+  const [isToggling, setIsToggling] = useState<number | null>(null);
+  const [showSuccess, setShowSuccess] = useState<{ message: string; id: number } | null>(null);
   const [showStatusDialog, setShowStatusDialog] = useState<{ provider: ServiceProviderDTO; newStatus: string } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -43,7 +43,7 @@ export default function ServiceProvidersPage() {
     fetchProviders(currentPage);
   }, [currentPage]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     if (!confirm(`Are you sure you want to delete provider ${id}?`)) return;
     setIsDeleting(id);
     try {
@@ -209,11 +209,10 @@ export default function ServiceProvidersPage() {
                           whileTap={{ scale: 0.95 }}
                           onClick={() => handleToggleStatusClick(provider)}
                           disabled={isToggling === provider.id}
-                          className={`px-3 py-1 inline-flex items-center gap-1 text-xs leading-5 font-semibold rounded-full cursor-pointer transition-all duration-200 ${
-                            provider.admin_status === 'approved'
+                          className={`px-3 py-1 inline-flex items-center gap-1 text-xs leading-5 font-semibold rounded-full cursor-pointer transition-all duration-200 ${provider.admin_status === 'approved'
                               ? 'bg-green-100 text-green-800 hover:bg-green-200'
                               : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
-                          } ${isToggling === provider.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            } ${isToggling === provider.id ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                           {isToggling === provider.id ? (
                             <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -232,11 +231,10 @@ export default function ServiceProvidersPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            provider.work_status === 'work_on'
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${provider.work_status === 'work_on'
                               ? 'bg-green-100 text-green-800'
                               : 'bg-red-100 text-red-800'
-                          }`}
+                            }`}
                         >
                           {provider.work_status === 'work_on' ? 'Work On' : 'Work Off'}
                         </span>
@@ -255,9 +253,8 @@ export default function ServiceProvidersPage() {
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
                           onClick={() => handleDelete(provider.id)}
-                          className={`text-red-600 hover:text-red-800 ${
-                            isDeleting === provider.id ? 'opacity-50 cursor-not-allowed' : ''
-                          }`}
+                          className={`text-red-600 hover:text-red-800 ${isDeleting === provider.id ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
                           disabled={isDeleting === provider.id}
                         >
                           {isDeleting === provider.id ? (
@@ -304,7 +301,7 @@ export default function ServiceProvidersPage() {
               >
                 Previous
               </button>
-              
+
               <span className="text-gray-700">
                 Page {currentPage} of {totalPages}
               </span>

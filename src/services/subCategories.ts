@@ -1,5 +1,6 @@
 import { apiCall, getToken, API_BASE_URL } from '@/lib/api';
 
+// Types matching backend SubCategoryOut
 export interface SubCategoryDTO {
   id: number;
   name: string;
@@ -9,7 +10,8 @@ export interface SubCategoryDTO {
 }
 
 export async function listSubCategories(): Promise<SubCategoryDTO[]> {
-  return await apiCall<SubCategoryDTO[]>('/api/subcategories/', {}, []);
+  const data = await apiCall<SubCategoryDTO[]>('/api/subcategories/', {}, []);
+  return data || [];
 }
 
 export async function createSubCategory(body: FormData): Promise<SubCategoryDTO> {
@@ -53,5 +55,7 @@ export async function deleteSubCategory(id: number): Promise<void> {
 }
 
 export async function toggleSubCategoryStatus(id: number): Promise<SubCategoryDTO> {
-  return await apiCall<SubCategoryDTO>(`/api/subcategories/${id}/toggle-status`, { method: 'POST' });
+  return await apiCall<SubCategoryDTO>(`/api/subcategories/${id}/toggle-status`, {
+    method: 'POST',
+  });
 }
