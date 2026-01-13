@@ -1,4 +1,3 @@
-import { API_BASE_URL } from '@/lib/config';
 import { apiCall } from '@/lib/api';
 
 export interface ServiceProviderDTO {
@@ -27,7 +26,7 @@ export interface ServiceProviderDTO {
   admin_status: string;
   work_status: string;
   subcategory_charges: { subcategory_id: number; subcategory_name?: string; service_charge: number }[];
-  bank_accounts?: any[];
+  bank_accounts?: Record<string, unknown>[];
 }
 
 interface PaginatedResponse {
