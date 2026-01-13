@@ -103,6 +103,18 @@ const nextConfig: NextConfig = {
     // Only allow specific environment variables
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
+
+  // Add allowedDevOrigins to fix the cross-origin warning
+  allowedDevOrigins: [
+    'localhost',
+    'localhost:3002',
+    '127.0.0.1',
+    '127.0.0.1:3002',
+    '172.19.48.1',
+    '172.19.48.1:3002',
+    '0.0.0.0:3002',
+    '[::]:3002',
+  ],
 }
 
 export default nextConfig

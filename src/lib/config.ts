@@ -12,14 +12,14 @@ export const CURRENT_APP_MODE: AppMode = (process.env.NEXT_PUBLIC_APP_MODE as Ap
 
 // API URLs for different environments
 const API_URLS = {
-  [AppMode.DEV]: 'http://127.0.0.1:8000',
-  [AppMode.TEST]: 'https://test-api.serwex.in',
-  [AppMode.LIVE]: 'https://api.serwex.in'
+  [AppMode.DEV]: 'http://172.19.48.1:8000',
+  [AppMode.TEST]: 'http://172.19.48.1:8000',
+  [AppMode.LIVE]: 'http://172.19.48.1:8000'
 };
 
 // Dynamic API base URL based on current app mode
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? 'https://api.serwex.in';
+  process.env.NEXT_PUBLIC_API_URL ?? 'http://172.19.48.1:8000';
 
 
 // Helper function to get current environment

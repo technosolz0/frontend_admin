@@ -24,7 +24,6 @@ export interface ServiceProviderDTO {
   address_doc_number: string | null;
   address_doc_url: string | null;
   category_id: string;
-  subcategory_charges: { subcategory_id: string; service_charge: number }[];
   admin_status: string;
   work_status: string;
   subcategory_charges: { subcategory_id: number; subcategory_name?: string; service_charge: number }[];
