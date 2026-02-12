@@ -6,7 +6,7 @@ import { PencilIcon, TrashIcon, CheckCircleIcon, XMarkIcon } from '@heroicons/re
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
-import { listServiceProviders, deleteServiceProvider, toggleProviderStatus, ServiceProviderDTO } from '@/services/providerService';
+import { listServiceProviders, deleteServiceProvider, updateProviderStatus, ServiceProviderDTO } from '@/services/providerService';
 
 export default function ServiceProvidersPage() {
   const [serviceProviders, setServiceProviders] = useState<ServiceProviderDTO[]>([]);
@@ -48,7 +48,7 @@ export default function ServiceProvidersPage() {
     setIsDeleting(id);
     try {
       await deleteServiceProvider(id);
-      setServiceProviders((prev) => prev.filter((p) => p.id !== id));
+      setServiceProviders((prev: ServiceProviderDTO[]) => prev.filter((p: ServiceProviderDTO) => p.id !== id));
       setShowSuccess({ message: 'Service provider deleted successfully!', id });
       setTimeout(() => setShowSuccess(null), 2000);
     } catch (err: unknown) {
@@ -75,10 +75,12 @@ export default function ServiceProvidersPage() {
     setIsToggling(provider.id);
     setShowStatusDialog(null);
 
+    const nextStatus = provider.admin_status === 'active' ? 'inactive' : 'active';
+
     try {
-      const updatedProvider = await toggleProviderStatus(provider.id);
-      setServiceProviders((prev) =>
-        prev.map((p) => (p.id === provider.id ? updatedProvider : p))
+      const updatedProvider = await updateProviderStatus(provider.id, nextStatus);
+      setServiceProviders((prev: ServiceProviderDTO[]) =>
+        prev.map((p: ServiceProviderDTO) => (p.id === provider.id ? updatedProvider : p))
       );
       setShowSuccess({
         message: `Provider status changed to ${updatedProvider.admin_status}!`,
@@ -208,9 +210,9 @@ export default function ServiceProvidersPage() {
                           whileTap={{ scale: 0.95 }}
                           onClick={() => handleToggleStatusClick(provider)}
                           disabled={isToggling === provider.id}
-                          className={`px-3 py-1 inline-flex items-center gap-1 text-xs leading-5 font-semibold rounded-full cursor-pointer transition-all duration-200 ${provider.admin_status === 'approved'
-                              ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                              : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                          className={`px-3 py-1 inline-flex items-center gap-1 text-xs leading-5 font-semibold rounded-full cursor-pointer transition-all duration-200 ${provider.admin_status === 'active'
+                            ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                            : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
                             } ${isToggling === provider.id ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                           {isToggling === provider.id ? (
@@ -219,7 +221,7 @@ export default function ServiceProvidersPage() {
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                           ) : (
-                            provider.admin_status === 'approved' ? (
+                            provider.admin_status === 'active' ? (
                               <CheckCircleIcon className="w-3 h-3" />
                             ) : (
                               <XMarkIcon className="w-3 h-3" />
@@ -231,8 +233,8 @@ export default function ServiceProvidersPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
                           className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${provider.work_status === 'work_on'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
                             }`}
                         >
                           {provider.work_status === 'work_on' ? 'Work On' : 'Work Off'}
@@ -344,7 +346,7 @@ export default function ServiceProvidersPage() {
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
                 className="bg-white rounded-lg p-6 max-w-md w-full mx-4"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e: { stopPropagation: () => any; }) => e.stopPropagation()}
               >
                 <div className="flex items-center mb-4">
                   <div className="flex-shrink-0">

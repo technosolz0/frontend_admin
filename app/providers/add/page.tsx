@@ -3,77 +3,70 @@
 import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { TagIcon,  CheckCircleIcon, CubeIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
-
-interface FormData {
-  name: string;
-  categoryId: string;
-  subcategoryId: string;
-  serviceId: string;
-  contactInfo: string;
-  status: string;
-}
+import { TagIcon, CheckCircleIcon, CubeIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
+import { listCategories, listSubcategories, createServiceProvider } from '@/services/providerService';
 
 interface Category {
-  id: string;
+  id: number;
   name: string;
 }
 
 interface Subcategory {
-  id: string;
+  id: number;
   name: string;
-  categoryId: string;
+  category_id: number;
 }
 
-interface Service {
-  id: string;
-  name: string;
-  subcategoryId: string;
-}
-
-const mockCategories: Category[] = [
-  { id: '1', name: 'Electronics' },
-  { id: '2', name: 'Clothing' },
-  { id: '3', name: 'Books' },
-];
-
-const mockSubcategories: Subcategory[] = [
-  { id: '1', name: 'Smartphones', categoryId: '1' },
-  { id: '2', name: 'Laptops', categoryId: '1' },
-  { id: '3', name: 'T-Shirts', categoryId: '2' },
-  { id: '4', name: 'Jeans', categoryId: '2' },
-  { id: '5', name: 'Fiction', categoryId: '3' },
-];
-
-const mockServices: Service[] = [
-  { id: '1', name: 'Phone Repair', subcategoryId: '1' },
-  { id: '2', name: 'Laptop Upgrade', subcategoryId: '2' },
-  { id: '3', name: 'T-Shirt Customization', subcategoryId: '3' },
-];
+const fieldVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.1, duration: 0.4 },
+  }),
+};
 
 export default function AddServiceProviderPage() {
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState({
     name: '',
+    email: '',
+    phone: '',
+    password: '',
     categoryId: '',
     subcategoryId: '',
     serviceId: '',
-    contactInfo: '',
-    status: 'Active',
+    status: 'inactive',
   });
-  const [errors, setErrors] = useState<Partial<FormData>>({});
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [errors, setErrors] = useState<any>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
+  useEffect(() => {
+    listCategories().then(setCategories).catch(err => console.error('Failed to load categories', err));
+  }, []);
+
+  useEffect(() => {
+    if (formData.categoryId) {
+      listSubcategories(formData.categoryId).then(setSubcategories).catch(err => console.error('Failed to load subcategories', err));
+    } else {
+      setSubcategories([]);
+    }
+  }, [formData.categoryId]);
+
   const validateForm = (): boolean => {
-    const newErrors: Partial<FormData> = {};
+    const newErrors: any = {};
     if (!formData.name.trim()) newErrors.name = 'Name is required';
+    if (!formData.email.trim()) newErrors.email = 'Email is required';
+    if (!formData.phone.trim()) newErrors.phone = 'Phone is required';
+    if (!formData.password.trim()) newErrors.password = 'Password is required';
     if (!formData.categoryId) newErrors.categoryId = 'Category is required';
-    if (!formData.subcategoryId) newErrors.subcategoryId = 'Subcategory is required';
-    if (!formData.serviceId) newErrors.serviceId = 'Service is required';
-    if (!formData.contactInfo.trim()) newErrors.contactInfo = 'Contact info is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -83,29 +76,34 @@ export default function AddServiceProviderPage() {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
+    setError(null);
+
     try {
-      console.log('Form submitted:', formData);
+      const fd = new FormData();
+      fd.append('full_name', formData.name);
+      fd.append('email', formData.email);
+      fd.append('phone', formData.phone);
+      fd.append('password', formData.password);
+      fd.append('terms_accepted', 'true');
+      fd.append('identity_doc_type', 'Aadhar'); // Default for now
+      fd.append('identity_doc_number', '123456789012'); // Placeholder
+
+      await createServiceProvider(fd);
+
       setShowSuccess(true);
-      setFormData({ name: '', categoryId: '', subcategoryId: '', serviceId: '', contactInfo: '', status: 'Active' });
       setTimeout(() => {
         setShowSuccess(false);
         router.push('/providers');
       }, 2000);
-      // TODO: Call API to add service provider
-      // await fetch('/api/providers', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData),
-      // });
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('Failed to add service provider.');
+    } catch (err: any) {
+      setError(err.message || 'Failed to add service provider.');
+      console.error(err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -113,19 +111,8 @@ export default function AddServiceProviderPage() {
       ...(name === 'categoryId' ? { subcategoryId: '', serviceId: '' } : {}),
       ...(name === 'subcategoryId' ? { serviceId: '' } : {}),
     }));
-    setErrors({ ...errors, [name]: undefined });
-  };
-
-  const filteredSubcategories = mockSubcategories.filter((sub) => sub.categoryId === formData.categoryId);
-  const filteredServices = mockServices.filter((service) => service.subcategoryId === formData.subcategoryId);
-
-  const fieldVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: { delay: i * 0.1, duration: 0.4 },
-    }),
+    setErrors((prev: any) => ({ ...prev, [name]: undefined }));
+    setError(null);
   };
 
   return (
@@ -133,166 +120,65 @@ export default function AddServiceProviderPage() {
       <Sidebar />
       <div className="flex-1 ml-64">
         <Navbar />
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="p-6 sm:p-8"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="p-6 sm:p-8">
           <div className="max-w-2xl mx-auto">
             <h1 className="text-3xl font-bold text-gray-800 mb-6 sm:text-4xl">Add New Service Provider</h1>
-            <motion.div
-              className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100"
-              initial={{ scale: 0.95 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.3 }}
-            >
+            <motion.div className="bg-white shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100" initial={{ scale: 0.95 }} animate={{ scale: 1 }} transition={{ duration: 0.3 }}>
               <form onSubmit={handleSubmit}>
-                <motion.div custom={0} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                  <label htmlFor="name" className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                    <TagIcon className="w-5 h-5 mr-2 text-blue-600" />
-                    Name
+                {/* Name */}
+                <div className="mb-6">
+                  <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                    <TagIcon className="w-5 h-5 mr-2 text-blue-600" /> Name
                   </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
-                    disabled={isSubmitting}
-                    placeholder="Enter service provider name"
-                  />
-                  {errors.name && <p className="mt-2 text-sm text-red-600">{errors.name}</p>}
-                </motion.div>
-                <motion.div custom={1} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                  <label htmlFor="categoryId" className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                    <CubeIcon className="w-5 h-5 mr-2 text-blue-600" />
-                    Category
+                  <input type="text" name="name" value={formData.name} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 bg-gray-50 py-3 px-4" disabled={isSubmitting} placeholder="Full Name" />
+                  {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name}</p>}
+                </div>
+
+                {/* Email */}
+                <div className="mb-6">
+                  <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                    <EnvelopeIcon className="w-5 h-5 mr-2 text-blue-600" /> Email
                   </label>
-                  <select
-                    id="categoryId"
-                    name="categoryId"
-                    value={formData.categoryId}
-                    onChange={handleChange}
-                    className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
-                    disabled={isSubmitting}
-                  >
-                    <option value="">Select a category</option>
-                    {mockCategories.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 bg-gray-50 py-3 px-4" disabled={isSubmitting} placeholder="Email Address" />
+                  {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
+                </div>
+
+                {/* Phone */}
+                <div className="mb-6">
+                  <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                    <TagIcon className="w-5 h-5 mr-2 text-blue-600" /> Phone
+                  </label>
+                  <input type="text" name="phone" value={formData.phone} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 bg-gray-50 py-3 px-4" disabled={isSubmitting} placeholder="Phone Number" />
+                  {errors.phone && <p className="mt-1 text-xs text-red-600">{errors.phone}</p>}
+                </div>
+
+                {/* Password */}
+                <div className="mb-6">
+                  <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                    <TagIcon className="w-5 h-5 mr-2 text-blue-600" /> Password
+                  </label>
+                  <input type="password" name="password" value={formData.password} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 bg-gray-50 py-3 px-4" disabled={isSubmitting} placeholder="Set Password" />
+                  {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password}</p>}
+                </div>
+
+                {/* Category */}
+                <div className="mb-6">
+                  <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                    <CubeIcon className="w-5 h-5 mr-2 text-blue-600" /> Category
+                  </label>
+                  <select name="categoryId" value={formData.categoryId} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 bg-gray-50 py-3 px-4" disabled={isSubmitting}>
+                    <option value="">Select Category</option>
+                    {categories.map((cat) => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                   </select>
-                  {errors.categoryId && <p className="mt-2 text-sm text-red-600">{errors.categoryId}</p>}
-                </motion.div>
-                <motion.div custom={2} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                  <label htmlFor="subcategoryId" className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                    <CubeIcon className="w-5 h-5 mr-2 text-blue-600" />
-                    Subcategory
-                  </label>
-                  <select
-                    id="subcategoryId"
-                    name="subcategoryId"
-                    value={formData.subcategoryId}
-                    onChange={handleChange}
-                    className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
-                    disabled={isSubmitting || !formData.categoryId}
-                  >
-                    <option value="">Select a subcategory</option>
-                    {filteredSubcategories.map((subcategory) => (
-                      <option key={subcategory.id} value={subcategory.id}>
-                        {subcategory.name}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.subcategoryId && <p className="mt-2 text-sm text-red-600">{errors.subcategoryId}</p>}
-                </motion.div>
-                <motion.div custom={3} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                  <label htmlFor="serviceId" className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                    <CubeIcon className="w-5 h-5 mr-2 text-blue-600" />
-                    Service
-                  </label>
-                  <select
-                    id="serviceId"
-                    name="serviceId"
-                    value={formData.serviceId}
-                    onChange={handleChange}
-                    className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
-                    disabled={isSubmitting || !formData.subcategoryId}
-                  >
-                    <option value="">Select a service</option>
-                    {filteredServices.map((service) => (
-                      <option key={service.id} value={service.id}>
-                        {service.name}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.serviceId && <p className="mt-2 text-sm text-red-600">{errors.serviceId}</p>}
-                </motion.div>
-                <motion.div custom={4} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                  <label htmlFor="contactInfo" className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                    <EnvelopeIcon className="w-5 h-5 mr-2 text-blue-600" />
-                    Contact Info
-                  </label>
-                  <input
-                    type="text"
-                    id="contactInfo"
-                    name="contactInfo"
-                    value={formData.contactInfo}
-                    onChange={handleChange}
-                    className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
-                    disabled={isSubmitting}
-                    placeholder="Enter contact info (e.g., email)"
-                  />
-                  {errors.contactInfo && <p className="mt-2 text-sm text-red-600">{errors.contactInfo}</p>}
-                </motion.div>
-                <motion.div custom={5} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                  <label htmlFor="status" className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                    <CheckCircleIcon className="w-5 h-5 mr-2 text-blue-600" />
-                    Status
-                  </label>
-                  <select
-                    id="status"
-                    name="status"
-                    value={formData.status}
-                    onChange={handleChange}
-                    className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
-                    disabled={isSubmitting}
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
-                </motion.div>
+                </div>
+
+                {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
+
                 <div className="flex justify-end gap-4">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    type="button"
-                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-300 font-medium"
-                    onClick={() => router.push('/providers')}
-                    disabled={isSubmitting}
-                  >
-                    Cancel
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    type="submit"
-                    className={`px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-medium flex items-center justify-center ${
-                      isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                    ) : null}
-                    {isSubmitting ? 'Adding...' : 'Add Service Provider'}
-                  </motion.button>
+                  <button type="button" onClick={() => router.push('/providers')} className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg">Cancel</button>
+                  <button type="submit" className="px-6 py-3 bg-blue-600 text-white rounded-lg disabled:opacity-50" disabled={isSubmitting}>
+                    {isSubmitting ? 'Adding...' : 'Add Provider'}
+                  </button>
                 </div>
               </form>
             </motion.div>
@@ -300,14 +186,8 @@ export default function AddServiceProviderPage() {
         </motion.div>
         <AnimatePresence>
           {showSuccess && (
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 50 }}
-              className="fixed bottom-6 right-6 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2"
-            >
-              <CheckCircleIcon className="w-5 h-5" />
-              Service provider added successfully!
+            <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed bottom-6 right-6 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg">
+              Provider added successfully! OTP sent to email.
             </motion.div>
           )}
         </AnimatePresence>

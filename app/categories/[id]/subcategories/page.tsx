@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { PencilIcon, TrashIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import { useParams, useRouter } from 'next/navigation';
-import { listSubCategories, deleteSubCategory, toggleSubCategoryStatus, SubCategoryDTO } from '@/services/subCategories';
+import { listSubCategoriesByCategory, deleteSubCategory, toggleSubCategoryStatus, SubCategoryDTO } from '@/services/subCategories';
 import { API_BASE_URL } from '@/lib/config';
 import Image from "next/image";
 
@@ -25,16 +25,12 @@ export default function SubcategoriesPage() {
   useEffect(() => {
     const fetchSubcategories = async () => {
       try {
-        const allSubcategories = await listSubCategories();
-        // Filter subcategories by category_id
-        const categorySubcategories = allSubcategories.filter(
-          sub => sub.category_id === parseInt(categoryId)
-        );
+        const categorySubcategories = await listSubCategoriesByCategory(parseInt(categoryId));
         setSubcategories(categorySubcategories);
       } catch (error) {
         console.error('Error fetching subcategories:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Failed to load subcategories';
-        alert(errorMessage);
+        // Specialized endpoint returns 404 if none found, we handle it as empty list
+        setSubcategories([]);
       } finally {
         setIsLoading(false);
       }
@@ -65,14 +61,14 @@ export default function SubcategoriesPage() {
     setIsToggling(id);
     try {
       const updatedSubcategory = await toggleSubCategoryStatus(id);
-      setSubcategories(prev => 
-        prev.map(sub => 
+      setSubcategories(prev =>
+        prev.map(sub =>
           sub.id === id ? updatedSubcategory : sub
         )
       );
-      setShowSuccess({ 
-        message: `Subcategory status updated to ${updatedSubcategory.status}!`, 
-        id 
+      setShowSuccess({
+        message: `Subcategory status updated to ${updatedSubcategory.status}!`,
+        id
       });
       setTimeout(() => setShowSuccess(null), 3000);
     } catch (error) {
@@ -182,33 +178,33 @@ export default function SubcategoriesPage() {
                           </button>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {(() => {
-                          const imageUrl = subcategory.image && subcategory.image.trim() !== '' ? `${API_BASE_URL}${subcategory.image}` : null;
-                          const isValidUrl = imageUrl ? (() => {
-                            try {
-                              new URL(imageUrl);
-                              return true;
-                            } catch {
-                              return false;
-                            }
-                          })() : false;
+                          {(() => {
+                            const imageUrl = subcategory.image && subcategory.image.trim() !== '' ? `${API_BASE_URL}${subcategory.image}` : null;
+                            const isValidUrl = imageUrl ? (() => {
+                              try {
+                                new URL(imageUrl);
+                                return true;
+                              } catch {
+                                return false;
+                              }
+                            })() : false;
 
-                          return isValidUrl && imageUrl ? (
-                            <div className="relative w-16 h-16 rounded overflow-hidden">
-                             <Image
-  src={imageUrl}
-  alt={subcategory.name}
-  fill
-  className="object-cover"
-  unoptimized
-/>
-                            </div>
-                          ) : (
-                            <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
-                              <span className="text-gray-500 text-xs">No Image</span>
-                            </div>
-                          );
-                        })()}
+                            return isValidUrl && imageUrl ? (
+                              <div className="relative w-16 h-16 rounded overflow-hidden">
+                                <Image
+                                  src={imageUrl}
+                                  alt={subcategory.name}
+                                  fill
+                                  className="object-cover"
+                                  unoptimized
+                                />
+                              </div>
+                            ) : (
+                              <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
+                                <span className="text-gray-500 text-xs">No Image</span>
+                              </div>
+                            );
+                          })()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <motion.button
@@ -216,11 +212,10 @@ export default function SubcategoriesPage() {
                             whileTap={{ scale: 0.95 }}
                             onClick={() => handleToggleStatus(subcategory.id)}
                             disabled={isToggling === subcategory.id}
-                            className={`px-3 py-1 inline-flex items-center gap-1 text-xs leading-5 font-semibold rounded-full cursor-pointer transition-all duration-200 ${
-                              subcategory.status === 'active' 
-                                ? 'bg-green-100 text-green-800 hover:bg-green-200' 
-                                : 'bg-red-100 text-red-800 hover:bg-red-200'
-                            } ${isToggling === subcategory.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`px-3 py-1 inline-flex items-center gap-1 text-xs leading-5 font-semibold rounded-full cursor-pointer transition-all duration-200 ${subcategory.status === 'active'
+                              ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                              : 'bg-red-100 text-red-800 hover:bg-red-200'
+                              } ${isToggling === subcategory.id ? 'opacity-50 cursor-not-allowed' : ''}`}
                           >
                             {isToggling === subcategory.id ? (
                               <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -234,7 +229,7 @@ export default function SubcategoriesPage() {
                                 <XCircleIcon className="w-3 h-3" />
                               )
                             )}
-                          {subcategory.status.charAt(0).toUpperCase() + subcategory.status.slice(1)}
+                            {subcategory.status.charAt(0).toUpperCase() + subcategory.status.slice(1)}
 
                           </motion.button>
                         </td>
@@ -252,9 +247,8 @@ export default function SubcategoriesPage() {
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => handleDelete(subcategory.id)}
-                            className={`text-red-600 hover:text-red-800 transition-colors duration-200 ${
-                              isDeleting === subcategory.id ? 'opacity-50 cursor-not-allowed' : ''
-                            }`}
+                            className={`text-red-600 hover:text-red-800 transition-colors duration-200 ${isDeleting === subcategory.id ? 'opacity-50 cursor-not-allowed' : ''
+                              }`}
                             disabled={isDeleting === subcategory.id || isToggling === subcategory.id}
                           >
                             {isDeleting === subcategory.id ? (

@@ -54,7 +54,7 @@ export async function apiCall<T>(
   try {
     const response = await fetch(url, {
       headers: {
-        'Content-Type': 'application/json',
+        ...(!(options.body instanceof FormData) && { 'Content-Type': 'application/json' }),
         ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
       },

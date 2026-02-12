@@ -8,6 +8,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { TagIcon, CheckCircleIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { getCategory, partialUpdateCategory } from '@/services/categories';
+import { API_BASE_URL } from '@/lib/config';
 
 type FormData = {
   name: string;
@@ -161,12 +162,12 @@ export default function EditCategoryPage() {
                   {existingImage && (
                     <div className="relative w-24 h-24 mb-4">
                       <Image
-                        src={existingImage}
+                        src={existingImage.startsWith('http') ? existingImage : `${API_BASE_URL}${existingImage}`}
                         alt="Current category"
                         fill
                         className="rounded object-cover"
                         sizes="96px"
-                        unoptimized   
+                        unoptimized
                       />
                     </div>
                   )}
@@ -189,9 +190,8 @@ export default function EditCategoryPage() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     type="submit"
-                    className={`px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-medium flex items-center justify-center ${
-                      isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-medium flex items-center justify-center ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? 'Saving...' : 'Save Changes'}

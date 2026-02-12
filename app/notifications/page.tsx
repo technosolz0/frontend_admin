@@ -78,10 +78,9 @@ export default function NotificationsPage() {
 
     const getTargetLabel = (type: string) => {
         switch (type) {
-            case 'all_users': return 'All Users';
+            case 'all_users': return 'All Regular Users';
             case 'specific_users': return 'Specific Users';
-            case 'all_vendors': return 'All Vendors';
-            case 'specific_vendors': return 'Specific Vendors';
+            case 'service_providers': return 'All Service Providers';
             default: return type;
         }
     };

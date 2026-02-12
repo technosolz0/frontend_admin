@@ -17,6 +17,8 @@ export interface BookingDTO {
   category_name?: string;
   subcategory_name?: string;
   service_name?: string;
+  user_name?: string;
+  address?: string;
 }
 
 export interface BookingCreateDTO {
@@ -104,6 +106,10 @@ export async function getVendorStats() {
 }
 
 // Admin
+export async function deleteBookingAdmin(id: number) {
+  return await apiCall(`/api/bookings/admin/${id}`, { method: 'DELETE' });
+}
+
 export async function getAllBookings(
   status?: string,
   user_id?: number,
@@ -123,7 +129,7 @@ export async function getAllBookings(
     total: 0,
     page: 1,
     limit,
-    total_pages: 0,
+    total_pages: 1,
     filters_applied: {}
   });
 }

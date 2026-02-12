@@ -14,6 +14,11 @@ export async function listSubCategories(): Promise<SubCategoryDTO[]> {
   return data || [];
 }
 
+export async function listSubCategoriesByCategory(categoryId: number): Promise<SubCategoryDTO[]> {
+  const data = await apiCall<SubCategoryDTO[]>(`/api/subcategories/by-category/${categoryId}`, {}, []);
+  return data || [];
+}
+
 export async function createSubCategory(body: FormData): Promise<SubCategoryDTO> {
   const token = getToken();
   const response = await fetch(`${API_BASE_URL}/api/subcategories/`, {

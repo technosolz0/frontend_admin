@@ -46,16 +46,34 @@ export async function getServiceProvider(id: number): Promise<ServiceProviderDTO
 }
 
 export async function createServiceProvider(body: FormData): Promise<ServiceProviderDTO> {
-  return await apiCall<ServiceProviderDTO>(`/api/vendor/`, {
+  return await apiCall<ServiceProviderDTO>(`/api/vendor/register`, {
     method: 'POST',
     body,
   });
 }
 
-export async function updateServiceProvider(id: number, body: FormData): Promise<ServiceProviderDTO> {
-  return await apiCall<ServiceProviderDTO>(`/api/vendor/${id}`, {
-    method: 'PATCH',
-    body,
+export async function updateServiceProviderAddress(vendor_id: number, data: any): Promise<ServiceProviderDTO> {
+  const formData = new FormData();
+  formData.append('vendor_id', vendor_id.toString());
+  Object.keys(data).forEach(key => {
+    if (data[key] !== null && data[key] !== undefined) {
+      formData.append(key, data[key]);
+    }
+  });
+
+  return await apiCall<ServiceProviderDTO>(`/api/vendor/profile/address`, {
+    method: 'PUT',
+    body: formData,
+  });
+}
+
+export async function updateServiceProviderWork(vendor_id: number, data: any): Promise<ServiceProviderDTO> {
+  return await apiCall<ServiceProviderDTO>(`/api/vendor/profile/work`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      vendor_id,
+      ...data
+    }),
   });
 }
 
@@ -65,8 +83,22 @@ export async function deleteServiceProvider(id: number): Promise<void> {
   });
 }
 
-export async function toggleProviderStatus(id: number): Promise<ServiceProviderDTO> {
-  return await apiCall<ServiceProviderDTO>(`/api/vendor/${id}/toggle-status`, {
-    method: 'PATCH',
+export async function updateProviderStatus(id: number, status: 'active' | 'inactive'): Promise<ServiceProviderDTO> {
+  const formData = new FormData();
+  formData.append('vendor_id', id.toString());
+  formData.append('admin_status', status);
+
+  return await apiCall<ServiceProviderDTO>(`/api/vendor/admin/status`, {
+    method: 'PUT',
+    body: formData,
   });
+}
+
+export async function listCategories(): Promise<{ id: number; name: string }[]> {
+  return await apiCall<{ id: number; name: string }[]>(`/api/vendor/categories`, {}, []);
+}
+
+export async function listSubcategories(categoryId?: string): Promise<{ id: number; name: string; category_id: number }[]> {
+  const url = categoryId ? `/api/vendor/subcategories?category_id=${categoryId}` : `/api/vendor/subcategories`;
+  return await apiCall<{ id: number; name: string; category_id: number }[]>(url, {}, []);
 }

@@ -6,38 +6,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { TagIcon, CheckCircleIcon, CubeIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
-
-interface FormData {
-  name: string;
-  categoryId: string;
-  subcategoryId: string;
-  serviceId: string;
-  contactInfo: string;
-  status: 'Active' | 'Inactive';
-}
+import {
+  getServiceProvider,
+  updateServiceProviderAddress,
+  updateServiceProviderWork,
+  updateProviderStatus,
+  listCategories,
+  listSubcategories,
+  ServiceProviderDTO
+} from '@/services/providerService';
 
 interface Category {
-  id: string;
+  id: number;
   name: string;
 }
 
 interface Subcategory {
-  id: string;
+  id: number;
   name: string;
-  categoryId: string;
-}
-
-interface ServiceProvider {
-  id: string;
-  name: string;
-  categoryId: string;
-  categoryName: string;
-  subcategoryId: string;
-  subcategoryName: string;
-  serviceId: string;
-  serviceName: string;
-  contactInfo: string;
-  status: 'Active' | 'Inactive';
+  category_id: number;
 }
 
 const fieldVariants = {
@@ -52,94 +39,70 @@ const fieldVariants = {
 export default function EditServiceProviderPage() {
   const params = useParams();
   const router = useRouter();
-  const providerId = params.id as string;
+  const providerId = Number(params.id);
 
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState({
     name: '',
     categoryId: '',
     subcategoryId: '',
     serviceId: '',
     contactInfo: '',
-    status: 'Active',
+    status: 'inactive' as 'active' | 'inactive',
   });
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
-  const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [errors, setErrors] = useState<any>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const getAuthHeaders = () => ({
-    Authorization: `Bearer ${localStorage.getItem('token')}`,
-    'Content-Type': 'application/json',
-  });
-
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('/vendor/categories', { headers: getAuthHeaders() });
-        if (!response.ok) throw new Error(`HTTP ${response.status}: Failed to fetch categories`);
-        const data: Category[] = await response.json();
-        setCategories(data.map((cat) => ({ id: String(cat.id), name: cat.name })));
-      } catch (err: unknown) {
-        if (err instanceof Error) console.error(err);
-        setError('Failed to load categories. Please try again.');
-      }
-    };
-    fetchCategories();
-  }, []);
+        const [cats, provider] = await Promise.all([
+          listCategories(),
+          getServiceProvider(providerId)
+        ]);
 
-  useEffect(() => {
-    const fetchSubcategories = async () => {
-      if (!formData.categoryId) {
-        setSubcategories([]);
-        return;
-      }
-      try {
-        const response = await fetch(`/vendor/subcategories?category_id=${formData.categoryId}`, { headers: getAuthHeaders() });
-        if (!response.ok) throw new Error(`HTTP ${response.status}: Failed to fetch subcategories`);
-        const data: Subcategory[] = await response.json();
-        setSubcategories(data.map((sub) => ({ id: String(sub.id), name: sub.name, categoryId: String(sub.categoryId) })));
-      } catch (err: unknown) {
-        if (err instanceof Error) console.error(err);
-        setError('Failed to load subcategories. Please try again.');
-      }
-    };
-    fetchSubcategories();
-  }, [formData.categoryId]);
+        setCategories(cats);
 
-  useEffect(() => {
-    const fetchVendor = async () => {
-      try {
-        const response = await fetch(`/vendor/${providerId}`, { headers: getAuthHeaders() });
-        if (!response.ok) throw new Error(`HTTP ${response.status}: Failed to fetch vendor`);
-        const data: ServiceProvider = await response.json();
+        // Find existing service if any
+        const primaryCharge = provider.subcategory_charges && provider.subcategory_charges.length > 0
+          ? provider.subcategory_charges[0]
+          : null;
+
         setFormData({
-          name: data.name,
-          categoryId: data.categoryId,
-          subcategoryId: data.subcategoryId,
-          serviceId: data.serviceId,
-          contactInfo: data.contactInfo,
-          status: data.status,
+          name: provider.full_name || '',
+          categoryId: provider.category_id?.toString() || '',
+          subcategoryId: primaryCharge?.subcategory_id?.toString() || '',
+          serviceId: primaryCharge?.subcategory_id?.toString() || '',
+          contactInfo: provider.email || provider.phone || '',
+          status: provider.admin_status === 'active' ? 'active' : 'inactive',
         });
-      } catch (err: unknown) {
-        if (err instanceof Error) console.error(err);
-        setError('Failed to load vendor data. Please try again.');
+      } catch (err: any) {
+        setError('Failed to load data. Please try again.');
+        console.error(err);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchVendor();
+    fetchData();
   }, [providerId]);
 
+  useEffect(() => {
+    if (formData.categoryId) {
+      listSubcategories(formData.categoryId).then(setSubcategories);
+    } else {
+      setSubcategories([]);
+    }
+  }, [formData.categoryId]);
+
   const validateForm = (): boolean => {
-    const newErrors: Partial<FormData> = {};
+    const newErrors: any = {};
     if (!formData.name.trim()) newErrors.name = 'Name is required';
     if (!formData.categoryId) newErrors.categoryId = 'Category is required';
-    if (!formData.subcategoryId) newErrors.subcategoryId = 'Subcategory is required';
-    if (!formData.serviceId) newErrors.serviceId = 'Service is required';
     if (!formData.contactInfo.trim()) newErrors.contactInfo = 'Contact info is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -153,43 +116,36 @@ export default function EditServiceProviderPage() {
     setError(null);
 
     try {
-      const workPayload = {
-        vendor_id: Number(providerId),
-        category_id: Number(formData.categoryId),
-        subcategory_charges: [{ subcategory_id: Number(formData.serviceId), service_charge: 0 }],
-        admin_status: formData.status.toLowerCase(),
-      };
-
-      const workResponse = await fetch('/vendor/profile/work', {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(workPayload),
-      });
-
-      if (!workResponse.ok) throw new Error(`HTTP ${workResponse.status}: Failed to update work details`);
-
-      const addressPayload = {
-        vendor_id: Number(providerId),
-        [formData.contactInfo.includes('@') ? 'email' : 'phone']: formData.contactInfo,
+      // 1. Update Address/Basic Info
+      const isEmail = formData.contactInfo.includes('@');
+      await updateServiceProviderAddress(providerId, {
         full_name: formData.name,
-      };
-
-      const addressResponse = await fetch('/vendor/profile/address', {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(addressPayload),
+        [isEmail ? 'email' : 'phone']: formData.contactInfo,
       });
 
-      if (!addressResponse.ok) throw new Error(`HTTP ${addressResponse.status}: Failed to update contact info`);
+      // 2. Update Work Details (Category/Subcategory)
+      if (formData.categoryId && formData.serviceId) {
+        await updateServiceProviderWork(providerId, {
+          category_id: Number(formData.categoryId),
+          subcategory_charges: [
+            {
+              subcategory_id: Number(formData.serviceId),
+              service_charge: 0 // Default for now
+            }
+          ]
+        });
+      }
+
+      // 3. Update Admin Status
+      await updateProviderStatus(providerId, formData.status);
 
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
         router.push('/providers');
       }, 2000);
-    } catch (err: unknown) {
-      if (err instanceof Error) setError(err.message || 'Failed to update service provider.');
-      else setError('Failed to update service provider.');
+    } catch (err: any) {
+      setError(err.message || 'Failed to update service provider.');
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -204,33 +160,16 @@ export default function EditServiceProviderPage() {
       ...(name === 'categoryId' ? { subcategoryId: '', serviceId: '' } : {}),
       ...(name === 'subcategoryId' ? { serviceId: '' } : {}),
     }));
-    setErrors((prev) => ({ ...prev, [name]: undefined }));
+    setErrors((prev: any) => ({ ...prev, [name]: undefined }));
     setError(null);
   };
 
-  const filteredServices = subcategories;
-
-  if (isLoading)
-    return (
-      <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
-        <Sidebar />
-        <div className="flex-1 ml-64 p-6 sm:p-8">
-          <Navbar />
-          <div className="text-center text-gray-600">Loading...</div>
-        </div>
-      </div>
-    );
-
-  if (error)
-    return (
-      <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
-        <Sidebar />
-        <div className="flex-1 ml-64 p-6 sm:p-8">
-          <Navbar />
-          <div className="text-center text-red-600">{error}</div>
-        </div>
-      </div>
-    );
+  if (isLoading) return (
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
+      <Sidebar />
+      <div className="flex-1 ml-64"><Navbar /><div className="p-8 text-center text-gray-600">Loading...</div></div>
+    </div>
+  );
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
@@ -240,100 +179,74 @@ export default function EditServiceProviderPage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="p-6 sm:p-8">
           <div className="max-w-2xl mx-auto">
             <h1 className="text-3xl font-bold text-gray-800 mb-6 sm:text-4xl">Edit Service Provider</h1>
-            <motion.div className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100" initial={{ scale: 0.95 }} animate={{ scale: 1 }} transition={{ duration: 0.3 }}>
+            <motion.div className="bg-white shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100" initial={{ scale: 0.95 }} animate={{ scale: 1 }} transition={{ duration: 0.3 }}>
               <form onSubmit={handleSubmit}>
                 {/* Name */}
-                <motion.div custom={0} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                  <label htmlFor="name" className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                <div className="mb-6">
+                  <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                     <TagIcon className="w-5 h-5 mr-2 text-blue-600" /> Name
                   </label>
-                  <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4" disabled={isSubmitting} placeholder="Enter service provider name" />
-                  {errors.name && <p className="mt-2 text-sm text-red-600">{errors.name}</p>}
-                </motion.div>
+                  <input type="text" name="name" value={formData.name} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 bg-gray-50 py-3 px-4" disabled={isSubmitting} />
+                  {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name}</p>}
+                </div>
 
                 {/* Category */}
-                <motion.div custom={1} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                  <label htmlFor="categoryId" className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                <div className="mb-6">
+                  <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                     <CubeIcon className="w-5 h-5 mr-2 text-blue-600" /> Category
                   </label>
-                  <select id="categoryId" name="categoryId" value={formData.categoryId} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4" disabled={isSubmitting}>
-                    <option value="">Select a category</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
+                  <select name="categoryId" value={formData.categoryId} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 bg-gray-50 py-3 px-4" disabled={isSubmitting}>
+                    <option value="">Select Category</option>
+                    {categories.map((cat) => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                   </select>
-                  {errors.categoryId && <p className="mt-2 text-sm text-red-600">{errors.categoryId}</p>}
-                </motion.div>
+                </div>
 
-                {/* Subcategory */}
-                <motion.div custom={2} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                  <label htmlFor="subcategoryId" className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                    <CubeIcon className="w-5 h-5 mr-2 text-blue-600" /> Subcategory
-                  </label>
-                  <select id="subcategoryId" name="subcategoryId" value={formData.subcategoryId} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4" disabled={isSubmitting || !formData.categoryId}>
-                    <option value="">Select a subcategory</option>
-                    {subcategories.map((sub) => (
-                      <option key={sub.id} value={sub.id}>{sub.name}</option>
-                    ))}
-                  </select>
-                  {errors.subcategoryId && <p className="mt-2 text-sm text-red-600">{errors.subcategoryId}</p>}
-                </motion.div>
-
-                {/* Service */}
-                <motion.div custom={3} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                  <label htmlFor="serviceId" className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                {/* Subcategory / Service */}
+                <div className="mb-6">
+                  <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                     <CubeIcon className="w-5 h-5 mr-2 text-blue-600" /> Service
                   </label>
-                  <select id="serviceId" name="serviceId" value={formData.serviceId} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4" disabled={isSubmitting || !formData.subcategoryId}>
-                    <option value="">Select a service</option>
-                    {filteredServices.map((sub) => (
-                      <option key={sub.id} value={sub.id}>{sub.name}</option>
-                    ))}
+                  <select name="serviceId" value={formData.serviceId} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 bg-gray-50 py-3 px-4" disabled={isSubmitting || !formData.categoryId}>
+                    <option value="">Select Service</option>
+                    {subcategories.map((sub) => <option key={sub.id} value={sub.id}>{sub.name}</option>)}
                   </select>
-                  {errors.serviceId && <p className="mt-2 text-sm text-red-600">{errors.serviceId}</p>}
-                </motion.div>
+                </div>
 
                 {/* Contact Info */}
-                <motion.div custom={4} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                  <label htmlFor="contactInfo" className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                <div className="mb-6">
+                  <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                     <EnvelopeIcon className="w-5 h-5 mr-2 text-blue-600" /> Contact Info
                   </label>
-                  <input type="text" id="contactInfo" name="contactInfo" value={formData.contactInfo} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4" disabled={isSubmitting} placeholder="Enter contact info (email or phone)" />
-                  {errors.contactInfo && <p className="mt-2 text-sm text-red-600">{errors.contactInfo}</p>}
-                </motion.div>
+                  <input type="text" name="contactInfo" value={formData.contactInfo} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 bg-gray-50 py-3 px-4" disabled={isSubmitting} />
+                </div>
 
                 {/* Status */}
-                <motion.div custom={5} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                  <label htmlFor="status" className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                <div className="mb-6">
+                  <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                     <CheckCircleIcon className="w-5 h-5 mr-2 text-blue-600" /> Status
                   </label>
-                  <select id="status" name="status" value={formData.status} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4" disabled={isSubmitting}>
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
+                  <select name="status" value={formData.status} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 bg-gray-50 py-3 px-4" disabled={isSubmitting}>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
                   </select>
-                </motion.div>
+                </div>
 
                 {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
-                {/* Buttons */}
                 <div className="flex justify-end gap-4">
-                  <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} type="button" className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-300 font-medium" onClick={() => router.push('/providers')} disabled={isSubmitting}>
-                    Cancel
-                  </motion.button>
-                  <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} type="submit" className={`px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-medium flex items-center justify-center ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={isSubmitting}>
-                    {isSubmitting ? <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg> : null}
+                  <button type="button" onClick={() => router.push('/providers')} className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg" disabled={isSubmitting}>Cancel</button>
+                  <button type="submit" className="px-6 py-3 bg-blue-600 text-white rounded-lg disabled:opacity-50" disabled={isSubmitting}>
                     {isSubmitting ? 'Saving...' : 'Save Changes'}
-                  </motion.button>
+                  </button>
                 </div>
               </form>
             </motion.div>
           </div>
         </motion.div>
-
         <AnimatePresence>
           {showSuccess && (
-            <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed bottom-6 right-6 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
-              <CheckCircleIcon className="w-5 h-5" /> Service provider updated successfully!
+            <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed bottom-6 right-6 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg">
+              Service provider updated successfully!
             </motion.div>
           )}
         </AnimatePresence>

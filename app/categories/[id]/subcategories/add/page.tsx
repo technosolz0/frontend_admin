@@ -156,7 +156,7 @@ export default function AddSubcategoryPage() {
                   />
                   {previewUrl && (
                     <div className="mt-4 relative w-32 h-32 rounded-lg overflow-hidden shadow-sm">
-                      <Image src={previewUrl} alt="Preview" fill className="object-cover" unoptimized   />
+                      <Image src={previewUrl} alt="Preview" fill className="object-cover" unoptimized />
                     </div>
                   )}
                   {errors.image && <p className="mt-2 text-sm text-red-600">{errors.image}</p>}
@@ -176,8 +176,8 @@ export default function AddSubcategoryPage() {
                     className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
                     disabled={isSubmitting}
                   >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
                   </select>
                 </motion.div>
 
@@ -197,9 +197,8 @@ export default function AddSubcategoryPage() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     type="submit"
-                    className={`px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-medium flex items-center justify-center ${
-                      isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-medium flex items-center justify-center ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     disabled={isSubmitting}
                   >
                     {isSubmitting && (

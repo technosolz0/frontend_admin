@@ -7,14 +7,17 @@ import { useState, useEffect, useCallback } from 'react';
 import { CheckCircleIcon, TrashIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 import {
   FeedbackDTO,
+  FeedbackStats,
   getFeedbackList,
   updateFeedbackStatus,
   deleteFeedback,
   respondToFeedback,
+  getFeedbackStats,
 } from '@/services/feedbackService';
 
 export default function FeedbackPage() {
   const [feedbackList, setFeedbackList] = useState<FeedbackDTO[]>([]);
+  const [stats, setStats] = useState<FeedbackStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,9 +42,14 @@ export default function FeedbackPage() {
       if (filter === 'resolved') resolvedFilter = true;
       if (filter === 'unresolved') resolvedFilter = false;
 
-      const data = await getFeedbackList(skip, itemsPerPage, resolvedFilter);
+      const [data, statsData] = await Promise.all([
+        getFeedbackList(skip, itemsPerPage, resolvedFilter),
+        getFeedbackStats()
+      ]);
+
       setFeedbackList(data.feedback);
       setTotalPages(Math.ceil(data.total / itemsPerPage));
+      setStats(statsData);
     } catch {
       setError('Failed to fetch feedback');
     } finally {
@@ -116,6 +124,24 @@ export default function FeedbackPage() {
         >
           <div className="max-w-7xl mx-auto">
             <h1 className="text-3xl font-bold text-gray-800 mb-6 sm:text-4xl">User Feedback</h1>
+
+            {/* Stats Cards */}
+            {stats && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-white p-4 rounded-lg shadow border border-gray-100">
+                  <div className="text-gray-500 text-sm">Total Feedback</div>
+                  <div className="text-2xl font-bold text-gray-800">{stats.total}</div>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow border border-gray-100">
+                  <div className="text-gray-500 text-sm">Resolved</div>
+                  <div className="text-2xl font-bold text-green-600">{stats.resolved}</div>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow border border-gray-100">
+                  <div className="text-gray-500 text-sm">Pending</div>
+                  <div className="text-2xl font-bold text-yellow-600">{stats.unresolved}</div>
+                </div>
+              </div>
+            )}
 
             {/* Filter Tabs */}
             <div className="flex space-x-4 mb-6">

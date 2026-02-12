@@ -3,15 +3,14 @@ import { apiCall } from '@/lib/api';
 export enum NotificationType {
     GENERAL = "general",
     PROMOTIONAL = "promotional",
-    ALERT = "alert",
-    UPDATE = "update"
+    BOOKING_UPDATE = "booking_update",
+    SYSTEM = "system"
 }
 
 export enum NotificationTarget {
     ALL_USERS = "all_users",
     SPECIFIC_USERS = "specific_users",
-    ALL_VENDORS = "all_vendors",
-    SPECIFIC_VENDORS = "specific_vendors"
+    SERVICE_PROVIDERS = "service_providers"
 }
 
 export interface NotificationDTO {

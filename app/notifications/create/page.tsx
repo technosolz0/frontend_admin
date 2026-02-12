@@ -35,8 +35,7 @@ export default function CreateNotificationPage() {
         try {
             let ids: number[] | null = null;
             if (
-                formData.targetType === NotificationTarget.SPECIFIC_USERS ||
-                formData.targetType === NotificationTarget.SPECIFIC_VENDORS
+                formData.targetType === NotificationTarget.SPECIFIC_USERS
             ) {
                 if (!formData.targetIds.trim()) {
                     alert('Please enter Target IDs');
@@ -126,14 +125,14 @@ export default function CreateNotificationPage() {
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">Notification Type</label>
                                             <select
-                                                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none text-black"
                                                 value={formData.type}
                                                 onChange={e => setFormData({ ...formData, type: e.target.value as NotificationType })}
                                             >
                                                 <option value={NotificationType.GENERAL}>General</option>
                                                 <option value={NotificationType.PROMOTIONAL}>Promotional</option>
-                                                <option value={NotificationType.ALERT}>Alert</option>
-                                                <option value={NotificationType.UPDATE}>Update</option>
+                                                <option value={NotificationType.BOOKING_UPDATE}>Booking Update</option>
+                                                <option value={NotificationType.SYSTEM}>System</option>
                                             </select>
                                         </div>
 
@@ -141,20 +140,19 @@ export default function CreateNotificationPage() {
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">Target Audience</label>
                                             <select
-                                                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none text-black"
                                                 value={formData.targetType}
                                                 onChange={e => setFormData({ ...formData, targetType: e.target.value as NotificationTarget })}
                                             >
-                                                <option value={NotificationTarget.ALL_USERS}>All Users</option>
-                                                <option value={NotificationTarget.ALL_VENDORS}>All Vendors</option>
-                                                <option value={NotificationTarget.SPECIFIC_USERS}>Specific Users</option>
-                                                <option value={NotificationTarget.SPECIFIC_VENDORS}>Specific Vendors</option>
+                                                <option value={NotificationTarget.ALL_USERS}>All Regular Users</option>
+                                                <option value={NotificationTarget.SERVICE_PROVIDERS}>All Service Providers</option>
+                                                <option value={NotificationTarget.SPECIFIC_USERS}>Specific Users (by ID)</option>
                                             </select>
                                         </div>
                                     </div>
 
                                     {/* Specific IDs Input */}
-                                    {(formData.targetType === NotificationTarget.SPECIFIC_USERS || formData.targetType === NotificationTarget.SPECIFIC_VENDORS) && (
+                                    {formData.targetType === NotificationTarget.SPECIFIC_USERS && (
                                         <motion.div
                                             initial={{ opacity: 0, height: 0 }}
                                             animate={{ opacity: 1, height: 'auto' }}
@@ -165,7 +163,7 @@ export default function CreateNotificationPage() {
                                             </label>
                                             <input
                                                 type="text"
-                                                className="w-full border border-yellow-300 rounded px-3 py-2 focus:ring-2 focus:ring-yellow-500 outline-none"
+                                                className="w-full border border-yellow-300 rounded px-3 py-2 focus:ring-2 focus:ring-yellow-500 outline-none text-black"
                                                 placeholder="e.g. 1, 5, 12"
                                                 value={formData.targetIds}
                                                 onChange={e => setFormData({ ...formData, targetIds: e.target.value })}

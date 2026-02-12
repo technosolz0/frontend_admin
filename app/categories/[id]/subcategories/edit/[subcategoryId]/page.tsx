@@ -8,6 +8,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { TagIcon, PhotoIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { getSubCategory, partialUpdateSubCategory } from '@/services/subCategories';
+import { API_BASE_URL } from '@/lib/config';
 
 interface FormData {
   name: string;
@@ -73,13 +74,13 @@ export default function EditSubcategoryPage() {
       formDataToSend.append('name', formData.name.trim());
       formDataToSend.append('status', formData.status);
       formDataToSend.append('category_id', categoryId);
-      
+
       if (formData.image) {
         formDataToSend.append('image', formData.image);
       }
 
       await partialUpdateSubCategory(parseInt(subcategoryId), formDataToSend);
-      
+
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
@@ -103,14 +104,14 @@ export default function EditSubcategoryPage() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setFormData(prev => ({ ...prev, image: file }));
-    
+
     if (file) {
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
     } else {
       setPreviewUrl(null);
     }
-    
+
     setErrors(prev => ({ ...prev, image: undefined }));
   };
 
@@ -190,15 +191,21 @@ export default function EditSubcategoryPage() {
                     <PhotoIcon className="w-5 h-5 mr-2 text-blue-600" />
                     Image
                   </label>
-                  
+
                   {/* Current image */}
                   {currentImage && !previewUrl && (
                     <div className="mb-4 relative w-32 h-32 rounded-lg overflow-hidden shadow-sm">
                       <p className="text-sm text-gray-600 mb-2">Current image:</p>
-                      <Image src={currentImage} alt="Current" fill className="object-cover" unoptimized    />
+                      <Image
+                        src={currentImage.startsWith('http') ? currentImage : `${API_BASE_URL}${currentImage}`}
+                        alt="Current"
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
                     </div>
                   )}
-                  
+
                   <input
                     type="file"
                     id="image"
@@ -208,15 +215,15 @@ export default function EditSubcategoryPage() {
                     className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
                     disabled={isSubmitting}
                   />
-                  
+
                   {/* Preview image */}
                   {previewUrl && (
                     <div className="mt-4 relative w-32 h-32 rounded-lg overflow-hidden shadow-sm">
                       <p className="text-sm text-gray-600 mb-2">New image preview:</p>
-                      <Image src={previewUrl} alt="Preview" fill className="object-cover" unoptimized    />
+                      <Image src={previewUrl} alt="Preview" fill className="object-cover" unoptimized />
                     </div>
                   )}
-                  
+
                   {errors.image && <p className="mt-2 text-sm text-red-600">{errors.image}</p>}
                 </motion.div>
 
@@ -233,8 +240,8 @@ export default function EditSubcategoryPage() {
                     className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
                     disabled={isSubmitting}
                   >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
                   </select>
                 </motion.div>
 
@@ -253,9 +260,8 @@ export default function EditSubcategoryPage() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     type="submit"
-                    className={`px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-medium flex items-center justify-center ${
-                      isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-medium flex items-center justify-center ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
