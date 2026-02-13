@@ -22,12 +22,6 @@ interface SearchFilterProps {
   onToggleFilters?: () => void;
   onClearFilters?: () => void;
   hasActiveFilters?: boolean;
-  pagination?: {
-    currentPage: number;
-    totalPages: number;
-    onPageChange: (page: number) => void;
-    isLoading?: boolean;
-  };
 }
 
 export default function SearchFilter({
@@ -38,8 +32,7 @@ export default function SearchFilter({
   showFilters = false,
   onToggleFilters,
   onClearFilters,
-  hasActiveFilters = false,
-  pagination
+  hasActiveFilters = false
 }: SearchFilterProps) {
   return (
     <div className="space-y-4">
@@ -122,30 +115,7 @@ export default function SearchFilter({
         </AnimatePresence>
       </motion.div>
 
-      {/* Pagination */}
-      {pagination && pagination.totalPages > 1 && (
-        <div className="flex justify-between items-center bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-4 border border-blue-100">
-          <button
-            onClick={() => pagination.onPageChange(pagination.currentPage - 1)}
-            disabled={pagination.currentPage === 1 || pagination.isLoading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors"
-          >
-            Previous
-          </button>
-
-          <span className="text-gray-700 font-medium">
-            Page {pagination.currentPage} of {pagination.totalPages}
-          </span>
-
-          <button
-            onClick={() => pagination.onPageChange(pagination.currentPage + 1)}
-            disabled={pagination.currentPage === pagination.totalPages || pagination.isLoading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors"
-          >
-            Next
-          </button>
-        </div>
-      )}
+      {/* Pagination removed - use separate Pagination component */}
     </div>
   );
 }

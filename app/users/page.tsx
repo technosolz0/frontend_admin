@@ -12,6 +12,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useCallback } from 'react';
 import { PencilIcon, TrashIcon, NoSymbolIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
+import SearchFilter from '@/components/SearchFilter';
+import Pagination from '@/components/Pagination';
 
 interface User {
   id: number;
@@ -38,6 +40,8 @@ export default function UsersPage() {
   const [totalUsers, setTotalUsers] = useState(0);
   const [search, setSearch] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   const usersPerPage = 10;
 
   // Debounce search input
@@ -55,7 +59,7 @@ export default function UsersPage() {
 
     try {
       const skip = (currentPage - 1) * usersPerPage;
-      const response = await listUsers(skip, usersPerPage, searchTerm);
+      const response = await listUsers(skip, usersPerPage, searchTerm, statusFilter);
 
       console.log('API Response:', response); // Debug log
 
@@ -84,11 +88,18 @@ export default function UsersPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, searchTerm]);
+  }, [currentPage, searchTerm, statusFilter]);
 
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
+
+  const clearFilters = () => {
+    setSearch('');
+    setSearchTerm('');
+    setStatusFilter('');
+    setCurrentPage(1);
+  };
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -101,15 +112,15 @@ export default function UsersPage() {
 
     setIsDeleting(id);
     setError(null);
-    
+
     try {
       const response = await deleteUser(id);
-      
+
       if (response && response.success) {
         setUsers(users.filter((user) => user.id !== id));
         setShowSuccess({ message: 'User deleted successfully!', id });
         setTimeout(() => setShowSuccess(null), 2000);
-        
+
         // Refetch if current page becomes empty
         if (users.length === 1 && currentPage > 1) {
           setCurrentPage(currentPage - 1);
@@ -121,7 +132,7 @@ export default function UsersPage() {
       }
     } catch (err: unknown) {
       console.error('Error deleting user:', err);
-      
+
       if (err instanceof Error) {
         setError(err.message || 'Failed to delete user.');
       } else {
@@ -135,16 +146,16 @@ export default function UsersPage() {
   const handleToggleStatus = async (id: number) => {
     const user = users.find(u => u.id === id);
     if (!user) return;
-    
+
     const newStatus = user.status === 'active' ? 'blocked' : 'active';
     if (!confirm(`Are you sure you want to ${newStatus === 'blocked' ? 'block' : 'activate'} this user?`)) return;
 
     setIsToggling(id);
     setError(null);
-    
+
     try {
       const response = await toggleUserStatus(id);
-      
+
       if (response && response.success && response.user) {
         setUsers(users.map((user) => (user.id === id ? response.user : user)));
         setShowSuccess({
@@ -157,7 +168,7 @@ export default function UsersPage() {
       }
     } catch (err: unknown) {
       console.error('Error toggling user status:', err);
-      
+
       if (err instanceof Error) {
         setError(err.message || 'Failed to toggle user status.');
       } else {
@@ -190,36 +201,37 @@ export default function UsersPage() {
         >
           <div className="max-w-7xl mx-auto">
             <h1 className="text-3xl font-bold text-gray-800 mb-6 sm:text-4xl">User Management</h1>
-            
-            {/* Search Bar */}
-            <div className="mb-6">
-              <div className="relative max-w-md">
-                <input
-                  type="text"
-                  placeholder="Search users by name, email, or mobile..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                />
-                <svg
-                  className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-            </div>
+
+            <SearchFilter
+              searchPlaceholder="Search users by name, email, or mobile..."
+              searchValue={search}
+              onSearchChange={setSearch}
+              filters={[
+                {
+                  key: 'status',
+                  label: 'Status',
+                  value: statusFilter,
+                  options: [
+                    { value: 'active', label: 'Active' },
+                    { value: 'blocked', label: 'Blocked' }
+                  ],
+                  onChange: setStatusFilter
+                }
+              ]}
+              showFilters={showFilters}
+              onToggleFilters={() => setShowFilters(!showFilters)}
+              hasActiveFilters={!!(search || statusFilter)}
+              onClearFilters={clearFilters}
+            />
 
             {error && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-red-100 text-red-800 p-4 rounded-lg mb-4 flex items-center justify-between"
               >
                 <span>{error}</span>
-                <button 
+                <button
                   onClick={() => setError(null)}
                   className="text-red-600 hover:text-red-800"
                 >
@@ -252,97 +264,94 @@ export default function UsersPage() {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {users.length > 0 ? (
                       users.map((user, index) => (
-                      <motion.tr
-                        key={user.id}
-                        custom={index}
-                        variants={rowVariants}
-                        initial="hidden"
-                        animate="visible"
-                        className="hover:bg-blue-50 transition-colors duration-200"
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <button
-                            onClick={() => router.push(`/users/${user.id}`)}
-                            className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline"
-                          >
-                            {user.name}
-                          </button>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.email}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.mobile || 'N/A'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              user.status === 'active'
+                        <motion.tr
+                          key={user.id}
+                          custom={index}
+                          variants={rowVariants}
+                          initial="hidden"
+                          animate="visible"
+                          className="hover:bg-blue-50 transition-colors duration-200"
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <button
+                              onClick={() => router.push(`/users/${user.id}`)}
+                              className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline"
+                            >
+                              {user.name}
+                            </button>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.email}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.mobile || 'N/A'}</td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.status === 'active'
                                 ? 'bg-green-100 text-green-800'
                                 : 'bg-red-100 text-red-800'
-                            }`}
-                          >
-                            {user.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold flex gap-2">
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => router.push(`/users/edit/${user.id}`)}
-                            className="text-blue-600 hover:text-blue-800"
-                            disabled={isDeleting === user.id || isToggling === user.id}
-                            title="Edit user"
-                          >
-                            <PencilIcon className="w-5 h-5" />
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => handleDelete(user.id)}
-                            className={`text-red-600 hover:text-red-800 ${
-                              isDeleting === user.id ? 'opacity-50 cursor-not-allowed' : ''
-                            }`}
-                            disabled={isDeleting === user.id || isToggling === user.id}
-                            title="Delete user"
-                          >
-                            {isDeleting === user.id ? (
-                              <svg
-                                className="animate-spin h-5 w-5 text-red-600"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                              >
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                            ) : (
-                              <TrashIcon className="w-5 h-5" />
-                            )}
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => handleToggleStatus(user.id)}
-                            className={`${
-                              user.status === 'active' ? 'text-yellow-600 hover:text-yellow-800' : 'text-green-600 hover:text-green-800'
-                            } ${isToggling === user.id ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            disabled={isDeleting === user.id || isToggling === user.id}
-                            title={user.status === 'active' ? 'Block user' : 'Activate user'}
-                          >
-                            {isToggling === user.id ? (
-                              <svg
-                                className="animate-spin h-5 w-5"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                              >
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                            ) : (
-                              <NoSymbolIcon className="w-5 h-5" />
-                            )}
-                          </motion.button>
-                        </td>
-                      </motion.tr>
-                    ))
+                                }`}
+                            >
+                              {user.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold flex gap-2">
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => router.push(`/users/edit/${user.id}`)}
+                              className="text-blue-600 hover:text-blue-800"
+                              disabled={isDeleting === user.id || isToggling === user.id}
+                              title="Edit user"
+                            >
+                              <PencilIcon className="w-5 h-5" />
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => handleDelete(user.id)}
+                              className={`text-red-600 hover:text-red-800 ${isDeleting === user.id ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
+                              disabled={isDeleting === user.id || isToggling === user.id}
+                              title="Delete user"
+                            >
+                              {isDeleting === user.id ? (
+                                <svg
+                                  className="animate-spin h-5 w-5 text-red-600"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                              ) : (
+                                <TrashIcon className="w-5 h-5" />
+                              )}
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => handleToggleStatus(user.id)}
+                              className={`${user.status === 'active' ? 'text-yellow-600 hover:text-yellow-800' : 'text-green-600 hover:text-green-800'
+                                } ${isToggling === user.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              disabled={isDeleting === user.id || isToggling === user.id}
+                              title={user.status === 'active' ? 'Block user' : 'Activate user'}
+                            >
+                              {isToggling === user.id ? (
+                                <svg
+                                  className="animate-spin h-5 w-5"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                              ) : (
+                                <NoSymbolIcon className="w-5 h-5" />
+                              )}
+                            </motion.button>
+                          </td>
+                        </motion.tr>
+                      ))
                     ) : (
                       <tr>
                         <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
@@ -355,29 +364,12 @@ export default function UsersPage() {
               )}
             </motion.div>
 
-            {/* Pagination Controls */}
-            {totalPages > 1 && !isLoading && (
-              <div className="mt-6 flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Previous
-                </button>
-                <span className="text-sm text-gray-700">
-                  Page <span className="font-semibold">{currentPage}</span> of <span className="font-semibold">{totalPages}</span>
-                  <span className="ml-2 text-gray-500">({totalUsers} total users)</span>
-                </span>
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Next
-                </button>
-              </div>
-            )}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              isLoading={isLoading}
+            />
           </div>
         </motion.div>
         <AnimatePresence>

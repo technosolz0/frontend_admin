@@ -18,6 +18,7 @@ export interface BookingDTO {
   subcategory_name?: string;
   service_name?: string;
   user_name?: string;
+  service_provider_name?: string;
   address?: string;
 }
 

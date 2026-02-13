@@ -4,7 +4,7 @@ import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { motion } from 'framer-motion';
 import { useParams, useRouter } from 'next/navigation';
-import { UserIcon, EnvelopeIcon, ShieldCheckIcon, CheckCircleIcon, PhoneIcon, IdentificationIcon, DevicePhoneMobileIcon, MapPinIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { UserIcon, EnvelopeIcon, ShieldCheckIcon, CheckCircleIcon, PhoneIcon, IdentificationIcon, DevicePhoneMobileIcon, MapPinIcon, ClockIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
 import { API_BASE_URL } from '@/lib/config';
 
@@ -120,8 +120,19 @@ export default function UserDetailPage() {
           transition={{ duration: 0.5 }}
           className="p-6 sm:p-8"
         >
-          <div className="max-w-3xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6 sm:text-4xl">User Details</h1>
+          <div className="max-w-5xl mx-auto">
+            <div className="flex items-center gap-4 mb-8">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => router.push('/users')}
+                className="p-2 bg-white shadow-md rounded-full text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+              >
+                <ArrowLeftIcon className="w-6 h-6" />
+              </motion.button>
+              <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl">User Details</h1>
+            </div>
+
             <motion.div
               className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100"
               initial={{ scale: 0.95 }}
@@ -157,9 +168,27 @@ export default function UserDetailPage() {
                     <IdentificationIcon className="w-5 h-5 mr-2 text-blue-600" />
                     Profile Picture
                   </div>
-                  <a href={user.profile_pic} target="_blank" rel="noopener noreferrer" className="text-lg text-blue-600 hover:underline">
-                    View Profile Picture
-                  </a>
+                  <div className="mt-2">
+                    {user.profile_pic ? (
+                      <div className="relative w-32 h-32 rounded-xl overflow-hidden shadow-lg border border-gray-200">
+                        <img
+                          src={user.profile_pic}
+                          alt={user.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <a
+                          href={user.profile_pic}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 flex items-center justify-center transition-all duration-200 group"
+                        >
+                          <span className="text-white opacity-0 group-hover:opacity-100 font-medium text-sm">View Full</span>
+                        </a>
+                      </div>
+                    ) : (
+                      <p className="text-lg text-gray-400 italic">No profile picture</p>
+                    )}
+                  </div>
                 </motion.div>
               )}
 
@@ -178,11 +207,10 @@ export default function UserDetailPage() {
                   Status
                 </div>
                 <span
-                  className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${
-                    user.status === 'active'
+                  className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${user.status === 'active'
                       ? 'bg-green-100 text-green-800'
                       : 'bg-red-100 text-red-800'
-                  }`}
+                    }`}
                 >
                   {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
                 </span>
@@ -193,11 +221,10 @@ export default function UserDetailPage() {
                   Email Verified
                 </div>
                 <span
-                  className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${
-                    user.is_verified
+                  className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${user.is_verified
                       ? 'bg-green-100 text-green-800'
                       : 'bg-yellow-100 text-yellow-800'
-                  }`}
+                    }`}
                 >
                   {user.is_verified ? 'Verified' : 'Not Verified'}
                 </span>

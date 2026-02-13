@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { listServiceProviders, deleteServiceProvider, updateProviderStatus, ServiceProviderDTO } from '@/services/providerService';
+import SearchFilter from '@/components/SearchFilter';
+import Pagination from '@/components/Pagination';
 
 export default function ServiceProvidersPage() {
   const [serviceProviders, setServiceProviders] = useState<ServiceProviderDTO[]>([]);
@@ -18,14 +20,27 @@ export default function ServiceProvidersPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   const providersPerPage = 10;
   const router = useRouter();
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchTerm(searchQuery);
+      setCurrentPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const fetchProviders = async (page: number) => {
     setIsLoading(true);
     setError(null);
     try {
-      const { vendors, total } = await listServiceProviders(page, providersPerPage);
+      const { vendors, total } = await listServiceProviders(page, providersPerPage, searchTerm, statusFilter);
       setServiceProviders(vendors);
       setTotalPages(Math.ceil(total / providersPerPage));
     } catch (err: unknown) {
@@ -41,7 +56,14 @@ export default function ServiceProvidersPage() {
 
   useEffect(() => {
     fetchProviders(currentPage);
-  }, [currentPage]);
+  }, [currentPage, searchTerm, statusFilter]);
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setSearchTerm('');
+    setStatusFilter('');
+    setCurrentPage(1);
+  };
 
   const handleDelete = async (id: number) => {
     if (!confirm(`Are you sure you want to delete provider ${id}?`)) return;
@@ -136,6 +158,28 @@ export default function ServiceProvidersPage() {
                 Add New Service Provider
               </motion.button>
             </div>
+
+            <SearchFilter
+              searchPlaceholder="Search by name, email, or phone..."
+              searchValue={searchQuery}
+              onSearchChange={setSearchQuery}
+              filters={[
+                {
+                  key: 'status',
+                  label: 'Status',
+                  value: statusFilter,
+                  options: [
+                    { value: 'active', label: 'Active' },
+                    { value: 'inactive', label: 'Inactive' }
+                  ],
+                  onChange: setStatusFilter
+                }
+              ]}
+              showFilters={showFilters}
+              onToggleFilters={() => setShowFilters(!showFilters)}
+              hasActiveFilters={!!(searchQuery || statusFilter)}
+              onClearFilters={clearFilters}
+            />
 
             {isLoading && (
               <div className="flex justify-center mb-4">
@@ -293,27 +337,14 @@ export default function ServiceProvidersPage() {
               </table>
             </motion.div>
 
-            {error && <div className="mb-4 text-red-600 text-sm font-medium">{error}</div>}
-            <div className="mt-4 flex justify-between items-center">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1 || isLoading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Previous
-              </button>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              isLoading={isLoading}
+            />
 
-              <span className="text-gray-700">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages || isLoading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
-            </div>
+            {error && <div className="mb-4 text-red-600 text-sm font-medium mt-4">{error}</div>}
           </div>
         </motion.div>
 

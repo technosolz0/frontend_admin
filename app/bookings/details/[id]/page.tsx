@@ -43,7 +43,7 @@ export default function BookingDetailsPage() {
   useEffect(() => {
     const fetchBooking = async () => {
       try {
-        const data = await apiCall<Booking>(`${API_BASE_URL}/api/bookings/${bookingId}`);
+        const data = await apiCall<Booking>(`/api/bookings/${bookingId}`);
         setBooking(data);
       } catch (err) {
         console.error('Error fetching booking:', err);
@@ -139,7 +139,12 @@ export default function BookingDetailsPage() {
                   <UserIcon className="w-5 h-5 mr-2 text-blue-600" />
                   Customer Name
                 </h2>
-                <p className="text-lg text-gray-900">{booking.user_name || 'N/A'}</p>
+                <button
+                  onClick={() => router.push(`/users/${booking.user_id}`)}
+                  className="text-lg text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                >
+                  {booking.user_name || 'N/A'}
+                </button>
               </motion.div>
               <motion.div custom={2} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
                 <h2 className="flex items-center text-sm font-medium text-gray-700 mb-2">
@@ -174,7 +179,12 @@ export default function BookingDetailsPage() {
                   <UserGroupIcon className="w-5 h-5 mr-2 text-blue-600" />
                   Service Provider
                 </h2>
-                <p className="text-lg text-gray-900">{booking.service_provider_name || 'N/A'}</p>
+                <button
+                  onClick={() => router.push(`/providers/${booking.serviceprovider_id}`)}
+                  className="text-lg text-blue-600 hover:text-blue-800 hover:underline font-medium text-left"
+                >
+                  {booking.service_provider_name || 'N/A'}
+                </button>
               </motion.div>
               <motion.div custom={7} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
                 <h2 className="flex items-center text-sm font-medium text-gray-700 mb-2">
@@ -221,15 +231,14 @@ export default function BookingDetailsPage() {
                   Status
                 </h2>
                 <span
-                  className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${
-                    booking.status === 'completed'
-                      ? 'bg-green-100 text-green-800'
-                      : booking.status === 'pending'
+                  className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${booking.status === 'completed'
+                    ? 'bg-green-100 text-green-800'
+                    : booking.status === 'pending'
                       ? 'bg-yellow-100 text-yellow-800'
                       : booking.status === 'accepted'
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}
                 >
                   {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                 </span>

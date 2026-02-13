@@ -4,7 +4,7 @@ import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { motion } from 'framer-motion';
 import { useParams, useRouter } from 'next/navigation';
-import { TagIcon, CubeIcon, EnvelopeIcon, CheckCircleIcon, WrenchScrewdriverIcon, HomeIcon, BanknotesIcon, IdentificationIcon, MapPinIcon } from '@heroicons/react/24/outline';
+import { TagIcon, CubeIcon, EnvelopeIcon, CheckCircleIcon, WrenchScrewdriverIcon, HomeIcon, BanknotesIcon, IdentificationIcon, MapPinIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
 import { API_BASE_URL } from '@/lib/config';
 
@@ -102,8 +102,8 @@ export default function ProviderDetailsPage() {
             const categories = await catResponse.json();
             // const category = categories.find((cat: any) => String(cat.id) === String(data.category_id));
             const category = (categories as Category[]).find(
-  (cat) => String(cat.id) === String(data.category_id)
-);
+              (cat) => String(cat.id) === String(data.category_id)
+            );
 
             categoryName = category?.name || 'Unknown';
           }
@@ -124,8 +124,8 @@ export default function ProviderDetailsPage() {
               const subcategories = await subResponse.json();
               // const subcategory = subcategories.find((sub: any) => String(sub.id) === subcategoryId);
               const subcategory = (subcategories as Subcategory[]).find(
-  (sub) => String(sub.id) === subcategoryId
-);
+                (sub) => String(sub.id) === subcategoryId
+              );
 
               subcategoryName = subcategory?.name || 'Unknown';
             }
@@ -174,14 +174,14 @@ export default function ProviderDetailsPage() {
         setProvider(vendor);
         setIsLoading(false);
       } catch (err: unknown) {
-  if (err instanceof Error) {
-    setError(err.message);
-    console.error('Error fetching vendor:', err);
-  } else {
-    setError('Failed to load vendor data. Please try again.');
-  }
-  setIsLoading(false);
-}
+        if (err instanceof Error) {
+          setError(err.message);
+          console.error('Error fetching vendor:', err);
+        } else {
+          setError('Failed to load vendor data. Please try again.');
+        }
+        setIsLoading(false);
+      }
     };
 
     fetchVendor();
@@ -230,14 +230,24 @@ export default function ProviderDetailsPage() {
           transition={{ duration: 0.5 }}
           className="p-6 sm:p-8"
         >
-          <div className="max-w-3xl mx-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl">Service Provider Details</h1>
+          <div className="max-w-5xl mx-auto">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+              <div className="flex items-center gap-4">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => router.push('/providers')}
+                  className="p-2 bg-white shadow-md rounded-full text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+                >
+                  <ArrowLeftIcon className="w-6 h-6" />
+                </motion.button>
+                <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl">Service Provider Details</h1>
+              </div>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => router.push(`/providers/edit/${provider.id}`)}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-medium"
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-medium whitespace-nowrap"
               >
                 Edit Provider
               </motion.button>
@@ -390,14 +400,29 @@ export default function ProviderDetailsPage() {
                         <IdentificationIcon className="w-5 h-5 mr-2 text-blue-600" />
                         Identity Document
                       </h3>
-                      <p className="text-lg text-gray-900">
-                        {provider.identity_doc_type}: {provider.identity_doc_number || 'N/A'}
-                      </p>
-                      {provider.identity_doc_url && (
-                        <a href={provider.identity_doc_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                          View Document
-                        </a>
-                      )}
+                      <div className="mt-2">
+                        {provider.identity_doc_url ? (
+                          <div className="relative w-48 h-32 rounded-xl overflow-hidden shadow-lg border border-gray-200 bg-gray-50">
+                            <img
+                              src={provider.identity_doc_url}
+                              alt="Identity Document"
+                              className="w-full h-full object-cover"
+                            />
+                            <a
+                              href={provider.identity_doc_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 flex items-center justify-center transition-all duration-200 group"
+                            >
+                              <span className="text-white opacity-0 group-hover:opacity-100 font-medium text-sm">View Full</span>
+                            </a>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-500 italic">No document image</p>
+                        )}
+                        <p className="mt-2 text-sm text-gray-700 font-medium">Type: {provider.identity_doc_type}</p>
+                        <p className="text-sm text-gray-700 font-medium">Number: {provider.identity_doc_number || 'N/A'}</p>
+                      </div>
                     </motion.div>
                   )}
                   {provider.bank_doc_type && (
@@ -406,14 +431,29 @@ export default function ProviderDetailsPage() {
                         <BanknotesIcon className="w-5 h-5 mr-2 text-blue-600" />
                         Bank Document
                       </h3>
-                      <p className="text-lg text-gray-900">
-                        {provider.bank_doc_type}: {provider.bank_doc_number || 'N/A'}
-                      </p>
-                      {provider.bank_doc_url && (
-                        <a href={provider.bank_doc_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                          View Document
-                        </a>
-                      )}
+                      <div className="mt-2">
+                        {provider.bank_doc_url ? (
+                          <div className="relative w-48 h-32 rounded-xl overflow-hidden shadow-lg border border-gray-200 bg-gray-50">
+                            <img
+                              src={provider.bank_doc_url}
+                              alt="Bank Document"
+                              className="w-full h-full object-cover"
+                            />
+                            <a
+                              href={provider.bank_doc_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 flex items-center justify-center transition-all duration-200 group"
+                            >
+                              <span className="text-white opacity-0 group-hover:opacity-100 font-medium text-sm">View Full</span>
+                            </a>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-500 italic">No document image</p>
+                        )}
+                        <p className="mt-2 text-sm text-gray-700 font-medium">Type: {provider.bank_doc_type}</p>
+                        <p className="text-sm text-gray-700 font-medium">Number: {provider.bank_doc_number || 'N/A'}</p>
+                      </div>
                     </motion.div>
                   )}
                   {provider.address_doc_type && (
@@ -422,14 +462,29 @@ export default function ProviderDetailsPage() {
                         <HomeIcon className="w-5 h-5 mr-2 text-blue-600" />
                         Address Document
                       </h3>
-                      <p className="text-lg text-gray-900">
-                        {provider.address_doc_type}: {provider.address_doc_number || 'N/A'}
-                      </p>
-                      {provider.address_doc_url && (
-                        <a href={provider.address_doc_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                          View Document
-                        </a>
-                      )}
+                      <div className="mt-2">
+                        {provider.address_doc_url ? (
+                          <div className="relative w-48 h-32 rounded-xl overflow-hidden shadow-lg border border-gray-200 bg-gray-50">
+                            <img
+                              src={provider.address_doc_url}
+                              alt="Address Document"
+                              className="w-full h-full object-cover"
+                            />
+                            <a
+                              href={provider.address_doc_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 flex items-center justify-center transition-all duration-200 group"
+                            >
+                              <span className="text-white opacity-0 group-hover:opacity-100 font-medium text-sm">View Full</span>
+                            </a>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-500 italic">No document image</p>
+                        )}
+                        <p className="mt-2 text-sm text-gray-700 font-medium">Type: {provider.address_doc_type}</p>
+                        <p className="text-sm text-gray-700 font-medium">Number: {provider.address_doc_number || 'N/A'}</p>
+                      </div>
                     </motion.div>
                   )}
                 </>
@@ -479,9 +534,8 @@ export default function ProviderDetailsPage() {
                   Admin Status
                 </h3>
                 <span
-                  className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${
-                    provider.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                  }`}
+                  className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${provider.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}
                 >
                   {provider.status}
                 </span>
@@ -492,9 +546,8 @@ export default function ProviderDetailsPage() {
                   Work Status
                 </h3>
                 <span
-                  className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${
-                    provider.work_status === 'work_on' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                  }`}
+                  className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${provider.work_status === 'work_on' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}
                 >
                   {provider.work_status === 'work_on' ? 'Work On' : 'Work Off'}
                 </span>

@@ -10,6 +10,7 @@ import { API_BASE_URL } from '@/lib/config';
 import { apiCall } from '@/lib/api';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import SearchFilter from '@/components/SearchFilter';
+import Pagination from '@/components/Pagination';
 import { getAllBookings, deleteBookingAdmin, BookingDTO } from '@/services/bookingApi';
 
 export default function BookingPage() {
@@ -137,12 +138,6 @@ export default function BookingPage() {
               onToggleFilters={() => setShowFilters(!showFilters)}
               hasActiveFilters={!!(searchQuery || statusFilter)}
               onClearFilters={clearFilters}
-              pagination={{
-                currentPage,
-                totalPages,
-                onPageChange: handlePageChange,
-                isLoading
-              }}
             />
 
             {isLoading && (
@@ -187,11 +182,25 @@ export default function BookingPage() {
                             {booking.id}
                           </button>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.user_name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button
+                            onClick={() => router.push(`/users/${booking.user_id}`)}
+                            className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                          >
+                            {booking.user_name || 'Unknown User'}
+                          </button>
+                        </td>
                         <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{booking.category_name || 'N/A'}</td>
                         <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{booking.subcategory_name || 'N/A'}</td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{booking.service_name || 'N/A'}</td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">Provider #{booking.serviceprovider_id}</td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <button
+                            onClick={() => router.push(`/providers/${booking.serviceprovider_id}`)}
+                            className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                          >
+                            {booking.service_provider_name || `Provider #${booking.serviceprovider_id}`}
+                          </button>
+                        </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                           {booking.scheduled_time ? new Date(booking.scheduled_time).toLocaleDateString() : 'N/A'}
                         </td>
@@ -234,6 +243,13 @@ export default function BookingPage() {
                 </table>
               </div>
             </motion.div>
+
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              isLoading={isLoading}
+            />
           </div>
         </motion.div>
         <AnimatePresence>

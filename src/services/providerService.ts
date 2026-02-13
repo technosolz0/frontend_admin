@@ -36,8 +36,17 @@ interface PaginatedResponse {
 
 
 
-export async function listServiceProviders(page = 1, limit = 10): Promise<PaginatedResponse> {
-  const response = await apiCall<PaginatedResponse>(`/api/vendor/?page=${page}&limit=${limit}`, {}, { vendors: [], total: 0 });
+export async function listServiceProviders(
+  page = 1,
+  limit = 10,
+  search?: string,
+  status?: string
+): Promise<PaginatedResponse> {
+  let url = `/api/vendor/?page=${page}&limit=${limit}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+  if (status) url += `&status=${status}`;
+
+  const response = await apiCall<PaginatedResponse>(url, {}, { vendors: [], total: 0 });
   return response || { vendors: [], total: 0 };
 }
 
