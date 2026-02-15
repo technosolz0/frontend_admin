@@ -117,7 +117,7 @@ export default function SupportTicketDetailsPage() {
         <div className="flex-1 ml-64">
           <Navbar />
           <div className="p-6 sm:p-8">
-            <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 sm:text-4xl mb-8">
               Ticket Not Found
             </h1>
             <button
@@ -176,7 +176,7 @@ export default function SupportTicketDetailsPage() {
               Back to Support Tickets
             </button>
 
-            <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 sm:text-4xl mb-8">
               Ticket Details: {ticket.ticketId}
             </h1>
 

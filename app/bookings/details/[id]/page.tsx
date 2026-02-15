@@ -80,7 +80,7 @@ export default function BookingDetailsPage() {
           <Navbar />
           <div className="p-6 sm:p-8">
             <div className="max-w-2xl mx-auto">
-              <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl mb-6">Booking Not Found</h1>
+              <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl mb-6">Booking Not Found</h2>
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <p className="text-red-800">{error || 'Booking not found or access denied.'}</p>
               </div>
@@ -120,9 +120,9 @@ export default function BookingDetailsPage() {
           className="p-6 sm:p-8"
         >
           <div className="max-w-2xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl mb-6">Booking Details</h1>
+            <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl mb-6">Booking Details</h2>
             <motion.div
-              className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100"
+              className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100 mt-4"
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.3 }}

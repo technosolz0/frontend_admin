@@ -110,9 +110,9 @@ export default function SubCategoriesPage() {
           transition={{ duration: 0.5 }}
           className="p-6 sm:p-8"
         >
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl">Sub-Category Management</h1>
+              <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl">Sub-Category Management</h2>
               {/* Note: In a real app, you might want a 'Create' button here too, but it often requires selecting a parent category first. 
                   For now, we'll assume creation happens via the Categories page or similar flow, or we can add a simple button if needed. 
                   Given the request is about 'fetching and showing', I'll prioritize the list. 

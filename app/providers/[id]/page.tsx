@@ -195,7 +195,7 @@ export default function ProviderDetailsPage() {
         <div className="flex-1 ml-64">
           <Navbar />
           <div className="p-6 sm:p-8">
-            <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl">Loading...</h1>
+            <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl">Loading...</h2>
           </div>
         </div>
       </div>
@@ -210,9 +210,9 @@ export default function ProviderDetailsPage() {
         <div className="flex-1 ml-64">
           <Navbar />
           <div className="p-6 sm:p-8">
-            <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl">
+            <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl">
               {error || 'Service Provider Not Found'}
-            </h1>
+            </h2>
           </div>
         </div>
       </div>
@@ -230,7 +230,7 @@ export default function ProviderDetailsPage() {
           transition={{ duration: 0.5 }}
           className="p-6 sm:p-8"
         >
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
               <div className="flex items-center gap-4">
                 <motion.button
@@ -241,7 +241,7 @@ export default function ProviderDetailsPage() {
                 >
                   <ArrowLeftIcon className="w-6 h-6" />
                 </motion.button>
-                <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl">Service Provider Details</h1>
+                <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl">Service Provider Details</h2>
               </div>
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -253,7 +253,7 @@ export default function ProviderDetailsPage() {
               </motion.button>
             </div>
             <motion.div
-              className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100"
+              className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100 mt-4"
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.3 }}

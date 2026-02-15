@@ -199,8 +199,8 @@ export default function UsersPage() {
           transition={{ duration: 0.5 }}
           className="p-6 sm:p-8"
         >
-          <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6 sm:text-4xl">User Management</h1>
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-2xl font-bold text-gray-800 mb-2 sm:text-4xl">User Management</h2>
 
             <SearchFilter
               searchPlaceholder="Search users by name, email, or mobile..."
@@ -224,6 +224,7 @@ export default function UsersPage() {
               onClearFilters={clearFilters}
             />
 
+
             {error && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
@@ -241,7 +242,7 @@ export default function UsersPage() {
             )}
 
             <motion.div
-              className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl overflow-hidden border border-blue-100"
+              className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl overflow-hidden border border-blue-100 mt-4"
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.3 }}

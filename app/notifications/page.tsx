@@ -104,9 +104,9 @@ export default function NotificationsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="p-6 sm:p-8"
                 >
-                    <div className="max-w-7xl mx-auto">
+                    <div className="max-w-6xl mx-auto">
                         <div className="flex justify-between items-center mb-6">
-                            <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl">Custom Notifications</h1>
+                            <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl">Custom Notifications</h2>
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}

@@ -114,7 +114,7 @@ export default function BookingPage() {
           className="p-6 sm:p-8"
         >
           <div className="max-w-full mx-auto">
-            <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl mb-6">Booking Management</h1>
+            <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl mb-6">Booking Management</h2>
 
             <SearchFilter
               searchPlaceholder="Search by customer name, email, address, or booking ID..."
@@ -144,7 +144,7 @@ export default function BookingPage() {
               <LoadingSpinner message="Loading bookings..." />
             )}
             <motion.div
-              className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl overflow-hidden border border-blue-100"
+              className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl overflow-hidden border border-blue-100 mt-4"
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.3 }}

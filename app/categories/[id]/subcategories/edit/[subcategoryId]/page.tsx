@@ -132,7 +132,7 @@ export default function EditSubcategoryPage() {
           <Navbar />
           <div className="p-6 sm:p-8">
             <div className="max-w-2xl mx-auto">
-              <div className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100">
+              <div className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100 mt-4">
                 <div className="flex items-center justify-center py-12">
                   <svg className="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -160,9 +160,9 @@ export default function EditSubcategoryPage() {
           className="p-6 sm:p-8"
         >
           <div className="max-w-2xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6 sm:text-4xl">Edit Subcategory</h1>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2 sm:text-4xl">Edit Subcategory</h2>
             <motion.div
-              className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100"
+              className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100 mt-4"
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.3 }}

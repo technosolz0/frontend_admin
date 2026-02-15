@@ -96,8 +96,8 @@ export default function SubcategoriesPage() {
         <div className="flex-1 ml-64">
           <Navbar />
           <div className="p-6 sm:p-8">
-            <div className="max-w-7xl mx-auto">
-              <div className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100">
+            <div className="max-w-6xl mx-auto">
+              <div className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100 mt-4">
                 <div className="flex items-center justify-center py-12">
                   <svg className="animate-spin h-8 w-8 text-blue-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -124,9 +124,9 @@ export default function SubcategoriesPage() {
           transition={{ duration: 0.5 }}
           className="p-6 sm:p-8"
         >
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl">Subcategory Management</h1>
+              <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl">Subcategory Management</h2>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

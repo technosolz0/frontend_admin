@@ -356,9 +356,9 @@ export default function PaymentPage() {
           className="p-6 sm:p-8"
         >
           <div className="max-w-full mx-auto">
-            <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl mb-6">
+            <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl mb-6">
               Admin Panel - Transactions
-            </h1>
+            </h2>
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">

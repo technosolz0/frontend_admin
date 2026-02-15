@@ -109,9 +109,9 @@ export default function CategoriesPage() {
           transition={{ duration: 0.5 }}
           className="p-6 sm:p-8"
         >
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl">Category Management</h1>
+              <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl">Category Management</h2>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -127,7 +127,7 @@ export default function CategoriesPage() {
               </div>
             )}
             <motion.div
-              className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl overflow-hidden border border-blue-100"
+              className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl overflow-hidden border border-blue-100 mt-4"
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.3 }}

@@ -477,9 +477,9 @@ export default function DashboardPage() {
           className="p-6 sm:p-8"
         >
           <div className="max-w-full mx-auto">
-            <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl mb-6">
+            <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl mb-6">
               Dashboard
-            </h1>
+            </h2>
 
             {/* Recent Bookings */}
             <motion.div

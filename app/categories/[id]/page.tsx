@@ -74,7 +74,7 @@ export default function CategoryDetailPage() {
         <div className="flex-1 ml-64">
           <Navbar />
           <div className="p-6 sm:p-8">
-            <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl">Loading...</h1>
+            <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl">Loading...</h2>
           </div>
         </div>
       </div>
@@ -89,9 +89,9 @@ export default function CategoryDetailPage() {
         <div className="flex-1 ml-64">
           <Navbar />
           <div className="p-6 sm:p-8">
-            <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl">
+            <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl">
               {error || 'Category Not Found'}
-            </h1>
+            </h2>
           </div>
         </div>
       </div>
@@ -111,7 +111,7 @@ export default function CategoryDetailPage() {
         >
           <div className="max-w-3xl mx-auto">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl">Category Details</h1>
+              <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl">Category Details</h2>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -122,7 +122,7 @@ export default function CategoryDetailPage() {
               </motion.button>
             </div>
             <motion.div
-              className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100"
+              className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100 mt-4"
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.3 }}

@@ -151,9 +151,9 @@ export default function SupportPage() {
           className="p-6 sm:p-8"
         >
           <div className="max-w-6xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-800 mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-8">
               Support Tickets
-            </h1>
+            </h2>
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">

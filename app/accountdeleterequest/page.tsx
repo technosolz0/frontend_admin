@@ -98,8 +98,8 @@ export default function AccountDeleteRequestsPage() {
           transition={{ duration: 0.5 }}
           className="p-6 sm:p-8"
         >
-          <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl mb-6">Delete Requests</h1>
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl mb-6">Delete Requests</h1>
 
             {/* Filters */}
             <div className="mb-6 flex flex-wrap gap-4 items-center">

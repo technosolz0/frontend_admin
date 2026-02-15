@@ -122,8 +122,8 @@ export default function FeedbackPage() {
           animate={{ opacity: 1, y: 0 }}
           className="p-6 sm:p-8"
         >
-          <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6 sm:text-4xl">User Feedback</h1>
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-2xl font-bold text-gray-800 mb-2 sm:text-4xl">User Feedback</h2>
 
             {/* Stats Cards */}
             {stats && (

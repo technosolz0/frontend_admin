@@ -38,7 +38,7 @@ export default function SearchFilter({
     <div className="space-y-4">
       {/* Search and Filter Controls */}
       <motion.div
-        className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-6 border border-blue-100"
+        className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-2 border border-blue-100"
         initial={{ scale: 0.95 }}
         animate={{ scale: 1 }}
         transition={{ duration: 0.3 }}
@@ -46,13 +46,13 @@ export default function SearchFilter({
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
           {/* Search Bar */}
           <div className="flex-1 relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-black" />
             <input
               type="text"
               placeholder={searchPlaceholder}
               value={searchValue}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-3 border border-black rounded-lg text-black"
             />
           </div>
 
@@ -60,7 +60,7 @@ export default function SearchFilter({
           {filters.length > 0 && onToggleFilters && (
             <button
               onClick={onToggleFilters}
-              className="flex items-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+              className="flex items-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors duration-200"
             >
               <FunnelIcon className="h-5 w-5" />
               Filters
