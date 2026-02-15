@@ -7,6 +7,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { UserIcon, EnvelopeIcon, ShieldCheckIcon, CheckCircleIcon, PhoneIcon, IdentificationIcon, DevicePhoneMobileIcon, MapPinIcon, ClockIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
 import { API_BASE_URL } from '@/lib/config';
+import Image from 'next/image';
 
 interface User {
   id: number;
@@ -171,10 +172,11 @@ export default function UserDetailPage() {
                   <div className="mt-2">
                     {user.profile_pic ? (
                       <div className="relative w-32 h-32 rounded-xl overflow-hidden shadow-lg border border-gray-200">
-                        <img
+                        <Image
                           src={user.profile_pic}
                           alt={user.name}
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
                         />
                         <a
                           href={user.profile_pic}

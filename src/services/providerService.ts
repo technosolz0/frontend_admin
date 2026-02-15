@@ -61,7 +61,28 @@ export async function createServiceProvider(body: FormData): Promise<ServiceProv
   });
 }
 
-export async function updateServiceProviderAddress(vendor_id: number, data: any): Promise<ServiceProviderDTO> {
+interface AddressUpdateData {
+  full_name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  [key: string]: string | undefined;
+}
+
+interface SubcategoryCharge {
+  subcategory_id: number;
+  service_charge: number;
+}
+
+interface WorkUpdateData {
+  category_id: number;
+  subcategory_charges: SubcategoryCharge[];
+}
+
+export async function updateServiceProviderAddress(vendor_id: number, data: AddressUpdateData): Promise<ServiceProviderDTO> {
   const formData = new FormData();
   formData.append('vendor_id', vendor_id.toString());
   Object.keys(data).forEach(key => {
@@ -76,7 +97,7 @@ export async function updateServiceProviderAddress(vendor_id: number, data: any)
   });
 }
 
-export async function updateServiceProviderWork(vendor_id: number, data: any): Promise<ServiceProviderDTO> {
+export async function updateServiceProviderWork(vendor_id: number, data: WorkUpdateData): Promise<ServiceProviderDTO> {
   return await apiCall<ServiceProviderDTO>(`/api/vendor/profile/work`, {
     method: 'PUT',
     body: JSON.stringify({

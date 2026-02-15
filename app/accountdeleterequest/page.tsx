@@ -99,7 +99,7 @@ export default function AccountDeleteRequestsPage() {
           className="p-6 sm:p-8"
         >
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl mb-6">Delete Requests</h1>
+            <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl mb-6">Delete Requests</h2>
 
             {/* Filters */}
             <div className="mb-6 flex flex-wrap gap-4 items-center">

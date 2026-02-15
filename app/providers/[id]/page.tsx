@@ -7,6 +7,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { TagIcon, CubeIcon, EnvelopeIcon, CheckCircleIcon, WrenchScrewdriverIcon, HomeIcon, BanknotesIcon, IdentificationIcon, MapPinIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
 import { API_BASE_URL } from '@/lib/config';
+import Image from 'next/image';
 
 // Define interface for ServiceProvider matching VendorResponse
 interface ServiceProvider {
@@ -403,10 +404,11 @@ export default function ProviderDetailsPage() {
                       <div className="mt-2">
                         {provider.identity_doc_url ? (
                           <div className="relative w-48 h-32 rounded-xl overflow-hidden shadow-lg border border-gray-200 bg-gray-50">
-                            <img
+                            <Image
                               src={provider.identity_doc_url}
                               alt="Identity Document"
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover"
                             />
                             <a
                               href={provider.identity_doc_url}
@@ -434,10 +436,11 @@ export default function ProviderDetailsPage() {
                       <div className="mt-2">
                         {provider.bank_doc_url ? (
                           <div className="relative w-48 h-32 rounded-xl overflow-hidden shadow-lg border border-gray-200 bg-gray-50">
-                            <img
+                            <Image
                               src={provider.bank_doc_url}
                               alt="Bank Document"
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover"
                             />
                             <a
                               href={provider.bank_doc_url}
@@ -465,10 +468,11 @@ export default function ProviderDetailsPage() {
                       <div className="mt-2">
                         {provider.address_doc_url ? (
                           <div className="relative w-48 h-32 rounded-xl overflow-hidden shadow-lg border border-gray-200 bg-gray-50">
-                            <img
+                            <Image
                               src={provider.address_doc_url}
                               alt="Address Document"
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover"
                             />
                             <a
                               href={provider.address_doc_url}

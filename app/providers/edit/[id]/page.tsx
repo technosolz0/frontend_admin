@@ -12,8 +12,7 @@ import {
   updateServiceProviderWork,
   updateProviderStatus,
   listCategories,
-  listSubcategories,
-  ServiceProviderDTO
+  listSubcategories
 } from '@/services/providerService';
 
 interface Category {
@@ -27,14 +26,12 @@ interface Subcategory {
   category_id: number;
 }
 
-const fieldVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.1, duration: 0.4 },
-  }),
-};
+interface FormErrors {
+  name?: string;
+  categoryId?: string;
+  contactInfo?: string;
+  [key: string]: string | undefined;
+}
 
 export default function EditServiceProviderPage() {
   const params = useParams();
@@ -52,7 +49,7 @@ export default function EditServiceProviderPage() {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -81,7 +78,7 @@ export default function EditServiceProviderPage() {
           contactInfo: provider.email || provider.phone || '',
           status: provider.admin_status === 'active' ? 'active' : 'inactive',
         });
-      } catch (err: any) {
+      } catch (err: unknown) {
         setError('Failed to load data. Please try again.');
         console.error(err);
       } finally {
@@ -100,7 +97,7 @@ export default function EditServiceProviderPage() {
   }, [formData.categoryId]);
 
   const validateForm = (): boolean => {
-    const newErrors: any = {};
+    const newErrors: FormErrors = {};
     if (!formData.name.trim()) newErrors.name = 'Name is required';
     if (!formData.categoryId) newErrors.categoryId = 'Category is required';
     if (!formData.contactInfo.trim()) newErrors.contactInfo = 'Contact info is required';
@@ -144,8 +141,9 @@ export default function EditServiceProviderPage() {
         setShowSuccess(false);
         router.push('/providers');
       }, 2000);
-    } catch (err: any) {
-      setError(err.message || 'Failed to update service provider.');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update service provider.';
+      setError(errorMessage);
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -160,7 +158,7 @@ export default function EditServiceProviderPage() {
       ...(name === 'categoryId' ? { subcategoryId: '', serviceId: '' } : {}),
       ...(name === 'subcategoryId' ? { serviceId: '' } : {}),
     }));
-    setErrors((prev: any) => ({ ...prev, [name]: undefined }));
+    setErrors((prev: FormErrors) => ({ ...prev, [name]: undefined }));
     setError(null);
   };
 
