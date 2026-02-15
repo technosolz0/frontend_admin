@@ -95,7 +95,7 @@ await createCategory(submissionData);
           className="p-6 sm:p-8"
         >
           <div className="max-w-2xl mx-auto">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2 sm:text-4xl">Add New Category</h1>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2 sm:text-4xl">Add New Category</h2>
             <motion.div
               className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100 mt-4"
               initial={{ scale: 0.95 }}
