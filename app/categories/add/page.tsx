@@ -132,7 +132,7 @@ await createCategory(submissionData);
                     name="image"
                     accept="image/*"
                     onChange={handleFileChange}
-                    className="text-black block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                    className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
                     disabled={isSubmitting}
                   />
                 </motion.div>
