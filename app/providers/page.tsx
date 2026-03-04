@@ -213,6 +213,7 @@ export default function ServiceProvidersPage() {
                     <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Name</th>
                     <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Email</th>
                     <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Phone</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Rating</th>
                     <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Address</th>
                     <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Status</th>
                     <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Work Status</th>
@@ -242,6 +243,17 @@ export default function ServiceProvidersPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {provider.phone || 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {provider.rating ? (
+                          <div className="flex items-center space-x-1">
+                            <span className="text-yellow-500">★</span>
+                            <span className="font-medium text-gray-700">{provider.rating.toFixed(1)}</span>
+                            <span className="text-xs text-gray-400">({provider.total_reviews})</span>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 italic">No ratings</span>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {provider.address

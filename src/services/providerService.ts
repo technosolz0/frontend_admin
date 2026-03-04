@@ -27,6 +27,8 @@ export interface ServiceProviderDTO {
   work_status: string;
   subcategory_charges: { subcategory_id: number; subcategory_name?: string; service_charge: number }[];
   bank_accounts?: unknown[];
+  rating?: number;
+  total_reviews?: number;
 }
 
 interface PaginatedResponse {

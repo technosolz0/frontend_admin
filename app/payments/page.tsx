@@ -54,6 +54,7 @@ interface Transaction {
   customerName: string;
   serviceName: string;
   amount: number;
+  paymentMethod: string;
   date: string;
   status: 'Completed' | 'Failed' | 'Pending';
 }
@@ -178,17 +179,20 @@ const mockBookings: Booking[] = [
 const mockTransactions: Transaction[] = mockBookings.map((booking, index) => {
   const transactionStatus =
     booking.status === 'Confirmed' ? 'Completed' :
-    booking.status === 'Pending' ? 'Pending' :
-    'Failed';
+      booking.status === 'Pending' ? 'Pending' :
+        'Failed';
 
-  // Mock amounts for each service (in dollars)
+  // Mock amounts for each service (in rupees)
   const serviceAmounts: { [key: string]: number } = {
-    'Phone Repair': 50,
-    'Laptop Upgrade': 100,
-    'T-Shirt Customization': 20,
-    'Jeans Alteration': 15,
-    'Book Binding': 30,
+    'Phone Repair': 1500,
+    'Laptop Upgrade': 4500,
+    'T-Shirt Customization': 600,
+    'Jeans Alteration': 350,
+    'Book Binding': 250,
   };
+
+  const paymentMethods = ['UPI', 'Card', 'Net Banking', 'Wallet', 'Cash'];
+  const method = paymentMethods[index % paymentMethods.length];
 
   return {
     transactionId: `TXN${index + 1}`,
@@ -196,6 +200,7 @@ const mockTransactions: Transaction[] = mockBookings.map((booking, index) => {
     customerName: booking.customerName,
     serviceName: booking.serviceName,
     amount: serviceAmounts[booking.serviceName] || 0,
+    paymentMethod: method,
     date: booking.date,
     status: transactionStatus,
   };
@@ -254,9 +259,9 @@ const barChartOptions = {
       bodyFont: { size: 12 },
       padding: 10,
       callbacks: {
-       label: (context: TooltipItem<'bar'>) => {
+        label: (context: TooltipItem<'bar'>) => {
           const value = context?.raw ?? 0;
-          return `Income: $${value}`;
+          return `Income: ₹${value}`;
         },
       },
     },
@@ -266,7 +271,7 @@ const barChartOptions = {
       beginAtZero: true,
       title: {
         display: true,
-        text: 'Income ($)',
+        text: 'Income (₹)',
         font: { size: 14 },
         color: '#374151',
       },
@@ -307,7 +312,7 @@ const lineChartOptions = {
       callbacks: {
         label: (context: TooltipItem<'line'>) => {
           const value = context?.raw ?? 0;
-          return `Income: $${value}`;
+          return `Income: ₹${value}`;
         },
       },
     },
@@ -317,7 +322,7 @@ const lineChartOptions = {
       beginAtZero: true,
       title: {
         display: true,
-        text: 'Income ($)',
+        text: 'Income (₹)',
         font: { size: 14 },
         color: '#374151',
       },
@@ -394,7 +399,7 @@ export default function PaymentPage() {
                       Total Revenue
                     </h2>
                     <p className="text-2xl font-bold text-gray-900">
-                      ${totalRevenue}
+                      ₹{totalRevenue}
                     </p>
                   </div>
                 </div>
@@ -540,6 +545,9 @@ export default function PaymentPage() {
                         Date
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">
+                        Payment Method
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">
                         Status
                       </th>
                     </tr>
@@ -565,21 +573,23 @@ export default function PaymentPage() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {transaction.serviceName}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          ${transaction.amount}
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">
+                          ₹{transaction.amount}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {transaction.date}
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {transaction.paymentMethod}
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              transaction.status === 'Completed'
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${transaction.status === 'Completed'
                                 ? 'bg-green-100 text-green-800'
                                 : transaction.status === 'Pending'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-red-100 text-red-800'
+                              }`}
                           >
                             {transaction.status}
                           </span>

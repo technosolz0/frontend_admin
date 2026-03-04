@@ -65,6 +65,10 @@ const menuItems: MenuItem[] = [
     // ],
   },
   {
+    name: 'Reviews',
+    href: '/reviews',
+  },
+  {
     name: 'Marketing',
     href: '/marketing',
     subItems: [
