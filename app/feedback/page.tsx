@@ -273,7 +273,7 @@ export default function FeedbackPage() {
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Response</label>
                   <textarea
-                    className="w-full border rounded p-2 text-sm"
+                    className="w-full border rounded p-2 text-sm text-black placeholder-black"
                     rows={4}
                     value={responseMessage}
                     onChange={(e) => setResponseMessage(e.target.value)}

@@ -106,7 +106,7 @@ export default function AccountDeleteRequestsPage() {
               <input
                 type="text"
                 placeholder="Search by Name"
-                className="p-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-400"
+                className="p-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-black placeholder-black"
                 value={searchName}
                 onChange={(e) => setSearchName(e.target.value)}
               />
@@ -122,7 +122,7 @@ export default function AccountDeleteRequestsPage() {
               <input
                 type="text"
                 placeholder="Search by Phone"
-                className="p-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-400"
+                className="p-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-black placeholder-black"
                 value={searchPhone}
                 onChange={(e) => setSearchPhone(e.target.value)}
               />
@@ -181,9 +181,8 @@ export default function AccountDeleteRequestsPage() {
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => handleDelete(req.id)}
-                              className={`text-red-600 hover:text-red-800 ${
-                                isDeleting === req.id ? 'opacity-50 cursor-not-allowed' : ''
-                              }`}
+                              className={`text-red-600 hover:text-red-800 ${isDeleting === req.id ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
                               disabled={isDeleting === req.id}
                             >
                               <TrashIcon className="w-5 h-5" />
@@ -251,11 +250,10 @@ export default function AccountDeleteRequestsPage() {
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => handlePageChange(pageNum)}
-                              className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                currentPage === pageNum
+                              className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === pageNum
                                   ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
                                   : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100'
-                              }`}
+                                }`}
                             >
                               {pageNum}
                             </motion.button>

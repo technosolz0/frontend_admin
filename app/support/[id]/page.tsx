@@ -212,11 +212,10 @@ export default function SupportTicketDetailsPage() {
                   <p className="text-sm text-gray-600">
                     <strong>Status:</strong>{' '}
                     <span
-                      className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                        ticket.status === 'Open'
+                      className={`px-3 py-1 text-xs font-semibold rounded-full ${ticket.status === 'Open'
                           ? 'bg-red-100 text-red-800'
                           : 'bg-green-100 text-green-800'
-                      }`}
+                        }`}
                     >
                       {ticket.status}
                     </span>
@@ -277,7 +276,7 @@ export default function SupportTicketDetailsPage() {
                 onChange={(e) => setNewResponse(e.target.value)}
                 placeholder="Write your response here..."
                 rows={5}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4 text-black placeholder-black"
               />
               <button
                 onClick={handleSendResponse}

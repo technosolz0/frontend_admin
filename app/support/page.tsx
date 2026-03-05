@@ -270,11 +270,10 @@ export default function SupportPage() {
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <span
-                            className={`px-2 py-1 text-xs font-medium rounded-full ${
-                              ticket.status === 'Open'
+                            className={`px-2 py-1 text-xs font-medium rounded-full ${ticket.status === 'Open'
                                 ? 'bg-red-50 text-red-600'
                                 : 'bg-green-50 text-green-600'
-                            }`}
+                              }`}
                           >
                             {ticket.status}
                           </span>
@@ -284,11 +283,10 @@ export default function SupportPage() {
                             onClick={() => toggleStatus(ticket.ticketId)}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                              ticket.status === 'Open'
+                            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${ticket.status === 'Open'
                                 ? 'bg-green-500 text-white hover:bg-green-600'
                                 : 'bg-gray-500 text-white hover:bg-gray-600'
-                            }`}
+                              }`}
                           >
                             {ticket.status === 'Open' ? 'Resolve' : 'Reopen'}
                           </motion.button>
@@ -349,7 +347,7 @@ export default function SupportPage() {
                     onChange={(e) => setResponseMessage(e.target.value)}
                     placeholder="Write your response here..."
                     rows={4}
-                    className="w-full p-3 border border-gray-200 rounded-md focus:ring-1 focus:ring-blue-300 focus:border-blue-300 text-gray-700 placeholder-gray-400 transition-all duration-200"
+                    className="w-full p-3 border border-gray-200 rounded-md focus:ring-1 focus:ring-blue-300 focus:border-blue-300 text-black placeholder-black transition-all duration-200"
                   />
                   <div className="flex justify-end space-x-2 mt-4">
                     <motion.button

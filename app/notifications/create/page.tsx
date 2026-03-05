@@ -100,7 +100,7 @@ export default function CreateNotificationPage() {
                                         <input
                                             type="text"
                                             required
-                                            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-black placeholder-black"
                                             placeholder="e.g. Special Offer!"
                                             value={formData.title}
                                             onChange={e => setFormData({ ...formData, title: e.target.value })}
@@ -113,7 +113,7 @@ export default function CreateNotificationPage() {
                                         <textarea
                                             required
                                             rows={4}
-                                            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-black placeholder-black"
                                             placeholder="Type your message here..."
                                             value={formData.message}
                                             onChange={e => setFormData({ ...formData, message: e.target.value })}
@@ -163,7 +163,7 @@ export default function CreateNotificationPage() {
                                             </label>
                                             <input
                                                 type="text"
-                                                className="w-full border border-yellow-300 rounded px-3 py-2 focus:ring-2 focus:ring-yellow-500 outline-none text-black"
+                                                className="w-full border border-yellow-300 rounded px-3 py-2 focus:ring-2 focus:ring-yellow-500 outline-none text-black placeholder-black"
                                                 placeholder="e.g. 1, 5, 12"
                                                 value={formData.targetIds}
                                                 onChange={e => setFormData({ ...formData, targetIds: e.target.value })}

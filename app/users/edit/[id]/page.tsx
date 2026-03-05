@@ -110,7 +110,7 @@ export default function EditUserPage() {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
+                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4 text-black placeholder-black"
                     disabled={isSubmitting}
                     placeholder="Enter full name"
                   />
@@ -127,7 +127,7 @@ export default function EditUserPage() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
+                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4 text-black placeholder-black"
                     disabled={isSubmitting}
                     placeholder="Enter email address"
                   />
@@ -183,9 +183,8 @@ export default function EditUserPage() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     type="submit"
-                    className={`px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-medium flex items-center justify-center ${
-                      isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-medium flex items-center justify-center ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
