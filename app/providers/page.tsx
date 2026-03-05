@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PencilIcon, TrashIcon, CheckCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
@@ -36,7 +36,7 @@ export default function ServiceProvidersPage() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const fetchProviders = async (page: number) => {
+  const fetchProviders = useCallback(async (page: number) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -52,11 +52,11 @@ export default function ServiceProvidersPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchTerm, statusFilter, providersPerPage]);
 
   useEffect(() => {
     fetchProviders(currentPage);
-  }, [currentPage, searchTerm, statusFilter]);
+  }, [currentPage, fetchProviders]);
 
   const clearFilters = () => {
     setSearchQuery('');

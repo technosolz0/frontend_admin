@@ -2,6 +2,7 @@
 
 import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useParams, useRouter } from 'next/navigation';
 import { UserIcon, EnvelopeIcon, ShieldCheckIcon, CheckCircleIcon, PhoneIcon, IdentificationIcon, DevicePhoneMobileIcon, MapPinIcon, ClockIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
@@ -171,10 +172,11 @@ export default function UserDetailPage() {
                   <div className="mt-2">
                     {user.profile_pic ? (
                       <div className="relative w-32 h-32 rounded-xl overflow-hidden shadow-lg border border-gray-200">
-                        <img
+                        <Image
                           src={user.profile_pic}
                           alt={user.name}
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
                         />
                         <a
                           href={user.profile_pic}
@@ -208,8 +210,8 @@ export default function UserDetailPage() {
                 </div>
                 <span
                   className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${user.status === 'active'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
                     }`}
                 >
                   {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
@@ -222,8 +224,8 @@ export default function UserDetailPage() {
                 </div>
                 <span
                   className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${user.is_verified
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-yellow-100 text-yellow-800'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-yellow-100 text-yellow-800'
                     }`}
                 >
                   {user.is_verified ? 'Verified' : 'Not Verified'}

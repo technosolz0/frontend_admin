@@ -6,18 +6,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { TagIcon, CubeIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
-import { listCategories, listSubcategories, createServiceProvider } from '@/services/providerService';
+import { listCategories, createServiceProvider } from '@/services/providerService';
 
 interface Category {
   id: number;
   name: string;
 }
 
-interface Subcategory {
-  id: number;
-  name: string;
-  category_id: number;
-}
+
 
 
 
