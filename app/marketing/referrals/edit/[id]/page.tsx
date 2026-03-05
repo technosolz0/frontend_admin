@@ -130,7 +130,7 @@ export default function EditReferralCodePage() {
                                         name="code"
                                         value={formData.code}
                                         onChange={handleInputChange}
-                                        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
+                                        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4 placeholder-black"
                                         disabled={isSubmitting}
                                     />
                                     {errors.code && <p className="mt-2 text-sm text-red-600">{errors.code}</p>}
@@ -147,7 +147,7 @@ export default function EditReferralCodePage() {
                                         name="name"
                                         value={formData.name}
                                         onChange={handleInputChange}
-                                        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
+                                        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4 placeholder-black"
                                         disabled={isSubmitting}
                                     />
                                     {errors.name && <p className="mt-2 text-sm text-red-600">{errors.name}</p>}
@@ -166,7 +166,7 @@ export default function EditReferralCodePage() {
                                             value={formData.no_of_bookings}
                                             onChange={handleInputChange}
                                             min="1"
-                                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
+                                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4 placeholder-black"
                                             disabled={isSubmitting}
                                         />
                                         {errors.no_of_bookings && <p className="mt-2 text-sm text-red-600">{errors.no_of_bookings}</p>}

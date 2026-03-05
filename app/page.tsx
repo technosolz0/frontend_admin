@@ -41,7 +41,7 @@
 //       <div className="bg-white p-8 rounded-lg shadow-lg w-96">
 //         <h2 className="text-2xl font-bold mb-6 text-black">Admin Login</h2>
 
-        
+
 //         <input
 //           suppressHydrationWarning
 //           className="border p-2 w-full mb-4 text-black"
@@ -95,7 +95,7 @@ export default function LoginPage() {
   // Fix SSR issue - only access localStorage after component mounts
   useEffect(() => {
     setMounted(true)
-    
+
     // Check if already logged in
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('token')
@@ -114,9 +114,9 @@ export default function LoginPage() {
     try {
       setLoading(true)
       setError('')
-      
+
       const data: LoginResponse = await login(email, password)
-      
+
       // Only access localStorage in the browser
       if (typeof window !== 'undefined') {
         localStorage.setItem('token', data.access_token)
@@ -157,7 +157,7 @@ export default function LoginPage() {
         )}
 
         <input
-          className="border p-2 w-full mb-4 text-black rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="border p-2 w-full mb-4 text-black placeholder-black rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           type="email"
           placeholder="Email"
           value={email}
@@ -167,7 +167,7 @@ export default function LoginPage() {
         />
 
         <input
-          className="border p-2 w-full mb-4 text-black rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="border p-2 w-full mb-4 text-black placeholder-black rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           type="password"
           placeholder="Password"
           value={password}

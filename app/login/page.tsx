@@ -24,13 +24,13 @@ export default function LoginPage() {
       localStorage.setItem('token', data.access_token)
       router.push('/dashboard')
     } catch (err: unknown) {
-  if (err instanceof Error) {
-    alert(err.message)
-  } else {
-    alert('Login failed')
-  }
-}
- finally {
+      if (err instanceof Error) {
+        alert(err.message)
+      } else {
+        alert('Login failed')
+      }
+    }
+    finally {
       setLoading(false)
     }
   }
@@ -41,7 +41,7 @@ export default function LoginPage() {
         <h2 className="text-2xl font-bold mb-6 text-black">Admin Login</h2>
         <form onSubmit={handleLogin}>
           <input
-            className="border p-2 w-full mb-4 text-black"
+            className="border p-2 w-full mb-4 text-black placeholder-black"
             type="email"
             placeholder="Email"
             value={email}
@@ -49,7 +49,7 @@ export default function LoginPage() {
             required
           />
           <input
-            className="border p-2 w-full mb-4 text-black"
+            className="border p-2 w-full mb-4 text-black placeholder-black"
             type="password"
             placeholder="Password"
             value={password}

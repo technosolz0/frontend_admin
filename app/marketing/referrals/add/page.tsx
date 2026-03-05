@@ -102,7 +102,7 @@ export default function AddReferralCodePage() {
                                         name="code"
                                         value={formData.code}
                                         onChange={handleInputChange}
-                                        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
+                                        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4 text-black placeholder-black"
                                         disabled={isSubmitting}
                                         placeholder="e.g. WELCOME10"
                                     />
@@ -121,7 +121,7 @@ export default function AddReferralCodePage() {
                                         name="name"
                                         value={formData.name}
                                         onChange={handleInputChange}
-                                        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
+                                        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4 text-black placeholder-black"
                                         disabled={isSubmitting}
                                         placeholder="e.g. New Vendor Welcome"
                                     />
@@ -142,7 +142,7 @@ export default function AddReferralCodePage() {
                                             value={formData.no_of_bookings}
                                             onChange={handleInputChange}
                                             min="1"
-                                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
+                                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4 text-black placeholder-black"
                                             disabled={isSubmitting}
                                         />
                                         {errors.no_of_bookings && <p className="mt-2 text-sm text-red-600">{errors.no_of_bookings}</p>}

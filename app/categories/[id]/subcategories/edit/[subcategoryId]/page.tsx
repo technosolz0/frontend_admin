@@ -184,7 +184,7 @@ export default function EditSubcategoryPage() {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
+                    className="text-black placeholder-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
                     disabled={isSubmitting}
                     placeholder="Enter subcategory name"
                   />
@@ -205,7 +205,7 @@ export default function EditSubcategoryPage() {
                     onChange={handleInputChange}
                     step="0.01"
                     min="0"
-                    className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
+                    className="text-black placeholder-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
                     disabled={isSubmitting}
                     placeholder="Enter service charge (e.g. 10.00)"
                   />

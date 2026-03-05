@@ -45,7 +45,7 @@ export default function AddCategoryPage() {
       if (formData.image) {
         submissionData.append('image', formData.image);
       }
-await createCategory(submissionData);
+      await createCategory(submissionData);
       console.log('Form submitted:', submissionData); // Replace this with your actual API call
 
       setShowSuccess(true);
@@ -114,7 +114,7 @@ await createCategory(submissionData);
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
+                    className="text-black placeholder-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
                     disabled={isSubmitting}
                     placeholder="Enter category name"
                   />
@@ -171,9 +171,8 @@ await createCategory(submissionData);
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     type="submit"
-                    className={`px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-medium flex items-center justify-center ${
-                      isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-medium flex items-center justify-center ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (

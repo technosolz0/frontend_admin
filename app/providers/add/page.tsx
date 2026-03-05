@@ -130,7 +130,7 @@ export default function AddServiceProviderPage() {
                   <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                     <TagIcon className="w-5 h-5 mr-2 text-blue-600" /> Name
                   </label>
-                  <input type="text" name="name" value={formData.name} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 bg-gray-50 py-3 px-4" disabled={isSubmitting} placeholder="Full Name" />
+                  <input type="text" name="name" value={formData.name} onChange={handleChange} className="text-black placeholder-black block w-full rounded-lg border-gray-300 bg-gray-50 py-3 px-4" disabled={isSubmitting} placeholder="Full Name" />
                   {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name}</p>}
                 </div>
 
@@ -139,7 +139,7 @@ export default function AddServiceProviderPage() {
                   <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                     <EnvelopeIcon className="w-5 h-5 mr-2 text-blue-600" /> Email
                   </label>
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 bg-gray-50 py-3 px-4" disabled={isSubmitting} placeholder="Email Address" />
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} className="text-black placeholder-black block w-full rounded-lg border-gray-300 bg-gray-50 py-3 px-4" disabled={isSubmitting} placeholder="Email Address" />
                   {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
                 </div>
 
@@ -148,7 +148,7 @@ export default function AddServiceProviderPage() {
                   <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                     <TagIcon className="w-5 h-5 mr-2 text-blue-600" /> Phone
                   </label>
-                  <input type="text" name="phone" value={formData.phone} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 bg-gray-50 py-3 px-4" disabled={isSubmitting} placeholder="Phone Number" />
+                  <input type="text" name="phone" value={formData.phone} onChange={handleChange} className="text-black placeholder-black block w-full rounded-lg border-gray-300 bg-gray-50 py-3 px-4" disabled={isSubmitting} placeholder="Phone Number" />
                   {errors.phone && <p className="mt-1 text-xs text-red-600">{errors.phone}</p>}
                 </div>
 
@@ -157,7 +157,7 @@ export default function AddServiceProviderPage() {
                   <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
                     <TagIcon className="w-5 h-5 mr-2 text-blue-600" /> Password
                   </label>
-                  <input type="password" name="password" value={formData.password} onChange={handleChange} className="text-black block w-full rounded-lg border-gray-300 bg-gray-50 py-3 px-4" disabled={isSubmitting} placeholder="Set Password" />
+                  <input type="password" name="password" value={formData.password} onChange={handleChange} className="text-black placeholder-black block w-full rounded-lg border-gray-300 bg-gray-50 py-3 px-4" disabled={isSubmitting} placeholder="Set Password" />
                   {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password}</p>}
                 </div>
 

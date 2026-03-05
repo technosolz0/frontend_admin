@@ -128,7 +128,7 @@ export default function EditCategoryPage() {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="block w-full rounded-lg text-black border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
+                    className="block w-full rounded-lg text-black placeholder-black border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
                     disabled={isSubmitting}
                     placeholder="Enter category name"
                   />
