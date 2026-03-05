@@ -63,12 +63,13 @@ export async function createServiceProvider(body: FormData): Promise<ServiceProv
   });
 }
 
-export async function updateServiceProviderAddress(vendor_id: number, data: any): Promise<ServiceProviderDTO> {
+export async function updateServiceProviderAddress(vendor_id: number, data: Record<string, string | number | null | undefined>): Promise<ServiceProviderDTO> {
   const formData = new FormData();
   formData.append('vendor_id', vendor_id.toString());
   Object.keys(data).forEach(key => {
-    if (data[key] !== null && data[key] !== undefined) {
-      formData.append(key, data[key]);
+    const value = data[key];
+    if (value !== null && value !== undefined) {
+      formData.append(key, value.toString());
     }
   });
 
@@ -78,7 +79,7 @@ export async function updateServiceProviderAddress(vendor_id: number, data: any)
   });
 }
 
-export async function updateServiceProviderWork(vendor_id: number, data: any): Promise<ServiceProviderDTO> {
+export async function updateServiceProviderWork(vendor_id: number, data: Record<string, unknown>): Promise<ServiceProviderDTO> {
   return await apiCall<ServiceProviderDTO>(`/api/vendor/profile/work`, {
     method: 'PUT',
     body: JSON.stringify({

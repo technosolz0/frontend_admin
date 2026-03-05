@@ -389,7 +389,7 @@ export default function ServiceProvidersPage() {
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
                 className="bg-white rounded-lg p-6 max-w-md w-full mx-4"
-                onClick={(e: { stopPropagation: () => any; }) => e.stopPropagation()}
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
               >
                 <div className="flex items-center mb-4">
                   <div className="flex-shrink-0">

@@ -6,8 +6,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useCallback } from 'react';
 import { TrashIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
-import { API_BASE_URL } from '@/lib/config';
-import { apiCall } from '@/lib/api';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import SearchFilter from '@/components/SearchFilter';
 import Pagination from '@/components/Pagination';

@@ -1,4 +1,4 @@
-import { apiCall, getToken, API_BASE_URL } from '@/lib/api';
+import { apiCall } from '@/lib/api';
 
 export interface AdminReferralCodeDTO {
     id: number;

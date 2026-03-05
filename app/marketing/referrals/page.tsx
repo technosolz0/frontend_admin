@@ -4,7 +4,7 @@ import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { PencilIcon, TrashIcon, CheckCircleIcon, PlusIcon, TicketIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, CheckCircleIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import {
     AdminReferralCodeDTO,

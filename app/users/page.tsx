@@ -37,7 +37,6 @@ export default function UsersPage() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalUsers, setTotalUsers] = useState(0);
   const [search, setSearch] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -66,14 +65,12 @@ export default function UsersPage() {
       // Handle the response structure from backend
       if (response && response.success) {
         setUsers(response.users || []);
-        setTotalUsers(response.total || 0);
 
         const calculatedTotalPages = Math.ceil((response.total || 0) / usersPerPage);
         setTotalPages(calculatedTotalPages || 1);
       } else {
         // Handle case where API returns but without success flag
         setUsers([]);
-        setTotalUsers(0);
         setTotalPages(1);
         setError(response?.message || 'Failed to fetch users');
       }
@@ -83,7 +80,6 @@ export default function UsersPage() {
 
       // Reset state on error
       setUsers([]);
-      setTotalUsers(0);
       setTotalPages(1);
     } finally {
       setIsLoading(false);

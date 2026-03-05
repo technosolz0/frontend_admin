@@ -11,8 +11,8 @@ export enum AppMode {
 export const CURRENT_APP_MODE: AppMode = (process.env.NEXT_PUBLIC_APP_MODE as AppMode) || AppMode.LIVE;
 
 // Dynamic API base URL based on current app mode
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? 'https://api.serwex.in';
+export const API_BASE_URL = 'https://testapi.serwex.in';
+// process.env.NEXT_PUBLIC_API_URL ?? 'https://testapi.serwex.in';
 
 
 // Helper function to get current environment

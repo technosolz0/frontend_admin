@@ -5,7 +5,7 @@ import Navbar from '@/components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { TagIcon, CheckCircleIcon, CubeIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
+import { TagIcon, CubeIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import { listCategories, listSubcategories, createServiceProvider } from '@/services/providerService';
 
 interface Category {
@@ -19,14 +19,7 @@ interface Subcategory {
   category_id: number;
 }
 
-const fieldVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.1, duration: 0.4 },
-  }),
-};
+
 
 export default function AddServiceProviderPage() {
   const [formData, setFormData] = useState({
@@ -41,8 +34,7 @@ export default function AddServiceProviderPage() {
   });
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,15 +45,11 @@ export default function AddServiceProviderPage() {
   }, []);
 
   useEffect(() => {
-    if (formData.categoryId) {
-      listSubcategories(formData.categoryId).then(setSubcategories).catch(err => console.error('Failed to load subcategories', err));
-    } else {
-      setSubcategories([]);
-    }
+    // subcategories are not used in Add page currently
   }, [formData.categoryId]);
 
   const validateForm = (): boolean => {
-    const newErrors: any = {};
+    const newErrors: Record<string, string> = {};
     if (!formData.name.trim()) newErrors.name = 'Name is required';
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     if (!formData.phone.trim()) newErrors.phone = 'Phone is required';
@@ -95,8 +83,9 @@ export default function AddServiceProviderPage() {
         setShowSuccess(false);
         router.push('/providers');
       }, 2000);
-    } catch (err: any) {
-      setError(err.message || 'Failed to add service provider.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to add service provider.';
+      setError(message);
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -111,7 +100,7 @@ export default function AddServiceProviderPage() {
       ...(name === 'categoryId' ? { subcategoryId: '', serviceId: '' } : {}),
       ...(name === 'subcategoryId' ? { serviceId: '' } : {}),
     }));
-    setErrors((prev: any) => ({ ...prev, [name]: undefined }));
+    setErrors((prev: Record<string, string>) => ({ ...prev, [name]: '' }));
     setError(null);
   };
 

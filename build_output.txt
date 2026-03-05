@@ -1,0 +1,108 @@
+
+> frontend_admin@0.1.0 build
+> next build
+
+   ▲ Next.js 15.5.12
+
+   Creating an optimized production build ...
+Failed to compile.
+
+./src/styles/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!./src/styles/globals.css
+Error: Cannot find module '../lightningcss.darwin-x64.node'
+Require stack:
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/lightningcss/node/index.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/@tailwindcss/node/dist/index.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/@tailwindcss/postcss/dist/index.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack/config/blocks/css/plugins.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack/config/blocks/css/index.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack/config/index.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack-config.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack-build/impl.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1420:15)
+    at /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/server/require-hook.js:57:36
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1058:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1063:22)
+    at Module._load (node:internal/modules/cjs/loader:1226:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1503:12)
+    at mod.require (/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/server/require-hook.js:68:28)
+    at require (node:internal/modules/helpers:152:16)
+
+Import trace for requested module:
+./src/styles/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!./src/styles/globals.css
+./src/styles/globals.css
+
+./src/styles/globals.css
+Error: Cannot find module '../lightningcss.darwin-x64.node'
+Require stack:
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/lightningcss/node/index.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/@tailwindcss/node/dist/index.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/@tailwindcss/postcss/dist/index.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack/config/blocks/css/plugins.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack/config/blocks/css/index.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack/config/index.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack-config.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack-build/impl.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1420:15)
+    at /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/server/require-hook.js:57:36
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1058:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1063:22)
+    at Module._load (node:internal/modules/cjs/loader:1226:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1503:12)
+    at mod.require (/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/server/require-hook.js:68:28)
+    at require (node:internal/modules/helpers:152:16)
+    at tryRunOrWebpackError (/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:316119)
+    at __webpack_require_module__ (/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:131532)
+    at __nested_webpack_require_161494__ (/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:130967)
+    at /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:131824
+    at symbolIterator (/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/neo-async/async.js:1:14444)
+    at done (/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/neo-async/async.js:1:14824)
+    at Hook.eval [as callAsync] (eval at create (/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/webpack/bundle5.js:14:9224), <anonymous>:15:1)
+    at Hook.CALL_ASYNC_DELEGATE [as _callAsync] (/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/webpack/bundle5.js:14:6378)
+    at /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:130687
+    at symbolIterator (/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/neo-async/async.js:1:14402)
+-- inner error --
+Error: Cannot find module '../lightningcss.darwin-x64.node'
+Require stack:
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/lightningcss/node/index.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/@tailwindcss/node/dist/index.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/@tailwindcss/postcss/dist/index.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack/config/blocks/css/plugins.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack/config/blocks/css/index.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack/config/index.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack-config.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack-build/impl.js
+- /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1420:15)
+    at /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/server/require-hook.js:57:36
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1058:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1063:22)
+    at Module._load (node:internal/modules/cjs/loader:1226:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1503:12)
+    at mod.require (/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/server/require-hook.js:68:28)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> (/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!/Users/anjitaitsolutions/Development/frontend_admin/src/styles/globals.css:1:7)
+    at /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:962717
+    at Hook.eval [as call] (eval at create (/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/webpack/bundle5.js:14:9002), <anonymous>:7:1)
+    at Hook.CALL_DELEGATE [as _call] (/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/webpack/bundle5.js:14:6272)
+    at /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:131565
+    at tryRunOrWebpackError (/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:316073)
+    at __webpack_require_module__ (/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:131532)
+    at __nested_webpack_require_161494__ (/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:130967)
+    at /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:131824
+    at symbolIterator (/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/compiled/neo-async/async.js:1:14444)
+
+Generated code for /Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!/Users/anjitaitsolutions/Development/frontend_admin/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!/Users/anjitaitsolutions/Development/frontend_admin/src/styles/globals.css
+
+Import trace for requested module:
+./src/styles/globals.css
+
+
+> Build failed because of webpack errors

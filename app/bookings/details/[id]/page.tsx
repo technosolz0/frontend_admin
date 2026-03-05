@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 import { useParams, useRouter } from 'next/navigation';
 import { TagIcon, CubeIcon, UserIcon, UserGroupIcon, CalendarIcon, CheckCircleIcon, MapPinIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
-import { API_BASE_URL } from '@/lib/config';
 import { apiCall } from '@/lib/api';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
