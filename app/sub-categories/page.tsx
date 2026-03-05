@@ -135,6 +135,7 @@ export default function SubCategoriesPage() {
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Name</th>
                     <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Image</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Service Charge</th>
                     <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Status</th>
                     <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
                   </tr>
@@ -154,40 +155,43 @@ export default function SubCategoriesPage() {
                           <span className="text-sm font-medium text-gray-900">{subCategory.name}</span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {(() => {
-                          const imageUrl = subCategory.image && subCategory.image.trim() !== '' ?
-                            (subCategory.image.startsWith('http') ? subCategory.image : `${API_BASE_URL}${subCategory.image}`) : null;
-                          const isValidUrl = imageUrl ? (() => {
-                            try {
-                              new URL(imageUrl);
-                              return true;
-                            } catch {
-                              return false;
-                            }
-                          })() : false;
+                          {(() => {
+                            const imageUrl = subCategory.image && subCategory.image.trim() !== '' ?
+                              (subCategory.image.startsWith('http') ? subCategory.image : `${API_BASE_URL}${subCategory.image}`) : null;
+                            const isValidUrl = imageUrl ? (() => {
+                              try {
+                                new URL(imageUrl);
+                                return true;
+                              } catch {
+                                return false;
+                              }
+                            })() : false;
 
-                          return isValidUrl && imageUrl ? (
-                            <div className="relative w-16 h-16 rounded overflow-hidden">
-                             <Image
-  src={imageUrl}
-  alt={subCategory.name}
-  fill
-  className="object-cover"
-  unoptimized
-/>
-                            </div>
-                          ) : (
-                            <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
-                              <span className="text-gray-500 text-xs">No Image</span>
-                            </div>
-                          );
-                        })()}
+                            return isValidUrl && imageUrl ? (
+                              <div className="relative w-16 h-16 rounded overflow-hidden">
+                                <Image
+                                  src={imageUrl}
+                                  alt={subCategory.name}
+                                  fill
+                                  className="object-cover"
+                                  unoptimized
+                                />
+                              </div>
+                            ) : (
+                              <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
+                                <span className="text-gray-500 text-xs">No Image</span>
+                              </div>
+                            );
+                          })()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="text-sm text-gray-900">₹{subCategory.service_charge?.toFixed(2) || '0.00'}</span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
                             className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${subCategory.status === 'active'
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
                               }`}
                           >
                             {subCategory.status}

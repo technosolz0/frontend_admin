@@ -14,6 +14,7 @@ interface FormData {
   name: string;
   status: 'active' | 'inactive';
   image: File | null;
+  service_charge: string;
 }
 
 export default function EditSubcategoryPage() {
@@ -26,6 +27,7 @@ export default function EditSubcategoryPage() {
     name: '',
     status: 'active',
     image: null,
+    service_charge: '0',
   });
   const [currentImage, setCurrentImage] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -42,6 +44,7 @@ export default function EditSubcategoryPage() {
           name: subcategory.name,
           status: subcategory.status,
           image: null,
+          service_charge: (subcategory.service_charge || 0).toString(),
         });
         setCurrentImage(subcategory.image);
       } catch (error) {
@@ -60,6 +63,7 @@ export default function EditSubcategoryPage() {
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof FormData, string>> = {};
     if (!formData.name.trim()) newErrors.name = 'Name is required';
+    if (isNaN(parseFloat(formData.service_charge))) newErrors.service_charge = 'Invalid service charge';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -73,6 +77,7 @@ export default function EditSubcategoryPage() {
       const formDataToSend = new FormData();
       formDataToSend.append('name', formData.name.trim());
       formDataToSend.append('status', formData.status);
+      formDataToSend.append('service_charge', formData.service_charge);
       formDataToSend.append('category_id', categoryId);
 
       if (formData.image) {
@@ -184,6 +189,27 @@ export default function EditSubcategoryPage() {
                     placeholder="Enter subcategory name"
                   />
                   {errors.name && <p className="mt-2 text-sm text-red-600">{errors.name}</p>}
+                </motion.div>
+
+                {/* Service Charge */}
+                <motion.div custom={1} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
+                  <label htmlFor="service_charge" className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                    <span className="w-5 h-5 mr-2 text-blue-600 flex items-center justify-center font-bold">₹</span>
+                    Service Charge
+                  </label>
+                  <input
+                    type="number"
+                    id="service_charge"
+                    name="service_charge"
+                    value={formData.service_charge}
+                    onChange={handleInputChange}
+                    step="0.01"
+                    min="0"
+                    className="text-black block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-600 focus:ring-opacity-50 transition-all duration-300 bg-gray-50 py-3 px-4"
+                    disabled={isSubmitting}
+                    placeholder="Enter service charge (e.g. 10.00)"
+                  />
+                  {errors.service_charge && <p className="mt-2 text-sm text-red-600">{errors.service_charge}</p>}
                 </motion.div>
 
                 <motion.div custom={1} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">

@@ -74,6 +74,7 @@ const menuItems: MenuItem[] = [
     subItems: [
       { name: 'Create Campaign', href: '/marketing/create' },
       { name: 'Manage Campaigns', href: '/marketing/manage' },
+      { name: 'Referral Codes', href: '/marketing/referrals' },
     ],
   },
   {
