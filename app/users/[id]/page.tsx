@@ -4,10 +4,26 @@ import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { motion } from 'framer-motion';
 import { useParams, useRouter } from 'next/navigation';
-import { UserIcon, EnvelopeIcon, ShieldCheckIcon, CheckCircleIcon, PhoneIcon, IdentificationIcon, DevicePhoneMobileIcon, MapPinIcon, ClockIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { 
+  UserIcon, 
+  EnvelopeIcon, 
+  ShieldCheckIcon, 
+  CheckCircleIcon, 
+  PhoneIcon, 
+  IdentificationIcon, 
+  DevicePhoneMobileIcon, 
+  MapPinIcon, 
+  ClockIcon, 
+  ArrowLeftIcon,
+  GlobeAltIcon,
+  KeyIcon,
+  FingerPrintIcon,
+  CpuChipIcon
+} from '@heroicons/react/24/outline';
 import { useState, useEffect } from 'react';
 import { API_BASE_URL } from '@/lib/config';
 import Image from 'next/image';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 interface User {
   id: number;
@@ -34,76 +50,61 @@ export default function UserDetailPage() {
   const userId = params.id as string;
 
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Helper function for auth headers
-  const getAuthHeaders = () => ({
-    Authorization: `Bearer ${localStorage.getItem('token')}`,
-    'Content-Type': 'application/json',
-  });
+  const getFullUrl = (url: string | null | undefined) => {
+    if (!url) return null;
+    if (url.startsWith('http')) return url;
+    const path = url.startsWith('/') ? url : `/${url}`;
+    return `${API_BASE_URL}${path}`;
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/users/${userId}`, {
-          headers: getAuthHeaders(),
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
         });
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: Failed to fetch user`);
-        }
+        if (!response.ok) throw new Error('Failed to fetch user details');
         const data = await response.json();
         setUser(data);
-        setIsLoading(false);
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
-          console.error('Error fetching user:', err);
-        } else {
-          setError('Failed to load user data. Please try again.');
-        }
-        setIsLoading(false);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
-
     fetchUser();
   }, [userId]);
 
-  const fieldVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: { delay: i * 0.1, duration: 0.4 },
-    }),
-  };
-
-  // Render loading state
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
+      <div className="flex min-h-screen bg-gray-50">
         <Sidebar />
         <div className="flex-1 ml-64">
           <Navbar />
-          <div className="p-6 sm:p-8">
-            <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl">Loading...</h2>
+          <div className="flex justify-center items-center h-[calc(100vh-100px)]">
+            <LoadingSpinner message="Loading User Profile..." />
           </div>
         </div>
       </div>
     );
   }
 
-  // Render error state or not found
   if (error || !user) {
     return (
-      <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
+      <div className="flex min-h-screen bg-gray-50">
         <Sidebar />
         <div className="flex-1 ml-64">
           <Navbar />
-          <div className="p-6 sm:p-8">
-            <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl">
-              {error || 'User Not Found'}
-            </h2>
+          <div className="p-8 text-center">
+            <h2 className="text-2xl font-bold text-red-600">Error: {error || 'User not found'}</h2>
+            <button onClick={() => router.back()} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-xl shadow-md">
+              Go Back
+            </button>
           </div>
         </div>
       </div>
@@ -111,234 +112,203 @@ export default function UserDetailPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pb-12">
       <Sidebar />
       <div className="flex-1 ml-64">
         <Navbar />
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="p-6 sm:p-8"
+        
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          className="p-6 sm:p-8 max-w-7xl mx-auto"
         >
-          <div className="max-w-6xl mx-auto">
-            <div className="flex items-center gap-4 mb-8">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => router.push('/users')}
-                className="p-2 bg-white shadow-md rounded-full text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+          {/* Header Section */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => router.back()}
+                className="p-2 bg-white shadow-sm border border-gray-200 rounded-full hover:bg-gray-50 transition"
               >
-                <ArrowLeftIcon className="w-6 h-6" />
-              </motion.button>
-              <h2 className="text-2xl font-bold text-gray-800 sm:text-4xl">User Details</h2>
+                <ArrowLeftIcon className="w-5 h-5 text-gray-600" />
+              </button>
+              <div>
+                <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">User Profile</h1>
+                <p className="text-gray-500 font-medium flex items-center gap-1">
+                  System ID: <span className="text-blue-600 font-mono">#USR-{user.id}</span>
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button 
+                 onClick={() => router.push(`/users/edit/${user.id}`)}
+                 className="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-bold rounded-xl shadow-sm hover:bg-gray-50 transition"
+              >
+                Edit Details
+              </button>
+              <button 
+                 className={`px-6 py-2.5 rounded-xl font-bold text-white shadow-lg transition ${
+                   user.status === 'active' ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
+                 }`}
+              >
+                {user.status === 'active' ? 'Block User' : 'Unblock User'}
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Left Column - Profile & Account */}
+            <div className="lg:col-span-4 space-y-8">
+              {/* Profile Card */}
+              <div className="bg-white rounded-3xl shadow-xl shadow-blue-50/50 border border-gray-100 overflow-hidden">
+                <div className="h-32 bg-gradient-to-r from-indigo-500 to-purple-600 relative">
+                    <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
+                       <div className="w-24 h-24 rounded-full border-4 border-white overflow-hidden bg-white shadow-lg relative">
+                         <Image 
+                           src={getFullUrl(user.profile_pic) || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name)} 
+                           alt={user.name}
+                           fill
+                           className="object-cover"
+                         />
+                       </div>
+                    </div>
+                </div>
+                <div className="pt-16 pb-8 px-6 text-center">
+                   <h2 className="text-2xl font-bold text-gray-900">{user.name}</h2>
+                   <p className="text-indigo-600 font-bold mb-4">{user.is_superuser ? 'System Administrator' : 'Platform Customer'}</p>
+                   
+                   <div className="flex justify-center gap-2 mb-6">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                        user.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                      }`}>
+                        {user.status}
+                      </span>
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                        user.is_verified ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'
+                      }`}>
+                        {user.is_verified ? 'Verified' : 'Unverified'}
+                      </span>
+                   </div>
+
+                   <div className="grid grid-cols-2 gap-4 border-t border-gray-50 pt-6">
+                      <div>
+                        <p className="text-xs text-gray-400 font-bold uppercase">Account Since</p>
+                        <p className="text-sm font-bold text-gray-700">MAR 2024</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400 font-bold uppercase">Role Type</p>
+                        <p className="text-sm font-bold text-gray-700">{user.is_superuser ? 'ADMIN' : 'USER'}</p>
+                      </div>
+                   </div>
+                </div>
+              </div>
+
+              {/* Quick Actions / Integration */}
+              <div className="bg-white rounded-3xl shadow-xl shadow-blue-50/50 border border-gray-100 p-6">
+                 <h3 className="font-bold text-gray-800 text-lg mb-4">Internal Identifiers</h3>
+                 <div className="space-y-4">
+                    <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+                       <p className="text-xs text-gray-400 font-bold uppercase mb-1">Device ID Reference</p>
+                       <p className="text-sm font-mono text-gray-700 break-all">{user.device_id || 'N/A'}</p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+                       <p className="text-xs text-gray-400 font-bold uppercase mb-1">New FCM Token</p>
+                       <p className="text-[10px] font-mono text-blue-600 break-all leading-tight">
+                         {user.new_fcm_token ? user.new_fcm_token.substring(0, 100) + '...' : 'Not Registered'}
+                       </p>
+                    </div>
+                 </div>
+              </div>
             </div>
 
-            <motion.div
-              className="bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-2xl p-6 sm:p-8 border border-blue-100 mt-4"
-              initial={{ scale: 0.95 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              {/* Personal Info */}
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Personal Information</h2>
-              <motion.div custom={0} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                <div className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                  <UserIcon className="w-5 h-5 mr-2 text-blue-600" />
-                  Name
-                </div>
-                <p className="text-lg text-gray-900">{user.name}</p>
-              </motion.div>
-              <motion.div custom={1} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                <div className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                  <EnvelopeIcon className="w-5 h-5 mr-2 text-blue-600" />
-                  Email
-                </div>
-                <p className="text-lg text-gray-900">{user.email}</p>
-              </motion.div>
-              <motion.div custom={2} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                <div className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                  <PhoneIcon className="w-5 h-5 mr-2 text-blue-600" />
-                  Mobile
-                </div>
-                <p className="text-lg text-gray-900">{user.mobile}</p>
-              </motion.div>
-              {user.profile_pic && (
-                <motion.div custom={3} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                  <div className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                    <IdentificationIcon className="w-5 h-5 mr-2 text-blue-600" />
-                    Profile Picture
+            {/* Right Column - Detailed Profile */}
+            <div className="lg:col-span-8 space-y-8">
+               {/* Contact Information */}
+               <div className="bg-white rounded-3xl shadow-xl shadow-blue-50/50 border border-gray-100 overflow-hidden">
+                  <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/30">
+                     <h3 className="font-bold text-gray-800 text-xl flex items-center gap-2">
+                        <IdentificationIcon className="w-6 h-6 text-indigo-600" />
+                        Personal Information
+                     </h3>
                   </div>
-                  <div className="mt-2">
-                    {user.profile_pic ? (
-                      <div className="relative w-32 h-32 rounded-xl overflow-hidden shadow-lg border border-gray-200">
-                        <Image
-                          src={user.profile_pic}
-                          alt={user.name}
-                          fill
-                          className="object-cover"
-                        />
-                        <a
-                          href={user.profile_pic}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 flex items-center justify-center transition-all duration-200 group"
-                        >
-                          <span className="text-white opacity-0 group-hover:opacity-100 font-medium text-sm">View Full</span>
-                        </a>
-                      </div>
-                    ) : (
-                      <p className="text-lg text-gray-400 italic">No profile picture</p>
-                    )}
+                  <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                     <DetailItem icon={<EnvelopeIcon className="w-5 h-5" />} label="Email Address" value={user.email} />
+                     <DetailItem icon={<PhoneIcon className="w-5 h-5" />} label="Mobile Number" value={user.mobile} />
+                     <DetailItem icon={<UserIcon className="w-5 h-5" />} label="Display Name" value={user.name} />
+                     <DetailItem icon={<ShieldCheckIcon className="w-5 h-5" />} label="Security Level" value={user.is_superuser ? 'Level 10 (Admin)' : 'Level 1 (Basic)'} />
                   </div>
-                </motion.div>
-              )}
+               </div>
 
-              {/* Account Info */}
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 mt-8">Account Information</h2>
-              <motion.div custom={4} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                <div className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                  <ShieldCheckIcon className="w-5 h-5 mr-2 text-blue-600" />
-                  Role
-                </div>
-                <p className="text-lg text-gray-900">{user.is_superuser ? 'Super Admin' : 'User'}</p>
-              </motion.div>
-              <motion.div custom={5} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                <div className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                  <CheckCircleIcon className="w-5 h-5 mr-2 text-blue-600" />
-                  Status
-                </div>
-                <span
-                  className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${user.status === 'active'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                    }`}
-                >
-                  {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                </span>
-              </motion.div>
-              <motion.div custom={6} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                <div className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                  <CheckCircleIcon className="w-5 h-5 mr-2 text-blue-600" />
-                  Email Verified
-                </div>
-                <span
-                  className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${user.is_verified
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-yellow-100 text-yellow-800'
-                    }`}
-                >
-                  {user.is_verified ? 'Verified' : 'Not Verified'}
-                </span>
-              </motion.div>
+               {/* Device & OS Details */}
+               <div className="bg-white rounded-3xl shadow-xl shadow-blue-50/50 border border-gray-100 overflow-hidden">
+                  <div className="px-8 py-6 border-b border-gray-100 bg-gray-50/30">
+                     <h3 className="font-bold text-gray-800 text-xl flex items-center gap-2">
+                        <DevicePhoneMobileIcon className="w-6 h-6 text-purple-500" />
+                        Hardware & Environment
+                     </h3>
+                  </div>
+                  <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                     <HardwareCard icon={<CpuChipIcon className="w-5 h-5" />} label="OS Version" value={user.os_version || 'N/A'} sub="Platform OS" />
+                     <HardwareCard icon={<GlobeAltIcon className="w-5 h-5" />} label="App Version" value={user.app_version || 'N/A'} sub="Installed Release" />
+                     <HardwareCard icon={<FingerPrintIcon className="w-5 h-5" />} label="Device Type" value={user.device_type || 'N/A'} sub="Access Hardware" />
+                  </div>
+               </div>
 
-              {/* Device Info */}
-              {(user.device_id || user.device_type || user.os_version || user.app_version) && (
-                <>
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4 mt-8">Device Information</h2>
-                  {user.device_id && (
-                    <motion.div custom={7} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                      <div className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                        <DevicePhoneMobileIcon className="w-5 h-5 mr-2 text-blue-600" />
-                        Device ID
-                      </div>
-                      <p className="text-lg text-gray-900">{user.device_id}</p>
-                    </motion.div>
-                  )}
-                  {user.device_type && (
-                    <motion.div custom={8} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                      <div className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                        <DevicePhoneMobileIcon className="w-5 h-5 mr-2 text-blue-600" />
-                        Device Type
-                      </div>
-                      <p className="text-lg text-gray-900">{user.device_type}</p>
-                    </motion.div>
-                  )}
-                  {user.os_version && (
-                    <motion.div custom={9} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                      <div className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                        <DevicePhoneMobileIcon className="w-5 h-5 mr-2 text-blue-600" />
-                        OS Version
-                      </div>
-                      <p className="text-lg text-gray-900">{user.os_version}</p>
-                    </motion.div>
-                  )}
-                  {user.app_version && (
-                    <motion.div custom={10} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                      <div className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                        <DevicePhoneMobileIcon className="w-5 h-5 mr-2 text-blue-600" />
-                        App Version
-                      </div>
-                      <p className="text-lg text-gray-900">{user.app_version}</p>
-                    </motion.div>
-                  )}
-                </>
-              )}
-
-              {/* Login Info */}
-              {(user.last_login_at || user.last_login_ip) && (
-                <>
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4 mt-8">Login Information</h2>
-                  {user.last_login_at && (
-                    <motion.div custom={11} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                      <div className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                        <ClockIcon className="w-5 h-5 mr-2 text-blue-600" />
-                        Last Login
-                      </div>
-                      <p className="text-lg text-gray-900">{new Date(user.last_login_at).toLocaleString()}</p>
-                    </motion.div>
-                  )}
-                  {user.last_login_ip && (
-                    <motion.div custom={12} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                      <div className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                        <MapPinIcon className="w-5 h-5 mr-2 text-blue-600" />
-                        Last Login IP
-                      </div>
-                      <p className="text-lg text-gray-900">{user.last_login_ip}</p>
-                    </motion.div>
-                  )}
-                </>
-              )}
-
-              {/* FCM Tokens */}
-              {(user.new_fcm_token || user.old_fcm_token) && (
-                <>
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4 mt-8">FCM Tokens</h2>
-                  {user.new_fcm_token && (
-                    <motion.div custom={13} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                      <div className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                        <IdentificationIcon className="w-5 h-5 mr-2 text-blue-600" />
-                        Current FCM Token
-                      </div>
-                      <p className="text-lg text-gray-900 break-all">{user.new_fcm_token}</p>
-                    </motion.div>
-                  )}
-                  {user.old_fcm_token && (
-                    <motion.div custom={14} variants={fieldVariants} initial="hidden" animate="visible" className="mb-6">
-                      <div className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                        <IdentificationIcon className="w-5 h-5 mr-2 text-blue-600" />
-                        Previous FCM Token
-                      </div>
-                      <p className="text-lg text-gray-900 break-all">{user.old_fcm_token}</p>
-                    </motion.div>
-                  )}
-                </>
-              )}
-
-              <div className="flex justify-end">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => router.push('/users')}
-                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-300 font-medium"
-                >
-                  Back to Users
-                </motion.button>
-              </div>
-            </motion.div>
+               {/* Activity Logs */}
+               <div className="bg-white rounded-3xl shadow-xl shadow-blue-50/50 border border-gray-100 overflow-hidden">
+                  <div className="px-8 py-6 border-b border-gray-100 bg-gray-50/30">
+                     <h3 className="font-bold text-gray-800 text-xl flex items-center gap-2">
+                        <ClockIcon className="w-6 h-6 text-green-600" />
+                        Session Analytics
+                     </h3>
+                  </div>
+                  <div className="p-8 space-y-6">
+                     <div className="flex flex-col md:flex-row gap-8">
+                        <div className="flex-1 flex gap-4 p-5 rounded-2xl bg-green-50/50 border border-green-100">
+                           <div className="p-3 bg-green-600 rounded-xl self-start"><ClockIcon className="w-6 h-6 text-white" /></div>
+                           <div>
+                              <p className="text-xs text-green-700 font-bold uppercase tracking-wider mb-1">Most Recent Access</p>
+                              <p className="text-xl font-black text-gray-900">
+                                 {user.last_login_at ? new Date(user.last_login_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : 'Never Logged In'}
+                              </p>
+                           </div>
+                        </div>
+                        <div className="flex-1 flex gap-4 p-5 rounded-2xl bg-blue-50/50 border border-blue-100">
+                           <div className="p-3 bg-blue-600 rounded-xl self-start"><GlobeAltIcon className="w-6 h-6 text-white" /></div>
+                           <div>
+                              <p className="text-xs text-blue-700 font-bold uppercase tracking-wider mb-1">Incoming IP Address</p>
+                              <p className="text-xl font-black text-gray-900">{user.last_login_ip || 'X.X.X.X'}</p>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
           </div>
         </motion.div>
       </div>
+    </div>
+  );
+}
+
+function DetailItem({ icon, label, value }: { icon: any, label: string, value: string }) {
+  return (
+    <div className="flex gap-4">
+      <div className="p-2 bg-gray-100 text-gray-500 rounded-xl h-fit">{icon}</div>
+      <div>
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-tight mb-0.5">{label}</p>
+        <p className="text-base font-bold text-gray-800 break-all">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function HardwareCard({ icon, label, value, sub }: { icon: any, label: string, value: string, sub: string }) {
+  return (
+    <div className="p-6 rounded-2xl border border-gray-100 bg-gray-50/50 hover:bg-white hover:shadow-lg hover:border-indigo-100 transition-all duration-300">
+      <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg w-fit mb-4">{icon}</div>
+      <p className="text-xs font-black text-gray-400 uppercase mb-1">{label}</p>
+      <p className="text-lg font-bold text-gray-900 mb-1">{value}</p>
+      <p className="text-[10px] text-gray-400 font-medium">{sub}</p>
     </div>
   );
 }

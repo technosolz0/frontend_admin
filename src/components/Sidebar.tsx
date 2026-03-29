@@ -189,6 +189,8 @@ const menuItems: MenuItem[] = [
   { name: 'Sub Categories', href: '/sub-categories' },
   { name: 'Bookings', href: '/bookings' },
   { name: 'Payments', href: '/payments' },
+  { name: 'Reports', href: '/reports' },
+  { name: 'Reviews', href: '/reviews' },
   {
     name: 'Marketing',
     href: '/marketing',
